@@ -1,10 +1,10 @@
 # Python-Microblocks
 
-#Explanation
+# Explanation
 This module is created in order to make it simple
 and easier to run functions in parallel or in sequential.
 
-#Usage
+# Usage
 If you wish to run functions in parallel, call the function:
 `start_parallel` when the first parameters is 
 iterable data structure (like tuple or list) 
