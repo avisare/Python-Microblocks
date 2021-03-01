@@ -5,7 +5,7 @@ This package can use in order to connect and control remote machine
 and make it to publish specific topics to the shared memory of the machine
 or to get specific topics from the shared memory of the machine
 
-#Usage
+# Usage
 In the test_remote_shared_memory.py file yoou can found example of use of all the
 functions within the client and server classes.
 The main function are recieve and send in order to send to the server message
