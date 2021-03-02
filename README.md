@@ -229,7 +229,7 @@ Clear the history a particular topic. All 'get' functions will fail until new pu
 
 **Returns:** true if topic exists, false otherwise
 ___
-#Try it yourself
+# Try it yourself
 There is an example.py file in the download folder, open and run it
 > If you would like to hear more about the wrapper, or you are facing any kind of problem with it, reach me whenever you want.
 > @Noam Mizrahi
