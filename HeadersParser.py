@@ -40,12 +40,11 @@ class Parser:
         self._write_cpp_implementation_file(struct, functions_signature, vector_sizes, vector_names)
 
     def _write_cpp_implementation_file(self, struct, functions_definition, vector_sizes, vector_names):
-        for function_name in functions_definition:
-            if "get" not in function_name and "set" not in function_name and "update" not in function_name:
-                function_name = struct.full_name + "::" + function_name
+        for return_type, function_signature in functions_definition:
+            if "get" not in function_signature and "set" not in function_signature and "update" not in function_signature:
+                function_name = struct.full_name + "::" + function_signature
             else:
-                function_name = function_name[:function_name.find(" ")] + " " + struct.full_name + "::" +\
-                                function_name[function_name.find(" ") + 1:]
+                function_name = function_signature[:function_signature.find(return_type) + len(return_type) + 1] + struct.full_name + "::" + function_signature[function_signature.find(return_type) + len(return_type) + 1:]
             if "update" in function_name:
                 self._writer.write_update_function_implementation(struct, function_name, vector_sizes, vector_names)
             else:
@@ -93,6 +92,7 @@ class Parser:
             if struct.need_smt_functions:
                 self._writer.write_overload_smt_functions(struct.name, struct.full_name)
         self._writer.write_class_call(self._structures)
+        self._writer.write_file_ending()
         self._writer.write_includes(self._include_files)
 
     def initialize_structures(self, headers_files):
@@ -117,6 +117,7 @@ class Parser:
                     self._structures.append(Struct(struct_content["namespace"], struct_name, struct_variables,
                                                    False, struct_content["namespace"], index == 1))
             index += 1
+        self._writer.set_structures(self._structures)
 
     def initialize_generic_topic_functions(self):
         generic_functions = ("SMT_Version", "SMT_Init", "SMT_Show", "SMT_CreateTopic",

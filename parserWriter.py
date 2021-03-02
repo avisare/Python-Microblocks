@@ -2,14 +2,23 @@
 
 class ParserWriter:
     def __init__(self):
-        self._pybind_classes_file = open("pybindClassesFile.cpp", "w")
-        self._class_definition_file = open("classDefinitionFile.h", "w")
-        self._class_implementation_file = open("classImplementationFile.cpp", "w")
-        self._wrapping_functions_file = open("WrapperFunctionsFile.h", "w")
+        self._structures = list()
+        self._pybind_classes_file = open("SharedMemoryWrapper.cpp", "w")
+        self._class_definition_file = open("GenericWrapperHandler.h", "w")
+        self._class_implementation_file = open("GenericWrapperHandler.cpp", "w")
+        self._wrapping_functions_file = open("WrapperFunctions.h", "w")
+
+    def set_structures(self, structures):
+        self._structures = structures
 
     def write_includes(self, include_files):
         self._pybind_classes_file.close()
-        with open("pybindClassesFile.cpp", "r+") as main_file:
+        self._class_definition_file.close()
+        self._class_implementation_file.close()
+        self._wrapping_functions_file.close()
+        outer_includes = ["SharedMemoryStructs.h"]
+        outer_include_files = [f'#include "{include_file_path}"\n' for include_file_path in outer_includes]
+        with open("SharedMemoryWrapper.cpp", "r+") as main_file:
             content = main_file.read()
             main_file.seek(0, 0)
             main_file.write('#include "stdafx.h"\n')
@@ -19,6 +28,23 @@ class ParserWriter:
                             '#include <pybind11\pybind11.h>\n\n#include <pybind11\stl.h>\n\n'
                             '#include <pybind11\stl_bind.h>\n\n#include <iostream>\n\n')
             main_file.write(content)
+        with open("GenericWrapperHandler.cpp", "r+") as wrapper_class_implementation:
+            content = wrapper_class_implementation.read()
+            wrapper_class_implementation.seek(0, 0)
+            wrapper_class_implementation.write('#include "stdafx.h"\n#include "GenericWrapperHandler.h"\n#include <iostream>\n')
+            wrapper_class_implementation.write(content)
+
+        with open("GenericWrapperHandler.h", "r+") as wrapper_functions_definition_file:
+            content = wrapper_functions_definition_file.read()
+            wrapper_functions_definition_file.seek(0, 0)
+            wrapper_functions_definition_file.write(f'#pragma once\n{"".join(outer_include_files)}\n#include <pybind11/pybind11.h>\n#include <pybind11/stl.h>\n')
+            wrapper_functions_definition_file.write(content)
+
+        with open("WrapperFunctions.h", "r+") as wrapper_functions_file:
+            content = wrapper_functions_file.read()
+            wrapper_functions_file.seek(0, 0)
+            wrapper_functions_file.write(f'#pragma once\n#include "Shared_Memory_Topics_API.h"\n#include <pybind11/pybind11.h>\n#include <pybind11/stl.h>\n#include <pybind11/stl_bind.h>\n#include <iostream>\n')
+            wrapper_functions_file.write(content)
 
     def write_generic_function(self, function_name):
         self._pybind_classes_file.write(
@@ -63,7 +89,13 @@ class ParserWriter:
                 if variable["array"]:
                     class_file.write(f'\n\t\t\tobj.{variable["name"]} = t[{tuple_index}].cast<std::vector<{variable["type"]}>>();')
                 elif "struct" in variable["type"]:
-                    class_file.write(f'\n\t\t\tobj.set{variable["name"]}(t[{tuple_index}].cast<{variable["type"][variable["type"].find("struct") + len("struct") + 1:]}Wrapper>());')
+                    inner_struct = self._find_struct(variable["type"][variable["type"].find("struct") + len("struct") + 1:])
+                    if inner_struct is not None and inner_struct.have_wrapper:
+                        class_file.write(f'\n\t\t\tobj.set{variable["name"]}(t[{tuple_index}].cast<{variable["type"][variable["type"].find("struct") + len("struct") + 1:]}Wrapper>());')
+                    elif inner_struct is not None:
+                        class_file.write(f'\n\t\t\tobj.set{variable["name"]}(t[{tuple_index}].cast<{variable["type"][variable["type"].find("struct") + len("struct") + 1:]}>());')
+                    else:
+                        print(f"Error occured, struct name {variable['type']} wasn't found")
                 else:
                     class_file.write(f'\n\t\t\tobj.set{variable["name"]}(t[{tuple_index}].cast<{variable["type"]}>());')
                 tuple_index += 1
@@ -90,9 +122,6 @@ class ParserWriter:
                 class_file.write(f'\n\t\t\tobj.{variable["name"]} = t[{tuple_index}].cast<{variable["type"]}>();')
                 tuple_index += 1
             class_file.write("\n\t\t\treturn obj;\n\t\t}\n\t\t));\n")
-            if not struct.need_smt_functions:
-                class_file.write("}")
-
             if not struct.need_smt_functions:
                 class_file.write("}")
 
@@ -199,38 +228,40 @@ class ParserWriter:
         [self.write_function(smt_function_signature, smt_function_call) for smt_function_signature, smt_function_call in smt_functions_signature]
 
     def write_update_functions_signatures(self, functions_signature):
-        functions_signature.append("void updatePublish()")
-        self._class_definition_file.write(f"\t{functions_signature[-1]};\n")
-        functions_signature.append("void updateGet()")
-        self._class_definition_file.write(f"\t{functions_signature[-1]};")
+        functions_signature.append(("void", "void updatePublish()"))
+        self._class_definition_file.write(f"\t{functions_signature[-1][1]};\n")
+        functions_signature.append(("void", "void updateGet()"))
+        self._class_definition_file.write(f"\t{functions_signature[-1][1]};")
 
     def write_class_prefix(self, struct, functions_signature):
         class_name = struct.name + "Wrapper"
         self._class_definition_file.write(f"\nclass {class_name}\n")
         self._class_definition_file.write("{\npublic:\n\t")
-        functions_signature.append(f"{class_name}()")
-        self._class_definition_file.write(f"{functions_signature[-1]};\n")
+        functions_signature.append(("", f"{class_name}()"))
+        self._class_definition_file.write(f"{functions_signature[-1][1]};\n")
 
     def write_vector(self, vector_type, vector_name):
         self._class_definition_file.write(f"\n\tstd::vector<{vector_type}> {vector_name};")
 
     def write_inner_struct(self, functions_signature, inner_structs, variable):
         struct_wrapper_class = variable["type"][variable["type"].find("struct") + len("struct") + 1:] + "Wrapper"
-        functions_signature.append(f"{struct_wrapper_class}& get{variable['name']}() const")
-        self._class_definition_file.write(f"\n\t{functions_signature[-1]};")
-        functions_signature.append(f"void set{variable['name']}({struct_wrapper_class} set{variable['name']})")
-        self._class_definition_file.write(f"\n\t{functions_signature[-1]};")
+        functions_signature.append((f"{struct_wrapper_class}&", f"{struct_wrapper_class}& get{variable['name']}()"))
+        self._class_definition_file.write(f"\n\t{functions_signature[-1][1]};")
+        functions_signature.append((f"{struct_wrapper_class}", f"{struct_wrapper_class} get{variable['name']}Const() const"))
+        self._class_definition_file.write(f"\n\t{functions_signature[-1][1]};")
+        functions_signature.append(("void", f"void set{variable['name']}({struct_wrapper_class} set{variable['name']})"))
+        self._class_definition_file.write(f"\n\t{functions_signature[-1][1]};")
         inner_structs.append((struct_wrapper_class, variable['name']))
 
     def write_class_variable(self, functions_signature, variable):
-        functions_signature.append(f"{variable['type']} get{variable['name']}() const")
-        self._class_definition_file.write(f"\n\t{functions_signature[-1]};")
-        functions_signature.append(f"void set{variable['name']}({variable['type']} setVar{variable['name']})")
-        self._class_definition_file.write(f"\n\t{functions_signature[-1]};")
+        functions_signature.append((f"{variable['type']}",f"{variable['type']} get{variable['name']}() const"))
+        self._class_definition_file.write(f"\n\t{functions_signature[-1][1]};")
+        functions_signature.append(("void", f"void set{variable['name']}({variable['type']} setVar{variable['name']})"))
+        self._class_definition_file.write(f"\n\t{functions_signature[-1][1]};")
 
     def write_get_class_pointer(self, struct, functions_signature):
-        functions_signature.append(f"{struct.namespace}::{struct.name}* get{struct.name}Ptr()")
-        self._class_definition_file.write(f"\n\t{functions_signature[-1]};")
+        functions_signature.append((f'{struct.namespace}::{struct.name}*', f"{struct.namespace}::{struct.name}* get{struct.name}Ptr()"))
+        self._class_definition_file.write(f"\n\t{functions_signature[-1][1]};")
 
     def write_class_private(self, struct):
         self._class_definition_file.write(f"\nprivate:\n\t{struct.namespace}::{struct.name} _{struct.name};\n")
@@ -278,11 +309,12 @@ class ParserWriter:
         return_type = function_name[:function_name.find(" ")].strip()
         if "Ptr" in function_name:
             self._class_implementation_file.write(f"return &_{struct.name};\n")
-
+        elif "Const" in variable_name:
+            self._class_implementation_file.write(f"return _{variable_name[:variable_name.find('Const')]};\n")
         elif function_name.count("Wrapper") == 2:
             self._class_implementation_file.write(f"return _{variable_name};\n")
         elif return_type == "float":
-            self._class_implementation_file.write(f"return _{struct.name}.{variable_name} * 1000000;\n")
+            self._class_implementation_file.write(f"return _{struct.name}.{variable_name};\n")
         else:
             self._class_implementation_file.write(f"return _{struct.name}.{variable_name};\n")
         self._class_implementation_file.write("}\n")
@@ -319,7 +351,17 @@ class ParserWriter:
     def write_class_call(self, structs):
         [self._pybind_classes_file.write(f"\n\n\t{struct.name}ClassRunner(SharedMemoryWrapperModule);") for struct in structs]
 
+    def _find_struct(self, struct_name):
+        for struct in self._structures:
+            if struct.name == struct_name:
+                return struct
+        return None
+
+    def write_file_ending(self):
+        self._pybind_classes_file.write("\n}")
+
     def __del__(self):
+        self._pybind_classes_file.close()
         self._class_definition_file.close()
         self._class_implementation_file.close()
         self._wrapping_functions_file.close()

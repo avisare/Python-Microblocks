@@ -26,7 +26,8 @@ void testStructOneClassRunner(py::module & SharedMemoryWrapperModule)
 			obj.character = t[2].cast<char>();
 			return obj;
 		}
-		));	SharedMemoryWrapperModule.def("oldestRx", py::overload_cast<sm_data::testStructOne&, SMT_DataInfo&>(&GetOldest),py::return_value_policy::copy);
+		));
+	SharedMemoryWrapperModule.def("oldestRx", py::overload_cast<sm_data::testStructOne&, SMT_DataInfo&>(&GetOldest),py::return_value_policy::copy);
 	SharedMemoryWrapperModule.def("getOldest", py::overload_cast<sm_data::testStructOne&, SMT_DataInfo&>(&GetOldest),py::return_value_policy::copy);
 	SharedMemoryWrapperModule.def("getOldest", py::overload_cast<sm_data::testStructOne&>(&GetOldest),py::return_value_policy::copy);
 	SharedMemoryWrapperModule.def("oldestRx", py::overload_cast<sm_data::testStructOne&>(&GetOldest),py::return_value_policy::copy);

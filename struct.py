@@ -10,5 +10,8 @@ class Struct:
         if have_wrapper:
             self.full_name = struct_name + suffix
         else:
-            self.full_name = suffix + "::" + struct_name
+            if suffix == "":
+                self.full_name = struct_name
+            else:
+                self.full_name = suffix + "::" + struct_name
 

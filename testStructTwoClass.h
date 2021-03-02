@@ -18,14 +18,14 @@ void testStructTwoClassRunner(py::module & SharedMemoryWrapperModule)
 		.def_property("structThree", &testStructTwoWrapper::getstructThree, &testStructTwoWrapper::setstructThree, py::return_value_policy::reference)
 		.def(py::pickle(
 			[](const testStructTwoWrapper &obj){
-			return py::make_tuple(obj.getlongNumber(),obj.getuintNumber(),obj.getboolean(),obj.getstructThree());
+			return py::make_tuple(obj.getlongNumber(),obj.getuintNumber(),obj.getboolean(),obj.getstructThreeConst());
 		},
 			[](py::tuple t){
 			testStructTwoWrapper obj = testStructTwoWrapper();
 			obj.setlongNumber(t[0].cast<long>());
 			obj.setuintNumber(t[1].cast<unsigned int>());
 			obj.setboolean(t[2].cast<bool>());
-			obj.setstructThree(t[3].cast<struct testStructThree>());
+			obj.setstructThree(t[3].cast<testStructThreeWrapper>());
 			return obj;
 		}
 		));
