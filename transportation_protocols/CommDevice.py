@@ -1,19 +1,11 @@
+import abc
 
 
-class CommDeviceMeta(type):
-    def __instancecheck__(cls, instance):
-        return cls.__subclasscheck__(type(instance))
-
-    def __subclasscheck__(cls, subclass):
-        return (hasattr(subclass, 'send') and
-                callable(subclass.send) and
-                hasattr(subclass, 'receive') and
-                callable(subclass.receive))
-
-
-class CommDeviceInterface(metaclass=CommDeviceMeta):
+class CommDeviceInterface(metaclass=abc.ABCMeta):
+    @abc.abstractmethod
     def send(self, message):
         pass
 
+    @abc.abstractmethod
     def receive(self, buffer_size: 'int', timeout: 'float' = None):
         pass
