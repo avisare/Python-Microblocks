@@ -14,17 +14,14 @@ class TCP_Connection:
         else:
             connection_socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
             connection_socket.bind((self._destination_ip, self._destination_port))
-            print(f"Waiting for a client to connect to ip {self._destination_ip} and port {self._destination_port}")
             connection_socket.listen(1)
             self._tcp_connection, self._client_address = connection_socket.accept()
-        print("Connected")
 
     def send(self, message):
         self._tcp_connection.sendall(message.encode('utf-8'))
 
     def receive(self, buffer_size, timeout=None):
         self._tcp_connection.settimeout(timeout)
-        print(f"Wating for message from ip {self._destination_ip} and port {self._destination_port}")
         packet = self._tcp_connection.recv(buffer_size).decode('utf-8')
         self._tcp_connection.settimeout(None)
         return packet

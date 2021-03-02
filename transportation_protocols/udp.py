@@ -22,7 +22,6 @@ class UDP_Connection:
 
     def receive(self, buffer_size, timeout=None):
         self._udp_connection.settimeout(timeout)
-        print(f"Wating for message from port {self._destination_port}")
         packet, self._address = self._udp_connection.recvfrom(buffer_size)
         self._udp_connection.settimeout(None)
         packet = packet.decode('utf-8')
