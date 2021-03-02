@@ -1,7 +1,9 @@
 import socket
+import pickle
+from CommDevice import CommDeviceInterface
 
 
-class UDP_Connection:
+class UDP_Connection(CommDeviceInterface):
 
     local_ip = "127.0.0.1"
 
@@ -16,15 +18,24 @@ class UDP_Connection:
 
     def send(self, message):
         if self._is_client:
-            self._udp_connection.sendto(message.encode('utf-8'), (self._destination_ip, self._destination_port))
+            if isinstance(message, str):
+                self._udp_connection.sendto(message.encode('utf-8'), (self._destination_ip, self._destination_port))
+            else:
+                self._udp_connection.sendto(pickle.dumps(message), (self._destination_ip, self._destination_port))
         else:
-            self._udp_connection.sendto(message.encode('utf-8'), self._address)
+            if isinstance(message, str):
+                self._udp_connection.sendto(message.encode('utf-8'), self._address)
+            else:
+                self._udp_connection.sendto(pickle.dumps(message), self._address)
 
-    def receive(self, buffer_size, timeout=None):
+    def receive(self, buffer_size: 'int', timeout: 'float' = None):
         self._udp_connection.settimeout(timeout)
         packet, self._address = self._udp_connection.recvfrom(buffer_size)
         self._udp_connection.settimeout(None)
-        packet = packet.decode('utf-8')
+        try:
+            packet = packet.decode('utf-8')
+        except UnicodeDecodeError:
+            packet = pickle.loads(packet)
         return packet
 
     def __del__(self):
