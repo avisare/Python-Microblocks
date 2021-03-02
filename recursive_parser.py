@@ -6,17 +6,24 @@ class RecursiveParser:
 
     def __init__(self, main_file_path):
         self._main_file = open(main_file_path, "r")
-        self._includes = [main_file_path]
+        self._includes = list()
 
-    def _get_includes_files(self):
-        for line in self._main_file:
-            if "#include" in line:
-                include_file = line[line.find('#include "') + len('#include "'):line.rfind('"')]
-                if path.exists(include_file):
-                    self._includes.append(include_file)
+    def get_includes_recursive(self, includes, file_path):
+        with open(file_path, "r") as sub_file:
+            for line in sub_file:
+                if "#include" in line:
+                    include_file = line[line.find('#include "') + len('#include "'):line.rfind('"')]
+                    if path.exists(include_file) and include_file not in includes:
+                        self._includes.append(include_file)
+                        self.get_includes_recursive(includes, include_file)
 
     def parse(self):
-        self._get_includes_files()
+        temp_include_files = list()
+        self.get_includes_recursive(temp_include_files, self._main_file)
+        if self._main_file in temp_include_files:
+            temp_include_files.remove(self._main_file)
+        temp_include_files.append(self._main_file)
+        self._includes = temp_include_files
         parser = Parser(self._includes[-1])
         parser.initialize_structures(self._includes)
         parser.parse()
