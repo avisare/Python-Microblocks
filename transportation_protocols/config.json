@@ -1,6 +1,0 @@
-{
-  "mode": "Initiator",
-  "remote_ip": "127.0.0.1",
-  "remote_port": 1234,
-  "connection_type": "TCP"
-}
