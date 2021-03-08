@@ -33,10 +33,8 @@ class SharedMemoryServer:
         }
 
     def start_server(self):
-        while True:
             server_client_connection = ConnectionFactory.get_connection()
-            client_thread = Thread(target=self._handle_client, args=(server_client_connection,))
-            client_thread.start()
+            self._handle_client(server_client_connection)
 
     def _handle_client(self, connection):
         while True:

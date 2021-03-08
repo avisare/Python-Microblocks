@@ -1,5 +1,5 @@
 import socket
-from json_python import json_helper
+from json_python.json_helper import JsonHelper
 from .tcp import TCPConnection
 from .udp import UDPConnection
 from .transportation_protocols_exception import FunctionNotFound, ArgumentMustBeInteger
@@ -8,8 +8,8 @@ from .transportation_protocols_exception import FunctionNotFound, ArgumentMustBe
 class ConnectionFactory:
     @staticmethod
     def get_connection():
-        connection_mode = json_helper.JsonHelper.get_string("mode", "config.json")
-        connection_type = json_helper.JsonHelper.get_string("connection_type", "config.json")
+        connection_mode = JsonHelper.get_string("mode", "config.json")
+        connection_type = JsonHelper.get_string("connection_type", "config.json")
         function_name = f"_get_{connection_type}_{connection_mode}"
         if function_name in dir(ConnectionFactory):
             return getattr(ConnectionFactory, function_name)()
@@ -18,8 +18,8 @@ class ConnectionFactory:
 
     @staticmethod
     def _get_TCP_initiator():
-        remote_ip = json_helper.JsonHelper.get_string("responder_ip", "config.json")
-        remote_port = json_helper.JsonHelper.get_value("responder_port", "config.json")
+        remote_ip = JsonHelper.get_string("responder_ip", "config.json")
+        remote_port = JsonHelper.get_value("responder_port", "config.json")
         if type(remote_port) != int:
             raise ArgumentMustBeInteger("port address")
         tcp_connection = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
@@ -28,8 +28,8 @@ class ConnectionFactory:
 
     @staticmethod
     def _get_UDP_initiator():
-        remote_ip = json_helper.JsonHelper.get_string("responder_ip", "config.json")
-        remote_port = json_helper.JsonHelper.get_value("responder_port", "config.json")
+        remote_ip = JsonHelper.get_string("responder_ip", "config.json")
+        remote_port = JsonHelper.get_value("responder_port", "config.json")
         if type(remote_port) != int:
             raise ArgumentMustBeInteger("port address")
         udp_connection = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
@@ -37,8 +37,8 @@ class ConnectionFactory:
 
     @staticmethod
     def _get_TCP_responder():
-        local_ip = json_helper.JsonHelper.get_string("responder_ip", "config.json")
-        local_port = json_helper.JsonHelper.get_value("responder_port", "config.json")
+        local_ip = JsonHelper.get_string("responder_ip", "config.json")
+        local_port = JsonHelper.get_value("responder_port", "config.json")
         if type(local_port) != int:
             raise ArgumentMustBeInteger("port address")
         tcp_socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
@@ -49,12 +49,12 @@ class ConnectionFactory:
 
     @staticmethod
     def _get_UDP_responder():
-        local_ip = json_helper.JsonHelper.get_string("responder_ip", "config.json")
-        local_port = json_helper.JsonHelper.get_value("responder_port", "config.json")
+        local_ip = JsonHelper.get_string("responder_ip", "config.json")
+        local_port = JsonHelper.get_value("responder_port", "config.json")
         if type(local_port) != int:
             raise ArgumentMustBeInteger("port address")
-        destination_ip = json_helper.JsonHelper.get_string("initiator_ip", "config.json")
-        destination_port = json_helper.JsonHelper.get_value("initiator_port", "config.json")
+        destination_ip = JsonHelper.get_string("initiator_ip", "config.json")
+        destination_port = JsonHelper.get_value("initiator_port", "config.json")
         udp_connection = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
         udp_connection.bind((local_ip, local_port))
         return UDPConnection(udp_connection, destination_ip, destination_port)
