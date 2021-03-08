@@ -9,7 +9,6 @@ class Test:
         self._init_memory()
         self._shared_memory_objects = list()
 
-
     def _create_topic(self):
         print("Create a new topic to the shared memory called SharedMemoryContent")
         self._client.SMT_CreateTopic("SharedMemoryContent", 40, 3, 10)
@@ -95,7 +94,7 @@ def main():
         server.start_server()
 
     else:
-        client = SharedMemoryClient(1234)
+        client = SharedMemoryClient()
         test = Test(client)
         test.run_test()
 

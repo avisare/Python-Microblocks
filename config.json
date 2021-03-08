@@ -1,0 +1,10 @@
+{
+  "mode": "initiator",
+  "initiator_ip": "127.0.0.1",
+  "initiator_port": 1234,
+  "responder_ip": "127.0.0.1",
+  "responder_port": 1234,
+  "connection_type": "TCP",
+  "timeout": 20,
+  "buffer_size": 1024
+}

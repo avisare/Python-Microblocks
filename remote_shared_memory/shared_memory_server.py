@@ -1,6 +1,6 @@
 from threading import Thread
 from pickle import loads, dumps
-from tcp_communication import TCP_Connection
+from transportation_protocols.connection_factory import ConnectionFactory
 from messages import Request, Response
 import SharedMemoryWrapper
 
@@ -34,13 +34,13 @@ class SharedMemoryServer:
 
     def start_server(self):
         while True:
-            server_client_connection = TCP_Connection(1234, False)
+            server_client_connection = ConnectionFactory.get_connection()
             client_thread = Thread(target=self._handle_client, args=(server_client_connection,))
             client_thread.start()
 
     def _handle_client(self, connection):
         while True:
-            client_request = connection.receive(self.BUFFER_SIZE)
+            client_request = connection.receive()
             parsed_request = self._parse_request(client_request)
             if parsed_request and self._is_valid_request(parsed_request):
                 if parsed_request.request_code == self.EXIT:
