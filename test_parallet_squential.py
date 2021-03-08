@@ -1,5 +1,6 @@
 import sequential_parallel
 from time import sleep
+from datetime import time
 from function_object import FunctionObject
 
 
@@ -33,7 +34,7 @@ def main():
     last_letter_printer = FunctionObject(print_last_letters, ())
     times_str_printer = FunctionObject(print_times_str, ("hello", 3))
     sleep_without_timeout = FunctionObject(sleep_thirty_seconds, ())
-    sleep_with_timeout = FunctionObject(sleep_thirty_seconds, (), 3)
+    sleep_with_timeout = FunctionObject(sleep_thirty_seconds, (), time(second=3))
     sequential_parallel.start_sequential(first_letters_printer, last_letter_printer,
                                          times_str_printer, sleep_without_timeout)
     print("start parallel")
