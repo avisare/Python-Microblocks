@@ -1,29 +1,23 @@
-import socket
 import pickle
-from CommDevice import CommDeviceInterface
+from .comm_device import CommDeviceInterface
 
 
-class UDP_Connection(CommDeviceInterface):
+class UDPConnection(CommDeviceInterface):
 
-    def __init__(self, udp_connection):
+    def __init__(self, udp_connection, destination_ip, destination_port):
         self._udp_connection = udp_connection
+        self._destination_ip = destination_ip
+        self._destination_port = destination_port
+        super().__init__()
 
     def send(self, message):
         self._udp_connection.sendto(pickle.dumps(message), (self._destination_ip, self._destination_port))
 
-    def receive(self, buffer_size: 'int', timeout: 'float' = None):
-        self._udp_connection.settimeout(timeout)
-        packet, self._address = self._udp_connection.recvfrom(buffer_size)
+    def receive(self):
+        self._udp_connection.settimeout(self._timeout)
+        packet, address = self._udp_connection.recvfrom(self._buffer_size)
         self._udp_connection.settimeout(None)
-        packet = pickle.loads(packet)
-        return packet
+        return pickle.loads(packet)
 
     def __del__(self):
         self._udp_connection.close()
-
-
-def is_number_argument(argument):
-    return argument.isnumeric()
-
-
-

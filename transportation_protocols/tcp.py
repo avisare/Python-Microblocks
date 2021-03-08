@@ -1,17 +1,18 @@
 import pickle
-from CommDevice import CommDeviceInterface
+from .comm_device import CommDeviceInterface
 
 
 class TCPConnection(CommDeviceInterface):
     def __init__(self, tcp_connection):
         self._tcp_connection = tcp_connection
+        super().__init__()
 
     def send(self, message):
-        self._tcp_connection.sendall(pickle.loads(message))
+        self._tcp_connection.sendall(pickle.dumps(message))
 
-    def receive(self, buffer_size: 'int', timeout: 'float' = None):
-        self._tcp_connection.settimeout(timeout)
-        packet = self._tcp_connection.recv(buffer_size)
+    def receive(self):
+        self._tcp_connection.settimeout(self._timeout)
+        packet = self._tcp_connection.recv(self._buffer_size)
         packet = pickle.loads(packet)
         self._tcp_connection.settimeout(None)
         return packet
@@ -19,7 +20,4 @@ class TCPConnection(CommDeviceInterface):
     def __del__(self):
         self._tcp_connection.close()
 
-
-def is_number_argument(argument):
-    return argument.isnumeric()
 
