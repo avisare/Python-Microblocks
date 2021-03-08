@@ -2,6 +2,7 @@ import abc
 
 
 class CommDeviceInterface(metaclass=abc.ABCMeta):
+
     @abc.abstractmethod
     def send(self, message):
         pass

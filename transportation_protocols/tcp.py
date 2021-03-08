@@ -2,7 +2,7 @@ import pickle
 from CommDevice import CommDeviceInterface
 
 
-class TCP_Connection(CommDeviceInterface):
+class TCPConnection(CommDeviceInterface):
     def __init__(self, tcp_connection):
         self._tcp_connection = tcp_connection
 
