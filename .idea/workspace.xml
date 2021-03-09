@@ -3,9 +3,10 @@
   <component name="ChangeListManager">
     <list default="true" id="648efb22-c2ea-4387-b697-0aad0b4bbc43" name="Default Changelist" comment="">
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/pypsexec_client.py" beforeDir="false" afterPath="$PROJECT_DIR$/pypsexec_client.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/pypsexec_client/config.json" beforeDir="false" afterPath="$PROJECT_DIR$/pypsexec_client/config.json" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/pypsexec_client/start_client.py" beforeDir="false" afterPath="$PROJECT_DIR$/pypsexec_client/start_client.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/transportation_protocols/connection_factory.py" beforeDir="false" afterPath="$PROJECT_DIR$/transportation_protocols/connection_factory.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/transportation_protocols/tcp.py" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/transportation_protocols/tcp_strict.py" beforeDir="false" afterPath="$PROJECT_DIR$/transportation_protocols/tcp_strict.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/transportation_protocols/udp.py" beforeDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -187,8 +188,8 @@
     <recent_temporary>
       <list>
         <item itemvalue="Python.start_client" />
-        <item itemvalue="Python.shared_memory_client" />
         <item itemvalue="Python.pypsexec_client" />
+        <item itemvalue="Python.shared_memory_client" />
         <item itemvalue="Python.test_parallet_squential" />
         <item itemvalue="Python.test_remote_shared_memory" />
       </list>

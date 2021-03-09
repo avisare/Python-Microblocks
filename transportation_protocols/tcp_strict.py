@@ -3,10 +3,8 @@ from .comm_device import CommDeviceInterface
 
 
 class TCPStrictConnection(CommDeviceInterface):
-    def __init__(self, tcp_connection, destination_ip, destination_port):
+    def __init__(self, tcp_connection):
         self._tcp_connection = tcp_connection
-        self._destination_ip = destination_ip
-        self._destination_port = destination_port
         super().__init__()
 
     def send(self, message):
@@ -21,3 +19,5 @@ class TCPStrictConnection(CommDeviceInterface):
 
     def __del__(self):
         self._tcp_connection.close()
+
+
