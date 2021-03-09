@@ -4,8 +4,8 @@ from .comm_device import CommDeviceInterface
 
 class TCPStrictConnection(CommDeviceInterface):
     def __init__(self, tcp_connection):
-        self._tcp_connection = tcp_connection
         super().__init__()
+        self._tcp_connection = tcp_connection
 
     def send(self, message):
         self._tcp_connection.sendall(pickle.dumps(message))

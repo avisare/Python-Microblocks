@@ -16,7 +16,7 @@ class SharedMemoryClient:
     SMT_CLEAR_HISTORY = 9
     EXIT = 999
 
-    def __init__(self):
+    def __init__(self, ):
         self._connection = ConnectionFactory.get_connection()
 
     def SMT_Init(self):

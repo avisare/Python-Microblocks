@@ -1,17 +1,14 @@
 import abc
-from json_python import json_helper
+from datetime import time
 from .transportation_protocols_exception import ArgumentMustBeInteger
 
 
 class CommDeviceInterface(metaclass=abc.ABCMeta):
 
-    def __init__(self):
-        self._timeout = json_helper.JsonHelper.get_value("timeout", "config.json")
-        self._buffer_size = json_helper.JsonHelper.get_value("buffer_size", "config.json")
-        if type(self._timeout) != int:
-            raise ArgumentMustBeInteger("timeout")
-        if type(self._buffer_size) != int:
-            raise ArgumentMustBeInteger("buffer size")
+    SECONDS 
+    def __init__(self, timeout: "time", buffer_size: "int"):
+        self._timeout = timeout
+        self._buffer_size_seconds = buffer_size.hour *
 
     @abc.abstractmethod
     def send(self, message):

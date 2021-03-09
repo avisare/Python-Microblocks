@@ -1,6 +1,6 @@
 {
   "control": "remote",
-  "mode": "initiator",
+  "mode": "strict",
   "initiator_ip": "127.0.0.1",
   "topics": ["testStructOne", "SharedMemoryContent"],
   "testStructOne":

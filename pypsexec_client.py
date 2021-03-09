@@ -10,7 +10,7 @@ try:
     # reconnecting
 
     #stdout, stderr, rc = c.run_executable("cmd.exe", arguments="/c echo hello world")
-    stdout, stderr, rc = c.run_executable("cmd.exe", arguments="/c cd.. & cd.. & cd test_remote & py start_server.py")
+    stdout, stderr, rc = c.run_executable("cmd.exe", arguments="/c cd.. & cd.. & cd test_remote & start py start_server.py")
     print(stdout, stderr)
 
 finally:

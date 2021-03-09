@@ -4,7 +4,7 @@ from json_python import JsonHelper
 import SharedMemoryWrapper
 
 
-def getSharedMemory():
+def get_shared_memory():
     control_method = JsonHelper.get_string("control", "config.json")
     if control_method == "remote":
         return SharedMemoryClient()
