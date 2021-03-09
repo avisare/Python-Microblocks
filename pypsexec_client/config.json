@@ -1,4 +1,5 @@
 {
+  "control": "remote",
   "mode": "initiator",
   "initiator_ip": "127.0.0.1",
   "initiator_port": 1234,

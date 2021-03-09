@@ -1,5 +1,5 @@
 import SharedMemoryWrapper
-from shared_memory_client import SharedMemoryClient
+from shared_memory_factory import getSharedMemory
 
 
 class Test:
@@ -87,7 +87,7 @@ class Test:
 
 
 def main():
-    client = SharedMemoryClient()
+    client = getSharedMemory()
     test = Test(client)
     test.run_test()
 

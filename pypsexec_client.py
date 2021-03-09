@@ -15,9 +15,6 @@ try:
     stdout, stderr, rc = c.run_executable("cmd.exe", arguments="/c cd.. & cd.. & cd test_remote & py start_server.py")
     print(stdout, stderr)
 
-    # run whoami.exe as the SYSTEM account
-    stdout, stderr, rc = c.run_executable("whoami.exe", use_system_account=True)
-    print(stdout)
 finally:
     c.remove_service()
     c.disconnect()
