@@ -1,11 +1,10 @@
 import SharedMemoryWrapper
-from shared_memory_factory import getSharedMemory
+from shared_memory_factory import getSharedMemory, initialize_shared_memory
 
 
 class Test:
     def __init__(self, client):
         self._client = client
-        self._init_memory()
         self._shared_memory_objects = list()
 
     def _create_topic(self):
@@ -78,7 +77,6 @@ class Test:
         self._client.SMT_ClearHistory("SharedMemoryContent")
 
     def run_test(self):
-        self._create_topic()
         self._create_topic_object()
         self._publish_objects()
         self._get_latest()
@@ -88,6 +86,7 @@ class Test:
 
 def main():
     client = getSharedMemory()
+    initialize_shared_memory(client)
     test = Test(client)
     test.run_test()
 

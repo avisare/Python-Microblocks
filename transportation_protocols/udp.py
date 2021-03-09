@@ -4,18 +4,17 @@ from .comm_device import CommDeviceInterface
 
 class UDPConnection(CommDeviceInterface):
 
-    def __init__(self, udp_connection, destination_ip, destination_port):
+    def __init__(self, udp_connection):
         self._udp_connection = udp_connection
-        self._destination_ip = destination_ip
-        self._destination_port = destination_port
+        self._address = tuple()
         super().__init__()
 
     def send(self, message):
-        self._udp_connection.sendto(pickle.dumps(message), (self._destination_ip, self._destination_port))
+        self._udp_connection.sendto(pickle.dumps(message), self._address)
 
     def receive(self):
         self._udp_connection.settimeout(self._timeout)
-        packet, address = self._udp_connection.recvfrom(self._buffer_size)
+        packet, self._address = self._udp_connection.recvfrom(self._buffer_size)
         self._udp_connection.settimeout(None)
         return pickle.loads(packet)
 

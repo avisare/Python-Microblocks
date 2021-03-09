@@ -2,7 +2,7 @@ import json
 import SharedMemoryWrapper
 
 
-def parse_configuration(config_file_path, topics_config_path):
+def parse_configuration():
     with open(config_file_path, "r") as config_file:
         config_dict = json.load(config_file)
     for config_name in config_dict:

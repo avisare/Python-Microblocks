@@ -44,6 +44,7 @@ class ConnectionFactory:
         tcp_socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
         tcp_socket.bind((local_ip, local_port))
         tcp_socket.listen()
+        # how should the application know, what to send for every connection
         tcp_connection, address = tcp_socket.accept()
         return TCPConnection(tcp_connection)
 
@@ -58,3 +59,11 @@ class ConnectionFactory:
         udp_connection = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
         udp_connection.bind((local_ip, local_port))
         return UDPConnection(udp_connection, destination_ip, destination_port)
+
+    @staticmethod
+    def _get_TCP_strict():
+        pass
+
+    @staticmethod
+    def get_UDP_strict():
+        pass
