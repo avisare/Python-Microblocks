@@ -22,6 +22,11 @@ def print_times_str(str_to_print, times):
         print(str_to_print)
 
 
+def sleep_five_seconds():
+    print("hello")
+    sleep(5)
+
+
 def sleep_thirty_seconds():
     print("start sleep")
     sleep(30)
@@ -33,13 +38,13 @@ def main():
     first_letters_printer = FunctionObject(print_first_letters, ())
     last_letter_printer = FunctionObject(print_last_letters, ())
     times_str_printer = FunctionObject(print_times_str, ("hello", 3))
-    sleep_without_timeout = FunctionObject(sleep_thirty_seconds, ())
-    sleep_with_timeout = FunctionObject(sleep_thirty_seconds, (), time(second=3))
+    sleep_thirty = FunctionObject(sleep_thirty_seconds, ())
+    sleep_five = FunctionObject(sleep_five_seconds, ())
     sequential_parallel.start_sequential(first_letters_printer, last_letter_printer,
-                                         times_str_printer, sleep_without_timeout)
+                                         times_str_printer, sleep_five, sleep_five, sleep_five, sleep_five, time(second=12))
     print("start parallel")
     sequential_parallel.start_parallel(first_letters_printer, last_letter_printer,
-                                       times_str_printer, sleep_with_timeout)
+                                       times_str_printer, sleep_thirty, time(second=3))
 
 
 if __name__ == "__main__":
