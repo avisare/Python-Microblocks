@@ -1,5 +1,5 @@
 import SharedMemoryWrapper
-from shared_memory_factory import getSharedMemory, initialize_shared_memory
+from .shared_memory_factory import get_shared_memory, initialize_shared_memory
 
 
 class Test:
@@ -84,12 +84,8 @@ class Test:
         self._get_oldest()
 
 
-def main():
-    client = getSharedMemory()
+def test_client():
+    client = get_shared_memory()
     initialize_shared_memory(client)
     test = Test(client)
     test.run_test()
-
-
-if __name__ == "__main__":
-    main()

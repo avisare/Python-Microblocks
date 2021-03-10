@@ -34,7 +34,9 @@ class ConnectionFactory:
         tcp_socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
         tcp_socket.bind((local_ip, local_port))
         tcp_socket.listen()
-        return TCPServer(tcp_socket, timeout_seconds, buffer_size_bytes)
+        tcp_server = TCPServer(tcp_socket, timeout_seconds, buffer_size_bytes)
+        tcp_server.accept()
+        return tcp_server
 
     @staticmethod
     def _get_TCP_client(timeout_seconds, buffer_size_bytes):
@@ -43,7 +45,9 @@ class ConnectionFactory:
         if type(remote_port) != int:
             raise ArgumentMustBeInteger("port address")
         tcp_connection = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-        return TCPClient(tcp_connection, timeout_seconds, buffer_size_bytes, remote_ip, remote_port)
+        tcp_client = TCPClient(tcp_connection, timeout_seconds, buffer_size_bytes, remote_ip, remote_port)
+        tcp_client.connect()
+        return tcp_client
 
     @staticmethod
     def _get_TCP(timeout_seconds, buffer_size_bytes):
@@ -52,11 +56,21 @@ class ConnectionFactory:
 
     @staticmethod
     def _get_UDP_strict(timeout_seconds, buffer_size_bytes):
+        destination_ip = JsonHelper.get_string("responder_ip", "config.json")
+        destination_port = JsonHelper.get_value("responder_port", "config.json")
+        if type(destination_port) != int:
+            raise ArgumentMustBeInteger("port address")
+        udp_connection = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
+        return UDPStrictConnection(udp_connection, destination_ip, destination_port, timeout_seconds, buffer_size_bytes)
+
+    @staticmethod
+    def _get_UDP_server(timeout_seconds, buffer_size_bytes):
         remote_ip = JsonHelper.get_string("responder_ip", "config.json")
         remote_port = JsonHelper.get_value("responder_port", "config.json")
         if type(remote_port) != int:
             raise ArgumentMustBeInteger("port address")
         udp_connection = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
+        udp_connection.bind(("127.0.0.1", remote_port))
         return UDPStrictConnection(udp_connection, remote_ip, remote_port, timeout_seconds, buffer_size_bytes)
 
     @staticmethod

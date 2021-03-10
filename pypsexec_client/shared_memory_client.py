@@ -1,5 +1,4 @@
-from pickle import loads, dumps
-from messages import Request
+from .messages import Request
 
 
 class SharedMemoryClient:
@@ -20,36 +19,36 @@ class SharedMemoryClient:
 
     def SMT_Init(self):
         request = Request(self.SMT_INIT)
-        self._connection.send(dumps(request))
-        return loads(self._connection.receive()).response_code
+        self._connection.send(request)
+        return self._connection.receive().response_code
 
     def SMT_Version(self):
         request = Request(self.SMT_VERSION)
-        self._connection.send(dumps(request))
-        return loads(self._connection.receive()).response_object
+        self._connection.send(request)
+        return self._connection.receive().response_object
 
     def SMT_CreateTopic(self, topic_name, max_data_size, history_depth, cells_count):
         request = Request(self.SMT_CREATE_TOPIC, (topic_name, max_data_size, history_depth, cells_count))
-        self._connection.send(dumps(request))
-        return loads(self._connection.receive()).response_code
+        self._connection.send(request)
+        return self._connection.receive().response_code
 
     def SMT_GetPublishCount(self, topic_name):
         request = Request(self.SMT_GET_PUBLISH_COUNT, topic_name)
-        self._connection.send(dumps(request))
-        return loads(self._connection.receive()).response_object
+        self._connection.send(request)
+        return self._connection.receive().response_object
 
     def SMT_ClearHistory(self, topic_name):
         request = Request(self.SMT_CLEAR_HISTORY, topic_name)
-        self._connection.send(dumps(request))
-        return loads(self._connection.receive()).response_code
+        self._connection.send(request)
+        return self._connection.receive().response_code
 
     def oldestRx(self, smt_object, data_info_object=None):
         if data_info_object is None:
             request = Request(self.SMT_GET_OLDEST, smt_object)
         else:
             request = Request(self.SMT_GET_OLDEST, (smt_object, data_info_object))
-        self._connection.send(dumps(request))
-        response = loads(self._connection.receive())
+        self._connection.send(request)
+        response = self._connection.receive()
         if data_info_object is not None:
             temp_obj, temp_data = response.response_object
         else:
@@ -64,8 +63,8 @@ class SharedMemoryClient:
             request = Request(self.SMT_GET_OLDEST, smt_object)
         else:
             request = Request(self.SMT_GET_OLDEST, (smt_object, data_info_object))
-        self._connection.send(dumps(request))
-        response = loads(self._connection.receive())
+        self._connection.send(request)
+        response = self._connection.receive()
         if data_info_object is not None:
             temp_obj, temp_data = response.response_object
         else:
@@ -80,8 +79,8 @@ class SharedMemoryClient:
             request = Request(self.SMT_GET_BY_COUNTER, [smt_object, counter, timeout])
         else:
             request = Request(self.SMT_GET_BY_COUNTER, [smt_object, counter, timeout, data_info_object])
-        self._connection.send(dumps(request))
-        response = loads(self._connection.receive())
+        self._connection.send(request)
+        response = self._connection.receive()
         if data_info_object is not None:
             temp_obj, temp_data = response.response_object
         else:
@@ -96,8 +95,8 @@ class SharedMemoryClient:
             request = Request(self.SMT_GET_BY_COUNTER, (smt_object, counter, timeout))
         else:
             request = Request(self.SMT_GET_BY_COUNTER, (smt_object, counter, timeout, data_info_object))
-        self._connection.send(dumps(request))
-        response = loads(self._connection.receive())
+        self._connection.send(request)
+        response = self._connection.receive()
         if data_info_object is not None:
             temp_obj, temp_data = response.response_object
         else:
@@ -109,14 +108,14 @@ class SharedMemoryClient:
 
     def publish(self, smt_object):
         request = Request(self.SMT_PUBLISH, smt_object)
-        self._connection.send(dumps(request))
-        response = loads(self._connection.receive())
+        self._connection.send(request)
+        response = self._connection.receive()
         return response.response_code
 
     def send(self, smt_object):
         request = Request(self.SMT_PUBLISH, smt_object)
-        self._connection.send(dumps(request))
-        response = loads(self._connection.receive())
+        self._connection.send(request)
+        response = self._connection.receive()
         return response.response_code
 
     def latestRx(self, smt_object, data_info_object=None):
@@ -124,8 +123,8 @@ class SharedMemoryClient:
             request = Request(self.SMT_GET_LATEST, smt_object)
         else:
             request = Request(self.SMT_GET_LATEST, (smt_object, data_info_object))
-        self._connection.send(dumps(request))
-        response = loads(self._connection.receive())
+        self._connection.send(request)
+        response = self._connection.receive()
         if data_info_object is not None:
             temp_obj, temp_data = response.response_object
         else:
@@ -140,8 +139,8 @@ class SharedMemoryClient:
             request = Request(self.SMT_GET_LATEST, smt_object)
         else:
             request = Request(self.SMT_GET_LATEST, (smt_object, data_info_object))
-        self._connection.send(dumps(request))
-        response = loads(self._connection.receive())
+        self._connection.send(request)
+        response = self._connection.receive()
         temp_obj, temp_data = response.response_object
         self._copy_shared_memory_object(temp_obj, smt_object)
         if data_info_object is not None:
@@ -155,4 +154,4 @@ class SharedMemoryClient:
 
     def __del__(self):
         request = Request(self.EXIT)
-        self._connection.send(dumps(request))
+        self._connection.send(request)
