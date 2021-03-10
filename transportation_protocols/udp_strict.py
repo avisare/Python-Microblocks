@@ -1,15 +1,21 @@
 import pickle
 from datetime import time
-from .comm_device import CommDeviceInterface
+from .udp_device import UDPDevice
 
 
-class UDPStrictConnection(CommDeviceInterface):
+class UDPStrictConnection(UDPDevice):
 
     def __init__(self, udp_connection, destination_ip, destination_port, timeout: 'time', buffer_size_bytes: 'int'):
         super().__init__(timeout, buffer_size_bytes)
         self._udp_connection = udp_connection
         self._destination_ip = destination_ip
         self._destination_port = destination_port
+
+    def set_connection(self, udp_connection):
+        self._udp_connection = udp_connection
+
+    def get_connection(self):
+        return self._udp_connection
 
     def send(self, message):
         self._udp_connection.sendto(pickle.dumps(message), (self._destination_ip, self._destination_port))

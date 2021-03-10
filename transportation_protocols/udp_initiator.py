@@ -1,9 +1,9 @@
 import pickle
 from datetime import time
-from .comm_device import CommDeviceInterface
+from .udp_device import UDPDevice
 
 
-class UDPInitiatorConnection(CommDeviceInterface):
+class UDPInitiatorConnection(UDPDevice):
 
     def __init__(self, udp_connection, destination_ip, destination_port, timeout: 'time', buffer_size_bytes: 'int'):
         super().__init__(timeout, buffer_size_bytes)
