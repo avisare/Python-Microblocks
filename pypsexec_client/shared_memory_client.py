@@ -42,22 +42,6 @@ class SharedMemoryClient:
         self._connection.send(request)
         return self._connection.receive().response_code
 
-    def oldestRx(self, smt_object, data_info_object=None):
-        if data_info_object is None:
-            request = Request(self.SMT_GET_OLDEST, smt_object)
-        else:
-            request = Request(self.SMT_GET_OLDEST, (smt_object, data_info_object))
-        self._connection.send(request)
-        response = self._connection.receive()
-        if data_info_object is not None:
-            temp_obj, temp_data = response.response_object
-        else:
-            temp_obj = response.response_object
-        self._copy_shared_memory_object(temp_obj, smt_object)
-        if data_info_object is not None:
-            self._copy_shared_memory_object(temp_data, data_info_object)
-        return response.response_code
-
     def getOldest(self, smt_object, data_info_object=None):
         if data_info_object is None:
             request = Request(self.SMT_GET_OLDEST, smt_object)
@@ -74,27 +58,11 @@ class SharedMemoryClient:
             self._copy_shared_memory_object(temp_data, data_info_object)
         return response.response_code
 
-    def receive(self, smt_object, counter, timeout, data_info_object=None):
+    def getByCounter(self, smt_object, counter, timeout, data_info_object=None):
         if data_info_object is None:
             request = Request(self.SMT_GET_BY_COUNTER, [smt_object, counter, timeout])
         else:
             request = Request(self.SMT_GET_BY_COUNTER, [smt_object, counter, timeout, data_info_object])
-        self._connection.send(request)
-        response = self._connection.receive()
-        if data_info_object is not None:
-            temp_obj, temp_data = response.response_object
-        else:
-            temp_obj = response.response_object
-        self._copy_shared_memory_object(temp_obj, smt_object)
-        if data_info_object is not None:
-            self._copy_shared_memory_object(temp_data, data_info_object)
-        return response.response_code
-
-    def getByCounter(self, smt_object, counter, timeout, data_info_object=None):
-        if data_info_object is None:
-            request = Request(self.SMT_GET_BY_COUNTER, (smt_object, counter, timeout))
-        else:
-            request = Request(self.SMT_GET_BY_COUNTER, (smt_object, counter, timeout, data_info_object))
         self._connection.send(request)
         response = self._connection.receive()
         if data_info_object is not None:
@@ -112,29 +80,6 @@ class SharedMemoryClient:
         response = self._connection.receive()
         return response.response_code
 
-    def send(self, smt_object):
-        request = Request(self.SMT_PUBLISH, smt_object)
-        self._connection.send(request)
-        response = self._connection.receive()
-        return response.response_code
-
-    def latestRx(self, smt_object, data_info_object=None):
-        if data_info_object is None:
-            request = Request(self.SMT_GET_LATEST, smt_object)
-        else:
-            request = Request(self.SMT_GET_LATEST, (smt_object, data_info_object))
-        self._connection.send(request)
-        response = self._connection.receive()
-        print(response.response_code)
-        if data_info_object is not None:
-            temp_obj, temp_data = response.response_object
-        else:
-            temp_obj = response.response_object
-        self._copy_shared_memory_object(temp_obj, smt_object)
-        if data_info_object is not None:
-            self._copy_shared_memory_object(temp_data, data_info_object)
-        return response.response_code
-
     def getLatest(self, smt_object, data_info_object=None):
         if data_info_object is None:
             request = Request(self.SMT_GET_LATEST, smt_object)
@@ -142,7 +87,10 @@ class SharedMemoryClient:
             request = Request(self.SMT_GET_LATEST, (smt_object, data_info_object))
         self._connection.send(request)
         response = self._connection.receive()
-        temp_obj, temp_data = response.response_object
+        if data_info_object is not None:
+            temp_obj, temp_data = response.response_object
+        else:
+            temp_obj = response.response_object
         self._copy_shared_memory_object(temp_obj, smt_object)
         if data_info_object is not None:
             self._copy_shared_memory_object(temp_data, data_info_object)

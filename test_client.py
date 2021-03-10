@@ -32,13 +32,13 @@ class Test:
     def _publish_objects(self):
         print("Publishing all the objects we created")
         for shared_memory_object in self._shared_memory_objects:
-            self._client.send(shared_memory_object)
+            self._client.publish(shared_memory_object)
 
     def _get_latest(self):
         print("Creating a temporary shared memory object")
         shared_memory_temp_object = SharedMemoryWrapper.SharedMemoryContent()
         print("get the latest object enter to the memory, into the temporary object")
-        self._client.latestRx(shared_memory_temp_object)
+        self._client.getLatest(shared_memory_temp_object)
         print("Now the temporary object contain the values:")
 
         print(f"cstringData: {shared_memory_temp_object.cstringData}, intData: {shared_memory_temp_object.intData}")
@@ -46,8 +46,8 @@ class Test:
     def _get_by_counter(self):
         print("Creating a temporary shared memory object")
         shared_memory_temp_object = SharedMemoryWrapper.SharedMemoryContent()
-        print("get object by counter equal to 1 ant timeout equal to 30, into the temporary object")
-        self._client.receive(shared_memory_temp_object, 1, 30)
+        print("get object by counter equal to 1 and timeout equal to 30, into the temporary object")
+        self._client.getByCounter(shared_memory_temp_object, 1, 30)
         print("Now the temporary object contain the values:")
         print(f"cstringData: {shared_memory_temp_object.cstringData}, intData: {shared_memory_temp_object.intData}")
 
@@ -57,7 +57,7 @@ class Test:
         print("Creating a temporary shared memory object")
         shared_memory_temp_object = SharedMemoryWrapper.SharedMemoryContent()
         print("get the oldest object enter into the shared memory, into the temporary object")
-        self._client.oldestRx(shared_memory_temp_object, data_info)
+        self._client.getOldest(shared_memory_temp_object, data_info)
         print("Now the temporary object contain the values:")
         print(f"cstringData: {shared_memory_temp_object.cstringData}, intData: {shared_memory_temp_object.intData}")
         print(f"data about the topic: data size: {data_info.m_dataSize}\npublish count: {data_info.m_publishCount}\npublish time:{data_info.m_publishTime}")
@@ -87,8 +87,12 @@ class Test:
 
 
 def test_client():
+    config_dictionary = parse_config_files(["config.json"])
+    JsonConfigSingleton(config_dictionary)
     client = get_shared_memory()
     initialize_shared_memory(client)
     test = Test(client)
     test.run_test()
+
+test_client()
 

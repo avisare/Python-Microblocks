@@ -1,4 +1,3 @@
-import sys
 from transportation_protocols.connection_factory import ConnectionFactory
 from json_config_singleton import JsonConfigSingleton
 from parse_config import parse_config_files
