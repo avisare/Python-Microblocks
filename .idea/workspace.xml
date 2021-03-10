@@ -3,10 +3,12 @@
   <component name="ChangeListManager">
     <list default="true" id="648efb22-c2ea-4387-b697-0aad0b4bbc43" name="Default Changelist" comment="">
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/transportation_protocols/connection_factory.py" beforeDir="false" afterPath="$PROJECT_DIR$/transportation_protocols/connection_factory.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/transportation_protocols/tcp.py" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/transportation_protocols/tcp_strict.py" beforeDir="false" afterPath="$PROJECT_DIR$/transportation_protocols/tcp_strict.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/transportation_protocols/udp.py" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/pypsexec_client/shared_memory_client.py" beforeDir="false" afterPath="$PROJECT_DIR$/pypsexec_client/shared_memory_client.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/pypsexec_client/shared_memory_factory.py" beforeDir="false" afterPath="$PROJECT_DIR$/pypsexec_client/shared_memory_factory.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/transportation_protocols/comm_device.py" beforeDir="false" afterPath="$PROJECT_DIR$/transportation_protocols/comm_device.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/transportation_protocols/tcp.py" beforeDir="false" afterPath="$PROJECT_DIR$/transportation_protocols/tcp.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/transportation_protocols/udp_initiator.py" beforeDir="false" afterPath="$PROJECT_DIR$/transportation_protocols/udp_initiator.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/transportation_protocols/udp_responder.py" beforeDir="false" afterPath="$PROJECT_DIR$/transportation_protocols/udp_responder.py" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -178,12 +180,12 @@
       <method v="2" />
     </configuration>
     <list>
-      <item itemvalue="Python.test" />
       <item itemvalue="Python.pypsexec_client" />
-      <item itemvalue="Python.test_parallet_squential" />
-      <item itemvalue="Python.test_remote_shared_memory" />
       <item itemvalue="Python.shared_memory_client" />
       <item itemvalue="Python.start_client" />
+      <item itemvalue="Python.test" />
+      <item itemvalue="Python.test_parallet_squential" />
+      <item itemvalue="Python.test_remote_shared_memory" />
     </list>
     <recent_temporary>
       <list>

@@ -1,5 +1,4 @@
 from pickle import loads, dumps
-from transportation_protocols.connection_factory import ConnectionFactory
 from messages import Request
 
 
@@ -16,8 +15,8 @@ class SharedMemoryClient:
     SMT_CLEAR_HISTORY = 9
     EXIT = 999
 
-    def __init__(self, ):
-        self._connection = ConnectionFactory.get_connection()
+    def __init__(self, connection):
+        self._connection = connection
 
     def SMT_Init(self):
         request = Request(self.SMT_INIT)

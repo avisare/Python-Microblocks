@@ -5,15 +5,16 @@ from .transportation_protocols_exception import ArgumentMustBeInteger
 
 class CommDeviceInterface(metaclass=abc.ABCMeta):
 
-    SECONDS 
-    def __init__(self, timeout: "time", buffer_size: "int"):
-        self._timeout = timeout
-        self._buffer_size_seconds = buffer_size.hour *
+    SECONDS_IN_HOUR = 3600
 
-    @abc.abstractmethod
+    def __init__(self, timeout: "time", buffer_size_bytes: "int"):
+        if type(buffer_size_bytes) != int:
+            raise ArgumentMustBeInteger("buffer size")
+        self._timeout_seconds = timeout.hour * self.SECONDS_IN_HOUR + timeout.minute * 60 + timeout.second
+        self._buffer_size_bytes = buffer_size_bytes
+
     def send(self, message):
         pass
 
-    @abc.abstractmethod
-    def receive(self):
+    def receive(self, timeout_seconds: "int" = None,  buffer_size_bytes: "int" = None):
         pass

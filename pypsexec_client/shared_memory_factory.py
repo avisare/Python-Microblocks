@@ -1,5 +1,6 @@
 from shared_memory_client import SharedMemoryClient
 from transportation_protocols.transportation_protocols_exception import ControlMethodNotFound
+from transportation_protocols.connection_factory import ConnectionFactory
 from json_python import JsonHelper
 import SharedMemoryWrapper
 
@@ -7,7 +8,7 @@ import SharedMemoryWrapper
 def get_shared_memory():
     control_method = JsonHelper.get_string("control", "config.json")
     if control_method == "remote":
-        return SharedMemoryClient()
+        return SharedMemoryClient(ConnectionFactory.get_connection())
     elif control_method == "local":
         return SharedMemoryWrapper
     else:

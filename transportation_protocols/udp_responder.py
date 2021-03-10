@@ -1,18 +1,23 @@
 import pickle
+from datetime import time
 from .comm_device import CommDeviceInterface
 
 
 class UDPResponderConnection(CommDeviceInterface):
-    def __init__(self, udp_connection):
+    def __init__(self, udp_connection, timeout: "time", buffer_size_bytes: "int"):
+        super().__init__(timeout, buffer_size_bytes)
         self._udp_connection = udp_connection
-        super().__init__()
 
     def send(self, message):
         pass
 
-    def receive(self):
-        self._udp_connection.settimeout(self._timeout)
-        packet, address = self._udp_connection.recvfrom(self._buffer_size)
+    def receive(self, timeout_seconds: "int" = None, buffer_size_bytes: "int" = None):
+        if timeout_seconds is None:
+            timeout_seconds = self._timeout_seconds
+        if buffer_size_bytes is None:
+            buffer_size_bytes = self._buffer_size_bytes
+        self._udp_connection.settimeout(timeout_seconds)
+        packet, address = self._udp_connection.recvfrom(buffer_size_bytes)
         self._udp_connection.settimeout(None)
         return pickle.loads(packet)
 
