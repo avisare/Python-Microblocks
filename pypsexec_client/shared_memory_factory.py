@@ -1,12 +1,12 @@
 from .shared_memory_client import SharedMemoryClient
 from transportation_protocols.transportation_protocols_exception import ControlMethodNotFound
 from transportation_protocols.connection_factory import ConnectionFactory
-from json_python import JsonHelper
+from json_config_singleton import JsonConfigSingleton
 import SharedMemoryWrapper
 
 
 def get_shared_memory():
-    control_method = JsonHelper.get_string("control", "config.json")
+    control_method = JsonConfigSingleton().json_dictionary["control"]
     if control_method == "remote":
         return SharedMemoryClient(ConnectionFactory.get_connection())
     elif control_method == "local":
@@ -17,7 +17,7 @@ def get_shared_memory():
 
 def initialize_shared_memory(shared_memory_object):
     shared_memory_object.SMT_Init()
-    topics_to_init = JsonHelper.get_value("topics", "config.json")
+    topics_to_init = JsonConfigSingleton().json_dictionary["topics"]
     for topic in topics_to_init:
-        topic_info = JsonHelper.get_value(topic, "config.json")
+        topic_info = JsonConfigSingleton().json_dictionary[topic]
         shared_memory_object.SMT_CreateTopic(topic, topic_info["max_data_size"], topic_info["history_depth"], topic_info["cells_count"])

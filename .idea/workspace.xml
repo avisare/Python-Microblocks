@@ -3,14 +3,9 @@
   <component name="ChangeListManager">
     <list default="true" id="648efb22-c2ea-4387-b697-0aad0b4bbc43" name="Default Changelist" comment="">
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/pypsexec_client.py" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/pypsexec_client/config.json" beforeDir="false" afterPath="$PROJECT_DIR$/pypsexec_client/config.json" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/pypsexec_client/shared_memory_client.py" beforeDir="false" afterPath="$PROJECT_DIR$/pypsexec_client/shared_memory_client.py" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/pypsexec_client/shared_memory_factory.py" beforeDir="false" afterPath="$PROJECT_DIR$/pypsexec_client/shared_memory_factory.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/pypsexec_client/start_client.py" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/test_remote_control.py" beforeDir="false" afterPath="$PROJECT_DIR$/test_remote_control.py" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/transportation_protocols/connection_factory.py" beforeDir="false" afterPath="$PROJECT_DIR$/transportation_protocols/connection_factory.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/transportation_protocols/tcp_client.py" beforeDir="false" afterPath="$PROJECT_DIR$/transportation_protocols/tcp_client.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/transportation_protocols/tcp_server.py" beforeDir="false" afterPath="$PROJECT_DIR$/transportation_protocols/tcp_server.py" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -54,7 +49,28 @@
       <recent name="C:\Users\Administrator\Documents\python_netwrok_communication\transportation_protocols" />
     </key>
   </component>
-  <component name="RunManager" selected="Python.test_client">
+  <component name="RunManager" selected="Python.json_config_singleton">
+    <configuration name="json_config_singleton" type="PythonConfigurationType" factoryName="Python" temporary="true" nameIsGenerated="true">
+      <module name="Python-Microblocks" />
+      <option name="INTERPRETER_OPTIONS" value="" />
+      <option name="PARENT_ENVS" value="true" />
+      <envs>
+        <env name="PYTHONUNBUFFERED" value="1" />
+      </envs>
+      <option name="SDK_HOME" value="" />
+      <option name="WORKING_DIRECTORY" value="$PROJECT_DIR$" />
+      <option name="IS_MODULE_SDK" value="true" />
+      <option name="ADD_CONTENT_ROOTS" value="true" />
+      <option name="ADD_SOURCE_ROOTS" value="true" />
+      <option name="SCRIPT_NAME" value="$PROJECT_DIR$/json_config_singleton.py" />
+      <option name="PARAMETERS" value="" />
+      <option name="SHOW_COMMAND_LINE" value="false" />
+      <option name="EMULATE_TERMINAL" value="false" />
+      <option name="MODULE_MODE" value="false" />
+      <option name="REDIRECT_INPUT" value="false" />
+      <option name="INPUT_FILE" value="" />
+      <method v="2" />
+    </configuration>
     <configuration name="pypsexec_client" type="PythonConfigurationType" factoryName="Python" temporary="true" nameIsGenerated="true">
       <module name="Python-Microblocks" />
       <option name="INTERPRETER_OPTIONS" value="" />
@@ -68,27 +84,6 @@
       <option name="ADD_CONTENT_ROOTS" value="true" />
       <option name="ADD_SOURCE_ROOTS" value="true" />
       <option name="SCRIPT_NAME" value="$PROJECT_DIR$/pypsexec_client.py" />
-      <option name="PARAMETERS" value="" />
-      <option name="SHOW_COMMAND_LINE" value="false" />
-      <option name="EMULATE_TERMINAL" value="false" />
-      <option name="MODULE_MODE" value="false" />
-      <option name="REDIRECT_INPUT" value="false" />
-      <option name="INPUT_FILE" value="" />
-      <method v="2" />
-    </configuration>
-    <configuration name="shared_memory_client" type="PythonConfigurationType" factoryName="Python" temporary="true" nameIsGenerated="true">
-      <module name="Python-Microblocks" />
-      <option name="INTERPRETER_OPTIONS" value="" />
-      <option name="PARENT_ENVS" value="true" />
-      <envs>
-        <env name="PYTHONUNBUFFERED" value="1" />
-      </envs>
-      <option name="SDK_HOME" value="" />
-      <option name="WORKING_DIRECTORY" value="$PROJECT_DIR$/pypsexec_client" />
-      <option name="IS_MODULE_SDK" value="true" />
-      <option name="ADD_CONTENT_ROOTS" value="true" />
-      <option name="ADD_SOURCE_ROOTS" value="true" />
-      <option name="SCRIPT_NAME" value="$PROJECT_DIR$/pypsexec_client/shared_memory_client.py" />
       <option name="PARAMETERS" value="" />
       <option name="SHOW_COMMAND_LINE" value="false" />
       <option name="EMULATE_TERMINAL" value="false" />
@@ -184,18 +179,18 @@
     <list>
       <item itemvalue="Python.test" />
       <item itemvalue="Python.pypsexec_client" />
-      <item itemvalue="Python.shared_memory_client" />
       <item itemvalue="Python.start_client" />
       <item itemvalue="Python.test_client" />
       <item itemvalue="Python.test_remote_control" />
+      <item itemvalue="Python.json_config_singleton" />
     </list>
     <recent_temporary>
       <list>
+        <item itemvalue="Python.json_config_singleton" />
         <item itemvalue="Python.test_client" />
         <item itemvalue="Python.test_remote_control" />
         <item itemvalue="Python.start_client" />
         <item itemvalue="Python.pypsexec_client" />
-        <item itemvalue="Python.shared_memory_client" />
       </list>
     </recent_temporary>
   </component>

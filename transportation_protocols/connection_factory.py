@@ -1,5 +1,5 @@
 import socket
-from json_python.json_helper import JsonHelper
+from json_config_singleton import JsonConfigSingleton
 from .tcp_device import TCPDevice
 from .tcp_client import TCPClient
 from .tcp_server import TCPServer
@@ -12,10 +12,10 @@ from .transportation_protocols_exception import FunctionNotFound, ArgumentMustBe
 class ConnectionFactory:
     @staticmethod
     def get_connection():
-        connection_mode = JsonHelper.get_string("mode", "config.json")
-        connection_type = JsonHelper.get_string("connection_type", "config.json")
-        timeout_seconds = JsonHelper.get_value("timeout_seconds", "config.json")
-        buffer_size_bytes = JsonHelper.get_value("buffer_size_bytes", "config.json")
+        connection_mode = JsonConfigSingleton().json_dictionary["mode"]
+        connection_type = JsonConfigSingleton().json_dictionary["connection_type"]
+        timeout_seconds = JsonConfigSingleton().json_dictionary["timeout_seconds"]
+        buffer_size_bytes = JsonConfigSingleton().json_dictionary["buffer_size_bytes"]
         if connection_mode == "":
             function_name = f"_get_{connection_type}"
         else:
@@ -27,8 +27,8 @@ class ConnectionFactory:
 
     @staticmethod
     def _get_TCP_server(timeout_seconds, buffer_size_bytes):
-        local_ip = JsonHelper.get_string("responder_ip", "config.json")
-        local_port = JsonHelper.get_value("responder_port", "config.json")
+        local_ip = JsonConfigSingleton().json_dictionary["responder_ip"]
+        local_port = JsonConfigSingleton().json_dictionary["responder_port"]
         if type(local_port) != int:
             raise ArgumentMustBeInteger("port address")
         tcp_socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
@@ -40,8 +40,8 @@ class ConnectionFactory:
 
     @staticmethod
     def _get_TCP_client(timeout_seconds, buffer_size_bytes):
-        remote_ip = JsonHelper.get_string("responder_ip", "config.json")
-        remote_port = JsonHelper.get_value("responder_port", "config.json")
+        remote_ip = JsonConfigSingleton().json_dictionary["responder_ip"]
+        remote_port = JsonConfigSingleton().json_dictionary["responder_port"]
         if type(remote_port) != int:
             raise ArgumentMustBeInteger("port address")
         tcp_connection = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
@@ -56,8 +56,8 @@ class ConnectionFactory:
 
     @staticmethod
     def _get_UDP_strict(timeout_seconds, buffer_size_bytes):
-        destination_ip = JsonHelper.get_string("responder_ip", "config.json")
-        destination_port = JsonHelper.get_value("responder_port", "config.json")
+        destination_ip = JsonConfigSingleton().json_dictionary["responder_ip"]
+        destination_port = JsonConfigSingleton().json_dictionary["responder_port"]
         if type(destination_port) != int:
             raise ArgumentMustBeInteger("port address")
         udp_connection = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
@@ -65,8 +65,8 @@ class ConnectionFactory:
 
     @staticmethod
     def _get_UDP_server(timeout_seconds, buffer_size_bytes):
-        remote_ip = JsonHelper.get_string("responder_ip", "config.json")
-        remote_port = JsonHelper.get_value("responder_port", "config.json")
+        remote_ip = JsonConfigSingleton().json_dictionary["responder_ip"]
+        remote_port = JsonConfigSingleton().json_dictionary["responder_port"]
         if type(remote_port) != int:
             raise ArgumentMustBeInteger("port address")
         udp_connection = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
@@ -75,8 +75,8 @@ class ConnectionFactory:
 
     @staticmethod
     def _get_UDP_responder(timeout_seconds, buffer_size_bytes):
-        local_ip = JsonHelper.get_string("responder_ip", "config.json")
-        local_port = JsonHelper.get_value("responder_port", "config.json")
+        local_ip = JsonConfigSingleton().json_dictionary["responder_ip"]
+        local_port = JsonConfigSingleton().json_dictionary["responder_port"]
         if type(local_port) != int:
             raise ArgumentMustBeInteger("port address")
         udp_connection = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
@@ -85,8 +85,8 @@ class ConnectionFactory:
 
     @staticmethod
     def _get_UDP_initiator(timeout_seconds, buffer_size_bytes):
-        remote_ip = JsonHelper.get_string("responder_ip", "config.json")
-        remote_port = JsonHelper.get_value("responder_port", "config.json")
+        remote_ip = JsonConfigSingleton().json_dictionary["responder_ip"]
+        remote_port = JsonConfigSingleton().json_dictionary["responder_port"]
         if type(remote_port) != int:
             raise ArgumentMustBeInteger("port address")
         udp_connection = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
