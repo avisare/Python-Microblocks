@@ -11,8 +11,8 @@ class TCPServer(TCPDevice):
         self.set_connection(connection)
         return connection
 
-    def send_to_client(self, message, tcp_connection):
-        self.send(message, tcp_connection)
+    def send(self, message, tcp_connection=None):
+        super().send(message, self._tcp_connection)
 
-    def receive_from_client(self, tcp_connection, buffer_size_bytes=None, timeout_seconds=None):
-        return self.receive(buffer_size_bytes, timeout_seconds, tcp_connection)
+    def receive(self, tcp_connection=None, buffer_size_bytes=None, timeout_seconds=None):
+        return super().receive(buffer_size_bytes, timeout_seconds, tcp_connection)

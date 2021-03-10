@@ -11,8 +11,8 @@ class TCPClient(TCPDevice):
     def connect(self):
         self._tcp_connection.connect((self._remote_ip, self._remote_port))
 
-    def send_to_server(self, message, tcp_connection):
-        self.send(message, tcp_connection)
+    def send(self, message, tcp_connection=None):
+        super().send(message)
 
-    def receive_from_server(self, tcp_connection, buffer_size_bytes=None, timeout_seconds=None):
-        return self.receive(buffer_size_bytes, timeout_seconds, tcp_connection)
+    def receive(self, buffer_size_bytes=None, timeout_seconds=None, tcp_connection=None):
+        return super().receive(buffer_size_bytes, timeout_seconds, tcp_connection)

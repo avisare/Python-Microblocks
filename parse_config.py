@@ -6,10 +6,10 @@ def parse_config_files(config_files):
     override_keys = set()
     for config_file in config_files:
         config_file_dict = JsonHelper.read_file(config_file)
-        shared_keys_between_dicts = config_file_dict & parsed_config_dictionary
+        shared_keys_between_dicts = config_file_dict.keys() & parsed_config_dictionary.keys()
         if len(shared_keys_between_dicts) > 0:
             override_keys.update(shared_keys_between_dicts)
-        parsed_config_dictionary.update(config_file)
+        parsed_config_dictionary.update(config_file_dict)
     if len(override_keys) > 0:
         print("**WARNING**\nYou are overriding the following keys in your config files:")
         [print(key, end=" ") for key in override_keys]

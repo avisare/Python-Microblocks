@@ -125,6 +125,7 @@ class SharedMemoryClient:
             request = Request(self.SMT_GET_LATEST, (smt_object, data_info_object))
         self._connection.send(request)
         response = self._connection.receive()
+        print(response.response_code)
         if data_info_object is not None:
             temp_obj, temp_data = response.response_object
         else:
@@ -149,6 +150,7 @@ class SharedMemoryClient:
 
     def _copy_shared_memory_object(self, source_object, dest_object):
         class_variables = [attr for attr in dir(dest_object) if not callable(getattr(dest_object, attr)) and not attr.startswith("__")]
+        print(type(source_object), type(dest_object))
         for variable in class_variables:
             setattr(dest_object, variable, getattr(source_object, variable))
 

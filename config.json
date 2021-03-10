@@ -13,12 +13,12 @@
     "cells_count": 10
   },
   "control": "remote",
-  "mode": "strict",
+  "mode": "client",
   "initiator_ip": "127.0.0.1",
-  "initiator_port": 1111,
+  "initiator_port": 4321,
   "responder_ip": "127.0.0.1",
-  "responder_port": 2222,
-  "connection_type": "UDP",
-  "timeout_seconds": 20,
+  "responder_port": 9999,
+  "connection_type": "TCP",
+  "timeout_seconds": 60,
   "buffer_size_bytes": 1024
 }

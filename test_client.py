@@ -1,5 +1,7 @@
 import SharedMemoryWrapper
-from .shared_memory_factory import get_shared_memory, initialize_shared_memory
+from pypsexec_client.shared_memory_factory import get_shared_memory, initialize_shared_memory
+from json_config_singleton import JsonConfigSingleton
+from parse_config import parse_config_files
 
 
 class Test:
@@ -89,3 +91,4 @@ def test_client():
     initialize_shared_memory(client)
     test = Test(client)
     test.run_test()
+
