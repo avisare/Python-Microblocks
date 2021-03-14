@@ -13,11 +13,7 @@
     "cells_count": 10
   },
   "control": "remote",
-  "mode": "client",
-  "remote_username": "Administrator",
-  "remote_ip": "127.0.0.1",
-  "remote_password": "1234",
-  "timeout_remote_seconds": 100,
+  "mode": "server",
   "initiator_ip": "127.0.0.1",
   "initiator_port": 1113,
   "responder_ip": "127.0.0.1",
