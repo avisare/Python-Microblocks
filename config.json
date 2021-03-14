@@ -13,16 +13,16 @@
     "cells_count": 10
   },
   "control": "remote",
-  "mode": "strict",
+  "mode": "client",
   "remote_username": "Administrator",
   "remote_ip": "127.0.0.1",
   "remote_password": "1234",
   "timeout_remote_seconds": 100,
   "initiator_ip": "127.0.0.1",
-  "initiator_port": 1331,
+  "initiator_port": 1113,
   "responder_ip": "127.0.0.1",
-  "responder_port": 1441,
-  "connection_type": "UDP",
+  "responder_port": 1114,
+  "connection_type": "TCP",
   "timeout_seconds": 30,
   "buffer_size_bytes": 1024
 }

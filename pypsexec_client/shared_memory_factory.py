@@ -1,4 +1,4 @@
-from .shared_memory_client import SharedMemoryClient
+from pypsexec_client.shared_memory_client import SharedMemoryClient
 from transportation_protocols.transportation_protocols_exception import ControlMethodNotFound
 from transportation_protocols.connection_factory import ConnectionFactory
 from json_config_singleton import JsonConfigSingleton

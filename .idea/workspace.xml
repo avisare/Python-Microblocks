@@ -5,13 +5,12 @@
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/README.md" beforeDir="false" afterPath="$PROJECT_DIR$/README.md" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/config.json" beforeDir="false" afterPath="$PROJECT_DIR$/config.json" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/example.json" beforeDir="false" afterPath="$PROJECT_DIR$/example.json" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/pypsexec_client/Shared_Memory_Topics_x64.dll" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/pypsexec_client/shared_memory_client.py" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/example.json" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/example_config.json" beforeDir="false" />
       <change beforePath="$PROJECT_DIR$/pypsexec_client/shared_memory_factory.py" beforeDir="false" afterPath="$PROJECT_DIR$/pypsexec_client/shared_memory_factory.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/remote_agent.py" beforeDir="false" afterPath="$PROJECT_DIR$/remote_agent.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/test_client.py" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/test_remote_control.py" beforeDir="false" afterPath="$PROJECT_DIR$/test_remote_control.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/shared_memory_client.exe" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/shared_memory_client.py" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/topics_config_example.json" beforeDir="false" />
       <change beforePath="$PROJECT_DIR$/transportation_protocols/connection_factory.py" beforeDir="false" afterPath="$PROJECT_DIR$/transportation_protocols/connection_factory.py" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
