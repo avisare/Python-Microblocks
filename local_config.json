@@ -12,13 +12,5 @@
     "history_depth": 4,
     "cells_count": 10
   },
-  "control": "local",
-  "mode": "server",
-  "initiator_ip": "127.0.0.1",
-  "initiator_port": 1113,
-  "responder_ip": "127.0.0.1",
-  "responder_port": 1114,
-  "connection_type": "TCP",
-  "timeout_seconds": 30,
-  "buffer_size_bytes": 1024
+  "control": "local"
 }

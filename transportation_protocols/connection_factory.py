@@ -35,8 +35,7 @@ class ConnectionFactory:
         tcp_socket.bind((local_ip, local_port))
         tcp_socket.listen()
         tcp_server = TCPServer(tcp_socket, timeout_seconds, buffer_size_bytes, local_port)
-        tcp_connection, address = tcp_socket.accept()
-        tcp_server.set_connection(tcp_connection)
+        tcp_server.accept()
         return tcp_server
 
     @staticmethod

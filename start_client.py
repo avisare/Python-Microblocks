@@ -2,7 +2,7 @@ import sys
 from pypsexec_client.shared_memory_factory import get_shared_memory, initialize_shared_memory
 from json_config_singleton import JsonConfigSingleton
 from parse_config import parse_config_files
-from shared_memory_client_test import Test
+from shared_memory_client_test import TestClient
 
 
 def init_configuration(config_files):
@@ -16,7 +16,8 @@ def main(config_files):
     initialize_shared_memory(shared_memory_object)
     # put your test commands you want to run on the remote machine
     # like client.getByCounter()
-    test = Test(shared_memory_object)
+    test = TestClient()
+    test.setObject(shared_memory_object)
     test.run_test()
 
 
