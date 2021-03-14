@@ -60,8 +60,7 @@ class ConnectionFactory:
         destination_port = JsonConfigSingleton().json_dictionary["responder_port"]
         local_ip = JsonConfigSingleton().json_dictionary["initiator_ip"]
         local_port = JsonConfigSingleton().json_dictionary["initiator_port"]
-
-        if type(destination_port) != int:
+        if type(destination_port) != int or type(local_port) != int:
             raise ArgumentMustBeInteger("port address")
         udp_connection = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
         udp_connection.bind((local_ip, local_port))
