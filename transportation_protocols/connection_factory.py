@@ -27,7 +27,7 @@ class ConnectionFactory:
 
     @staticmethod
     def _get_TCP_server(timeout_seconds, buffer_size_bytes):
-        local_ip = JsonConfigSingleton().json_dictionary["responder_ip"]
+        local_ip = "0.0.0.0"
         local_port = JsonConfigSingleton().json_dictionary["responder_port"]
         if type(local_port) != int:
             raise ArgumentMustBeInteger("port address")
@@ -59,10 +59,9 @@ class ConnectionFactory:
     def _get_UDP_strict(timeout_seconds, buffer_size_bytes):
         destination_ip = JsonConfigSingleton().json_dictionary["responder_ip"]
         destination_port = JsonConfigSingleton().json_dictionary["responder_port"]
-        local_ip = JsonConfigSingleton().json_dictionary["initiator_ip"]
+        local_ip = "0.0.0.0"
         local_port = JsonConfigSingleton().json_dictionary["initiator_port"]
-
-        if type(destination_port) != int:
+        if type(destination_port) != int or type(local_port) != int:
             raise ArgumentMustBeInteger("port address")
         udp_connection = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
         udp_connection.bind((local_ip, local_port))
@@ -70,7 +69,7 @@ class ConnectionFactory:
 
     @staticmethod
     def _get_UDP_responder(timeout_seconds, buffer_size_bytes):
-        local_ip = JsonConfigSingleton().json_dictionary["responder_ip"]
+        local_ip = "0.0.0.0"
         local_port = JsonConfigSingleton().json_dictionary["responder_port"]
         if type(local_port) != int:
             raise ArgumentMustBeInteger("port address")
