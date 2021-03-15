@@ -1,7 +1,11 @@
+from os import system
+from threading import Thread
+from time import sleep
 import unittest
 from pypsexec_client.shared_memory_factory import get_shared_memory, initialize_shared_memory
 from json_config_singleton import JsonConfigSingleton
 from parse_config import parse_config_files
+from pypsexec_client.shared_memory_client import SharedMemoryClient
 import SharedMemoryWrapper
 
 
@@ -20,15 +24,15 @@ class TestClient(unittest.TestCase):
         try:
             print("Creating a shared memory object")
             shared_memory_first_object = SharedMemoryWrapper.SharedMemoryContent()
-            print("Setting to cstringData of the object to equal to : 'first'")
-            shared_memory_first_object.cstringData = SharedMemoryWrapper.charList("first")
+            print("Setting to cstringData of the object to equal to : 'aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa'")
+            shared_memory_first_object.cstringData = SharedMemoryWrapper.charList("aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa")
             print("Setting to intData of the object to equal to : 1111")
             shared_memory_first_object.intData = 1111
             TestClient.shared_memory_objects.append(shared_memory_first_object)
             print("Creating another shared memory object")
             shared_memory_second_object = SharedMemoryWrapper.SharedMemoryContent()
-            print("Setting to cstringData of the object to equal to : 'second'")
-            shared_memory_second_object.cstringData = SharedMemoryWrapper.charList("second")
+            print("Setting to cstringData of the object to equal to : 'bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb'")
+            shared_memory_second_object.cstringData = SharedMemoryWrapper.charList("bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb")
             print("Setting to intData of the object to equal to : 2222")
             shared_memory_second_object.intData = 2222
             TestClient.shared_memory_objects.append(shared_memory_second_object)
@@ -102,26 +106,57 @@ class TestClient(unittest.TestCase):
 
     def test_3_get_latest(self):
         tuple_result = self._get_latest()
-        self.assertEqual(tuple_result[1], TestClient.shared_memory_objects[1].intData)
+        self.assertEqual(tuple_result, (TestClient.shared_memory_objects[1].cstringData, TestClient.shared_memory_objects[1].intData))
 
     def test_4_get_by_counter(self):
         tuple_result = self._get_by_counter()
-        self.assertEqual(tuple_result[1], TestClient.shared_memory_objects[0].intData)
+        self.assertEqual(tuple_result, (TestClient.shared_memory_objects[0].cstringData, TestClient.shared_memory_objects[0].intData))
 
     def test_5_get_oldest(self):
         tuple_result = self._get_oldest()
-        self.assertEqual(tuple_result[1:], (TestClient.shared_memory_objects[0].intData, 36, 1))
+        self.assertEqual(tuple_result, (TestClient.shared_memory_objects[0].cstringData, TestClient.shared_memory_objects[0].intData, 36, 1))
 
     def run_test(self):
         unittest.main()
+
+    @classmethod
+    def tearDownClass(self):
+        if type(self.shared_memory_object) == SharedMemoryClient:
+            self.shared_memory_object.__del__()
+
 
 def init_configuration(config_files):
     config_dictionary = parse_config_files(config_files)
     JsonConfigSingleton(config_dictionary)
 
 
+def execute_remote_machine(remote_config_file):
+    system(f'py remote_agent.py {" ".join(remote_config_file)}')
+
+
 def main():
-    init_configuration(["local_config.json"])
+    test_method = input("Enter what do you want to test:\n1. local shared memory\n"
+                        "2. remote shared memory with UDP strict\n"
+                        "3. remote shared memory with TCP server and client\n")
+    if test_method == "1":
+        local_config_file = ["local_config.json"]
+    elif test_method == "2":
+        local_config_file = ["UDP_local_config.json"]
+        remote_config_file = ["UDP_remote_config.json"]
+        remote_thread = Thread(target=execute_remote_machine, args=(remote_config_file, ), daemon=True)
+        remote_thread.start()
+        print("waiting for server to up")
+        sleep(2)
+    elif test_method == "3":
+        local_config_file = ["TCP_local_config.json"]
+        remote_config_file = ["TCP_remote_config.json"]
+        remote_thread = Thread(target=execute_remote_machine, args=(remote_config_file, ), daemon=True)
+        remote_thread.start()
+        print("waiting for server to up")
+        sleep(5)
+    else:
+        raise Exception(f"test method with number {test_method} was not found")
+    init_configuration(local_config_file)
     shared_memory_object = get_shared_memory()
     initialize_shared_memory(shared_memory_object)
     test = TestClient()

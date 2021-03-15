@@ -10,7 +10,7 @@ def active_remote_agent(remote_username: "str", remote_password: "str", remote_i
     remote_control.connect()
     try:
         remote_control.create_service()
-        stdout, stderr, rc = remote_control.run_executable("cmd.exe", arguments=f"/c cd.. & cd.. & cd servers & py start_server.py {' '.join(config_files)}")
+        stdout, stderr, rc = remote_control.run_executable("cmd.exe", arguments=f"/c cd.. & cd.. & cd test_remote & py start_server.py {' '.join(config_files)}")
         print(stdout.decode(), stderr.decode())
     finally:
         remote_control.remove_service()
