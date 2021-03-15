@@ -5,6 +5,7 @@ from parse_config import parse_config_files
 config_dictionary = parse_config_files(("config.json",))
 JsonConfigSingleton(config_dictionary)
 
+y = 20
 
 def server():
     tcp_server = ConnectionFactory.get_connection()

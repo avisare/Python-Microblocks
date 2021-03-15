@@ -130,8 +130,8 @@ def init_configuration(config_files):
     JsonConfigSingleton(config_dictionary)
 
 
-def execute_remote_machine(remote_config_file):
-    system(f'py remote_agent.py {" ".join(remote_config_file)}')
+def execute_remote_machine(remote_configs):
+    system(f'py remote_agent.py {" ".join(remote_configs)}')
 
 
 def main():
@@ -140,23 +140,24 @@ def main():
                         "3. remote shared memory with TCP server and client\n")
     if test_method == "1":
         local_config_file = ["local_config.json"]
+        init_configuration(local_config_file)
     elif test_method == "2":
         local_config_file = ["UDP_local_config.json"]
-        remote_config_file = ["UDP_remote_config.json"]
+        init_configuration(local_config_file)
         remote_thread = Thread(target=execute_remote_machine, args=(remote_config_file, ), daemon=True)
         remote_thread.start()
         print("waiting for server to up")
         sleep(2)
     elif test_method == "3":
         local_config_file = ["TCP_local_config.json"]
-        remote_config_file = ["TCP_remote_config.json"]
-        remote_thread = Thread(target=execute_remote_machine, args=(remote_config_file, ), daemon=True)
+        init_configuration(local_config_file)
+        remote_configs = 
+        remote_thread = Thread(target=execute_remote_machine, args=(remote_configs, ), daemon=True)
         remote_thread.start()
         print("waiting for server to up")
         sleep(5)
     else:
         raise Exception(f"test method with number {test_method} was not found")
-    init_configuration(local_config_file)
     shared_memory_object = get_shared_memory()
     initialize_shared_memory(shared_memory_object)
     test = TestClient()

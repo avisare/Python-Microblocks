@@ -2,11 +2,16 @@
 <project version="4">
   <component name="ChangeListManager">
     <list default="true" id="648efb22-c2ea-4387-b697-0aad0b4bbc43" name="Default Changelist" comment="">
+      <change beforePath="$PROJECT_DIR$/.idea/Python-Microblocks.iml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/Python-Microblocks.iml" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/config.json" beforeDir="false" afterPath="$PROJECT_DIR$/config.json" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/TCP_remote_config.json" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/UDP_remote_config.json" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/json_example.py" beforeDir="false" afterPath="$PROJECT_DIR$/json_example.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/parse_config.py" beforeDir="false" afterPath="$PROJECT_DIR$/parse_config.py" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/remote_agent.py" beforeDir="false" afterPath="$PROJECT_DIR$/remote_agent.py" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/shared_memory_client_test.py" beforeDir="false" afterPath="$PROJECT_DIR$/shared_memory_client_test.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/shared_memory_design.docx" beforeDir="false" afterPath="$PROJECT_DIR$/shared_memory_design.docx" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/start_client.py" beforeDir="false" afterPath="$PROJECT_DIR$/start_client.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/test.py" beforeDir="false" afterPath="$PROJECT_DIR$/test.py" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -50,7 +55,7 @@
       <recent name="C:\Users\Administrator\Documents\python_netwrok_communication\transportation_protocols" />
     </key>
   </component>
-  <component name="RunManager" selected="Python.start_client">
+  <component name="RunManager" selected="Python.json_example">
     <configuration name="json_config_singleton" type="PythonConfigurationType" factoryName="Python" temporary="true" nameIsGenerated="true">
       <module name="Python-Microblocks" />
       <option name="INTERPRETER_OPTIONS" value="" />
@@ -64,6 +69,27 @@
       <option name="ADD_CONTENT_ROOTS" value="true" />
       <option name="ADD_SOURCE_ROOTS" value="true" />
       <option name="SCRIPT_NAME" value="$PROJECT_DIR$/json_config_singleton.py" />
+      <option name="PARAMETERS" value="" />
+      <option name="SHOW_COMMAND_LINE" value="false" />
+      <option name="EMULATE_TERMINAL" value="false" />
+      <option name="MODULE_MODE" value="false" />
+      <option name="REDIRECT_INPUT" value="false" />
+      <option name="INPUT_FILE" value="" />
+      <method v="2" />
+    </configuration>
+    <configuration name="json_example" type="PythonConfigurationType" factoryName="Python" temporary="true" nameIsGenerated="true">
+      <module name="Python-Microblocks" />
+      <option name="INTERPRETER_OPTIONS" value="" />
+      <option name="PARENT_ENVS" value="true" />
+      <envs>
+        <env name="PYTHONUNBUFFERED" value="1" />
+      </envs>
+      <option name="SDK_HOME" value="" />
+      <option name="WORKING_DIRECTORY" value="$PROJECT_DIR$" />
+      <option name="IS_MODULE_SDK" value="true" />
+      <option name="ADD_CONTENT_ROOTS" value="true" />
+      <option name="ADD_SOURCE_ROOTS" value="true" />
+      <option name="SCRIPT_NAME" value="$PROJECT_DIR$/json_example.py" />
       <option name="PARAMETERS" value="" />
       <option name="SHOW_COMMAND_LINE" value="false" />
       <option name="EMULATE_TERMINAL" value="false" />
@@ -135,27 +161,6 @@
       <option name="INPUT_FILE" value="" />
       <method v="2" />
     </configuration>
-    <configuration name="test_client" type="PythonConfigurationType" factoryName="Python" temporary="true" nameIsGenerated="true">
-      <module name="Python-Microblocks" />
-      <option name="INTERPRETER_OPTIONS" value="" />
-      <option name="PARENT_ENVS" value="true" />
-      <envs>
-        <env name="PYTHONUNBUFFERED" value="1" />
-      </envs>
-      <option name="SDK_HOME" value="" />
-      <option name="WORKING_DIRECTORY" value="$PROJECT_DIR$/pypsexec_client" />
-      <option name="IS_MODULE_SDK" value="true" />
-      <option name="ADD_CONTENT_ROOTS" value="true" />
-      <option name="ADD_SOURCE_ROOTS" value="true" />
-      <option name="SCRIPT_NAME" value="$PROJECT_DIR$/pypsexec_client/test_client.py" />
-      <option name="PARAMETERS" value="" />
-      <option name="SHOW_COMMAND_LINE" value="false" />
-      <option name="EMULATE_TERMINAL" value="false" />
-      <option name="MODULE_MODE" value="false" />
-      <option name="REDIRECT_INPUT" value="false" />
-      <option name="INPUT_FILE" value="" />
-      <method v="2" />
-    </configuration>
     <configuration name="Unittests in shared_memory_client_test.py" type="tests" factoryName="Unittests" temporary="true" nameIsGenerated="true">
       <module name="Python-Microblocks" />
       <option name="INTERPRETER_OPTIONS" value="" />
@@ -172,19 +177,19 @@
     </configuration>
     <list>
       <item itemvalue="Python.test" />
-      <item itemvalue="Python.test_client" />
       <item itemvalue="Python.json_config_singleton" />
       <item itemvalue="Python.test (1)" />
       <item itemvalue="Python.start_client" />
       <item itemvalue="Python tests.Unittests in shared_memory_client_test.py" />
+      <item itemvalue="Python.json_example" />
     </list>
     <recent_temporary>
       <list>
+        <item itemvalue="Python.json_example" />
         <item itemvalue="Python.start_client" />
         <item itemvalue="Python tests.Unittests in shared_memory_client_test.py" />
         <item itemvalue="Python.test (1)" />
         <item itemvalue="Python.json_config_singleton" />
-        <item itemvalue="Python.test_client" />
       </list>
     </recent_temporary>
   </component>

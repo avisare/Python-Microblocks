@@ -1,13 +1,12 @@
 import sys
 from pypsexec_client.shared_memory_factory import get_shared_memory, initialize_shared_memory
-from json_config_singleton import JsonConfigSingleton
 from parse_config import parse_config_files
 from shared_memory_client_test import TestClient
 
 
 def init_configuration(config_files):
+    global config_dictionary
     config_dictionary = parse_config_files(config_files)
-    JsonConfigSingleton(config_dictionary)
 
 
 def main(config_files):
