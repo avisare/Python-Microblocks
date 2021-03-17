@@ -1,12 +1,13 @@
 
 
 class ParserWriter:
-    def __init__(self):
+    def __init__(self, main_files):
+        self._main_files = main_files
         self._structures = list()
         self._pybind_classes_file = open("SharedMemoryWrapper.cpp", "w")
         self._class_definition_file = open("GenericWrapperHandler.h", "w")
         self._class_implementation_file = open("GenericWrapperHandler.cpp", "w")
-        self._wrapping_functions_file = open("WrapperFunctions.h", "w")
+        self._topics_file = open("sharedMemoryTopics.h", "w")
 
     def set_structures(self, structures):
         self._structures = structures
@@ -15,9 +16,8 @@ class ParserWriter:
         self._pybind_classes_file.close()
         self._class_definition_file.close()
         self._class_implementation_file.close()
-        self._wrapping_functions_file.close()
-        outer_includes = ["SharedMemoryStructs.h"]
-        outer_include_files = [f'#include "{include_file_path}"\n' for include_file_path in outer_includes]
+        self._topics_file.close()
+        outer_include_files = [f'#include "{include_file_path}"\n' for include_file_path in self._main_files]
         with open("SharedMemoryWrapper.cpp", "r+") as main_file:
             content = main_file.read()
             main_file.seek(0, 0)
@@ -40,21 +40,21 @@ class ParserWriter:
             wrapper_functions_definition_file.write(f'#pragma once\n{"".join(outer_include_files)}\n#include <pybind11/pybind11.h>\n#include <pybind11/stl.h>\n')
             wrapper_functions_definition_file.write(content)
 
-        with open("WrapperFunctions.h", "r+") as wrapper_functions_file:
-            content = wrapper_functions_file.read()
-            wrapper_functions_file.seek(0, 0)
-            wrapper_functions_file.write(f'#pragma once\n#include "Shared_Memory_Topics_API.h"\n#include <pybind11/pybind11.h>\n#include <pybind11/stl.h>\n#include <pybind11/stl_bind.h>\n#include <iostream>\n')
-            wrapper_functions_file.write(content)
+        with open("sharedMemoryTopics.h", "r+") as shared_memory_topics_file:
+            content = shared_memory_topics_file.read()
+            shared_memory_topics_file.seek(0, 0)
+            shared_memory_topics_file.write(f'#pragma once\n#include "Shared_Memory_Topics_API.h"\n#include <pybind11/pybind11.h>\n#include <pybind11/stl.h>\n#include <pybind11/stl_bind.h>\n#include <iostream>\n')
+            shared_memory_topics_file.write(content)
 
     def write_generic_function(self, function_name):
         self._pybind_classes_file.write(
             f'\n\tSharedMemoryWrapperModule.def("{function_name}", &{function_name}, py::return_value_policy::copy);\n')
 
     def write_function(self, function_signature, function_call):
-        self._wrapping_functions_file.write(f'\nbool {function_signature}\n')
-        self._wrapping_functions_file.write("{\n")
-        self._wrapping_functions_file.write(f"\t{function_call}\n")
-        self._wrapping_functions_file.write("}\n")
+        self._topics_file.write(f'\n\tbool {function_signature}\n\t')
+        self._topics_file.write("{\n\t")
+        self._topics_file.write(f"\t{function_call}\n\t")
+        self._topics_file.write("}\n")
 
     def write_wrapper_pybind_class(self, struct):
         with open(f"{struct.name}Class.h", "a") as class_file:
@@ -102,6 +102,8 @@ class ParserWriter:
             class_file.write("\n\t\t\treturn obj;\n\t\t}\n\t\t));\n")
             if not struct.need_smt_functions:
                 class_file.write("}")
+            else:
+                self.write_overload_smt_functions(class_file, struct.topic_name)
 
     def write_pybind_class_without_wrappper(self, struct):
         with open(f"{struct.name}Class.h", "a") as class_file:
@@ -124,108 +126,69 @@ class ParserWriter:
             class_file.write("\n\t\t\treturn obj;\n\t\t}\n\t\t));\n")
             if not struct.need_smt_functions:
                 class_file.write("}")
+            else:
+                self.write_overload_smt_functions(class_file, struct.topic_name)
 
-    def write_overload_smt_functions(self, struct_name, struct_full_name):
-        smt_overload_functions = [f'\tSharedMemoryWrapperModule.def("oldestRx",'
-                                  f' py::overload_cast<{struct_full_name}&, SMT_DataInfo&>(&GetOldest),'
-                                  f'py::return_value_policy::copy);\n',
-                                  f'\tSharedMemoryWrapperModule.def("getOldest",'
-                                  f' py::overload_cast<{struct_full_name}&, SMT_DataInfo&>(&GetOldest),'
-                                  f'py::return_value_policy::copy);\n'
-                                  f'\tSharedMemoryWrapperModule.def("getOldest",'
-                                  f' py::overload_cast<{struct_full_name}&>(&GetOldest),'
-                                  f'py::return_value_policy::copy);\n',
-                                  f'\tSharedMemoryWrapperModule.def("oldestRx",'
-                                  f' py::overload_cast<{struct_full_name}&>(&GetOldest),'
-                                  f'py::return_value_policy::copy);\n',
-                                  f'\tSharedMemoryWrapperModule.def("receive",'
-                                  f' py::overload_cast<{struct_full_name}&, '
-                                  f'uint32_t, uint64_t, SMT_DataInfo&>(&GetByCounter), py::return_value_policy::copy);\n',
-                                  f'\tSharedMemoryWrapperModule.def("getByCounter",'
-                                  f' py::overload_cast<{struct_full_name}&, '
-                                  f'uint32_t, uint64_t, SMT_DataInfo&>(&GetByCounter), py::return_value_policy::copy);\n',
-                                  f'\tSharedMemoryWrapperModule.def("receive",'
-                                  f' py::overload_cast<{struct_full_name}&, '
-                                  f'uint32_t, uint64_t>(&GetByCounter), py::return_value_policy::copy);\n',
-                                  f'\tSharedMemoryWrapperModule.def("getByCounter",'
-                                  f' py::overload_cast<{struct_full_name}&, '
-                                  f'uint32_t, uint64_t>(&GetByCounter), py::return_value_policy::copy);\n',
-                                  f'\tSharedMemoryWrapperModule.def("send", '
-                                  f'py::overload_cast<{struct_full_name}&>(&Publish), '
-                                  f'py::return_value_policy::copy);\n',
-                                  f'\tSharedMemoryWrapperModule.def("publish", '
-                                  f'py::overload_cast<{struct_full_name}&>(&Publish), '
-                                  f'py::return_value_policy::copy);\n',
-                                  f'\tSharedMemoryWrapperModule.def("latestRx",'
-                                  f' py::overload_cast<{struct_full_name}&, SMT_DataInfo&>(&GetLatest),'
-                                  f' py::return_value_policy::copy);\n',
-                                  f'\tSharedMemoryWrapperModule.def("getLatest",'
-                                  f' py::overload_cast<{struct_full_name}&, SMT_DataInfo&>(&GetLatest),'
-                                  f' py::return_value_policy::copy);\n',
-                                  f'\tSharedMemoryWrapperModule.def("latestRx",'
-                                  f' py::overload_cast<{struct_full_name}&>(&GetLatest),'
-                                  f' py::return_value_policy::copy);\n',
-                                  f'\tSharedMemoryWrapperModule.def("getLatest",'
-                                  f' py::overload_cast<{struct_full_name}&>(&GetLatest),'
-                                  f' py::return_value_policy::copy);\n']
-        with open(f"{struct_name}Class.h", "a") as class_file:
-            [class_file.write(smt_overload_function) for smt_overload_function in smt_overload_functions]
-            class_file.write("}")
+    def write_overload_smt_functions(self, class_file, topic_name):
+        smt_overload_functions = [f'.def("getOldest",'
+                                  f' py::overload_cast<void*, SMT_DataInfo&>(&{topic_name}::GetOldest),'
+                                  f'py::return_value_policy::copy)',
+                                  f'.def("getOldest",'
+                                  f' py::overload_cast<void*>(&{topic_name}::GetOldest),'
+                                  f'py::return_value_policy::copy)',
+                                  f'.def("getByCounter",'
+                                  f' py::overload_cast<void*&, '
+                                  f'uint32_t, uint64_t, SMT_DataInfo&>(&{topic_name}::GetByCounter), py::return_value_policy::copy)',
+                                  f'.def("getByCounter",'
+                                  f' py::overload_cast<void*, '
+                                  f'uint32_t, uint64_t>(&{topic_name}::GetByCounter), py::return_value_policy::copy)',
+                                  f'.def("publish", '
+                                  f'py::overload_cast<void*>(&{topic_name}::Publish), '
+                                  f'py::return_value_policy::copy)',
+                                  f'.def("publish", '
+                                  f'py::overload_cast<void*, size_t>(&{topic_name}::Publish), '
+                                  f'py::return_value_policy::copy)',
+                                  f'.def("getLatest",'
+                                  f' py::overload_cast<void*, SMT_DataInfo&>(&{topic_name}::GetLatest),'
+                                  f' py::return_value_policy::copy)',
+                                  f'.def("getLatest",'
+                                  f' py::overload_cast<void*>(&{topic_name}::GetLatest),'
+                                  f' py::return_value_policy::copy)']
+        class_file.write(f'\n\tpy::class_<{topic_name}>(SharedMemoryWrapperModule, "{topic_name}")')
+        class_file.write("\n\t\t.def(py::init<>())")
+        [class_file.write("\n\t\t" + smt_overload_function) for smt_overload_function in smt_overload_functions]
+        class_file.write(";\n}")
 
-    def write_smt_functions(self, struct, has_array):
-        if struct.have_wrapper:
-            ptr_name = "structObject.get" + struct.name + "Ptr()"
-        else:
-            ptr_name = "&structObject"
-        smt_functions_signature = list()
-        if not has_array:
-            smt_functions_signature = [
-                (f"GetByCounter({struct.full_name}& structObject, uint32_t counter, uint64_t timeout_us, "
-                 "SMT_DataInfo& data_info)",
-                 f'return SMT_GetByCounter("{struct.name}", {ptr_name}, counter, timeout_us, &data_info);'),
-                (f"GetByCounter({struct.full_name}& structObject, uint32_t counter, uint64_t timeout_us)",
-                 'SMT_DataInfo data_info = SMT_DataInfo{0,0,0};\n\t'
-                 f'return SMT_GetByCounter("{struct.name}", {ptr_name}, counter, timeout_us, &data_info);'),
-                (f"GetLatest({struct.full_name}& structObject, SMT_DataInfo& data_info)",
-                 f'return SMT_GetLatest("{struct.name}", {ptr_name}, &data_info);'),
-                (f"GetLatest({struct.full_name}& structObject)",
-                 'SMT_DataInfo data_info = SMT_DataInfo{0,0,0};\n\t'
-                 f'return SMT_GetLatest("{struct.name}", {ptr_name}, &data_info);'),
-                (f"Publish({struct.full_name}& structObject)",
-                 f'return SMT_Publish("{struct.name}", {ptr_name}, sizeof({struct.namespace}::{struct.name}));'),
-                (f"GetOldest({struct.full_name}& structObject, SMT_DataInfo& data_info)",
-                 f'return SMT_GetOldest("{struct.name}", {ptr_name}, &data_info);'),
-                (f"GetOldest({struct.full_name}& structObject)",
-                 'SMT_DataInfo data_info = SMT_DataInfo{0,0,0};\n\t'
-                 f'return SMT_GetOldest("{struct.name}", {ptr_name}, &data_info);')]
-        else:
-            smt_functions_signature = [
-                (f"GetByCounter({struct.full_name}& structObject, uint32_t counter, uint64_t timeout_us, SMT_DataInfo& data_info)",
-                 f'bool result = SMT_GetByCounter("{struct.name}", {ptr_name}, counter, timeout_us, &data_info);'
-                 f'\n\tstructObject.updateGet();\n\treturn result;'),
-                (f"GetByCounter({struct.full_name}& structObject, uint32_t counter, uint64_t timeout_us)",
-                 'SMT_DataInfo data_info = {0,0,0};\n\t'
-                 f'bool result = SMT_GetByCounter("{struct.name}", {ptr_name}, counter, timeout_us, &data_info);'
-                 f'\n\tstructObject.updateGet();\n\treturn result;'),
-                (f"GetLatest({struct.full_name}& structObject, SMT_DataInfo& data_info)",
-                 f'bool result = SMT_GetLatest("{struct.name}", {ptr_name}, &data_info);\n\tstructObject.updateGet();'
-                 f'\n\treturn result;'),
-                (f"GetLatest({struct.full_name}& structObject)",
-                 'SMT_DataInfo data_info = {0,0,0};\n\t'
-                 f'bool result = SMT_GetLatest("{struct.name}", {ptr_name}, &data_info);\n\tstructObject.updateGet();'
-                 f'\n\treturn result;'),
-                (f"Publish({struct.full_name}& structObject)",
-                 f'structObject.updatePublish();\n\treturn SMT_Publish("{struct.name}", {ptr_name}, '
-                 f'sizeof({struct.namespace}::{struct.name}));'),
-                (f"GetOldest({struct.full_name}& structObject, SMT_DataInfo& data_info)",
-                 f'bool result =  SMT_GetOldest("{struct.name}", {ptr_name}, &data_info);\n\tstructObject.updateGet();'
-                 f'\n\treturn result;'),
-                (f"GetOldest({struct.full_name}& structObject)",
-                 'SMT_DataInfo data_info = {0,0,0};\n\t'
-                 f'bool result =  SMT_GetOldest("{struct.name}", {ptr_name}, &data_info);\n\tstructObject.updateGet();'
-                 f'\n\treturn result;')]
-
+    def write_smt_functions(self, struct):
+        smt_functions_signature = [
+            (f"GetByCounter(void* structObject, uint32_t counter, uint64_t timeout_us, "
+             "SMT_DataInfo& data_info)",
+             f'return SMT_GetByCounter("{struct.topic_name}", structObject, counter, timeout_us, &data_info);'),
+            (f"GetByCounter(void* structObject, uint32_t counter, uint64_t timeout_us)",
+             'SMT_DataInfo data_info = SMT_DataInfo{0,0,0};\n\t\t'
+             f'return SMT_GetByCounter("{struct.topic_name}", structObject, counter, timeout_us, &data_info);'),
+            (f"GetLatest(void* structObject, SMT_DataInfo& data_info)",
+             f'return SMT_GetLatest("{struct.topic_name}", structObject, &data_info);'),
+            (f"GetLatest(void* structObject)",
+             'SMT_DataInfo data_info = SMT_DataInfo{0,0,0};\n\t\t'
+             f'return SMT_GetLatest("{struct.topic_name}", structObject, &data_info);'),
+            (f"Publish(void* structObject)",
+             f'return SMT_Publish("{struct.topic_name}", structObject, {struct.struct_size});'),
+            (f"Publish(void* structObject, size_t size)",
+             f'return SMT_Publish("{struct.topic_name}", structObject, size);'),
+            (f"GetOldest({struct.full_name}& structObject, SMT_DataInfo& data_info)",
+             f'return SMT_GetOldest("{struct.topic_name}", structObject, &data_info);'),
+            (f"GetOldest(void* structObject)",
+             'SMT_DataInfo data_info = SMT_DataInfo{0,0,0};\n\t\t'
+             f'return SMT_GetOldest("{struct.topic_name}", structObject, &data_info);')]
+        self._topics_file.write(f"class {struct.topic_name}\n")
+        self._topics_file.write("{\nprivate:\n\tstd::string _topicName\n\tint _topicSize;\npublic:\n\t")
+        self._topics_file.write(f'{struct.topic_name}()\n\t')
+        self._topics_file.write("{\n\t\t_topicName=")
+        self._topics_file.write(f"{struct.topic_name}\n\t\t_topicSize={struct.struct_size}\n\t")
+        self._topics_file.write("}\n")
         [self.write_function(smt_function_signature, smt_function_call) for smt_function_signature, smt_function_call in smt_functions_signature]
+        self._topics_file.write("};\n")
 
     def write_update_functions_signatures(self, functions_signature):
         functions_signature.append(("void", "void updatePublish()"))
@@ -341,7 +304,7 @@ class ParserWriter:
 
     def write_struct_class_prefix(self, struct):
         with open(f"{struct.name}Class.h", "w") as class_file:
-            class_file.write('# pragma once\n#include "WrapperFunctions.h"\n'
+            class_file.write('# pragma once\n#include "sharedMemoryTopics.h"\n#include "WrapperFunctions.h"\n'
                              '#include "Shared_Memory_Topics_API.h"\n#include "GenericWrapperHandler.h"\n'
                              '#include <pybind11\pybind11.h>\n#include <pybind11\stl.h>\n'
                              '#include <pybind11\stl_bind.h>\n#include <iostream>\n'
@@ -364,4 +327,4 @@ class ParserWriter:
         self._pybind_classes_file.close()
         self._class_definition_file.close()
         self._class_implementation_file.close()
-        self._wrapping_functions_file.close()
+        self._topics_file.close()

@@ -10,7 +10,7 @@ class Parser:
         self._structures = list()
         self._include_files = list()
         self._vectors_type = set()
-        self._writer = ParserWriter()
+        self._writer = ParserWriter(main_header_file)
         self._main_header_file = main_header_file
 
     def _create_wrapper_class(self, struct):
@@ -84,13 +84,11 @@ class Parser:
             if struct.name in self._wrapper_class:
                 self._create_wrapper_class(struct)
             if struct.need_smt_functions:
-                self._writer.write_smt_functions(struct, self._has_array(struct))
+                self._writer.write_smt_functions(struct)
         self._writer.write_main_file_prefix(self._vectors_type)
         for struct in self._structures:
             self._writer.write_struct_class_prefix(struct)
             self._create_pybind_class(struct)
-            if struct.need_smt_functions:
-                self._writer.write_overload_smt_functions(struct.name, struct.full_name)
         self._writer.write_class_call(self._structures)
         self._writer.write_file_ending()
         self._writer.write_includes(self._include_files)
@@ -106,16 +104,18 @@ class Parser:
                     if self._need_wrapper_class(struct_variables) and struct_name not in self._wrapper_class:
                         self._wrapper_class.append(struct_name)
                         class_keep_changing = True
+        #  need to be deleted, after the sizes of topics will be received
+        structs_size = {"SharedMemoryContent": 36, "testStructOne": 9, "testStructTwo": 42, "testStructThree": 33, "testStructFour": 44}
         index = 1
         for header in headers:
             for struct_name, struct_content in header.classes.items():
                 struct_variables = struct_content["properties"]["public"]
                 if self._need_wrapper_class(struct_variables):
                     self._structures.append(Struct(struct_content["namespace"], struct_name,
-                                                   struct_variables, True, "Wrapper", index == 1))
+                                                   struct_variables, True, "Wrapper", index == 1, struct_name + "Topic", structs_size[struct_name]))
                 else:
                     self._structures.append(Struct(struct_content["namespace"], struct_name, struct_variables,
-                                                   False, struct_content["namespace"], index == 1))
+                                                   False, struct_content["namespace"], index == 1, struct_name + "Topic", structs_size[struct_name]))
             index += 1
         self._writer.set_structures(self._structures)
 
