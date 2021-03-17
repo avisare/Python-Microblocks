@@ -1,9 +1,8 @@
 from transportation_protocols.connection_factory import ConnectionFactory
-from json_config_singleton import JsonConfigSingleton
 from parse_config import parse_config_files
 
-config_dictionary = parse_config_files(("config.json",))
-JsonConfigSingleton(config_dictionary)
+#config_dictionary = parse_config_files(("config.json",))
+#JsonConfigSingleton(config_dictionary)
 
 y = 20
 
@@ -12,6 +11,10 @@ def server():
     tcp_server.send("dwqd")
     msg = tcp_server.receive()
     print(msg)
+
+def test():
+    global y
+    y = 100
 
 
 def client():

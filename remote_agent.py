@@ -19,27 +19,51 @@ def main(args):
     remote_username = args[0]
     remote_password = args[1]
     remote_ip = args[2]
-    responder_port = args[3]
-    remote_arguments = [remote_username, remote_password, remote_ip, responder_port]
-    if len(args) == 5:
-        responder_ip = args[4]
+    mode = args[3]
+    connection_type = args[4]
+    timeout_seconds = args[5]
+    buffer_size_bytes = args[6]
+    remote_arguments = [remote_username, remote_password, remote_ip, mode, connection_type, timeout_seconds, buffer_size_bytes]
+    if len(args) == 7:
+        remote_arguments.append(str(None))
+        remote_arguments.append(str(None))
+        remote_arguments.append(str(None))
+    if len(args) == 8:
+        responder_port = args[7]
+        remote_arguments.append(responder_port)
+        remote_arguments.append(str(None))
+        remote_arguments.append(str(None))
+    elif len(args) == 9:
+        responder_port = args[7]
+        responder_ip = args[8]
+        remote_arguments.append(responder_port)
         remote_arguments.append(responder_ip)
-    elif len(args) == 6:
-        local_port = args[5]
+        remote_arguments.append(str(None))
+    else:
+        responder_port = args[7]
+        responder_ip = args[8]
+        local_port = args[9]
+        remote_arguments.append(responder_port)
+        remote_arguments.append(responder_ip)
         remote_arguments.append(local_port)
-    active_remote_agent_thread = Thread(target=active_remote_agent, args=tuple(remote_arguments), daemon=True)
+    active_remote_agent_thread = Thread(target=active_remote_agent, args=(tuple(remote_arguments), ), daemon=True)
     active_remote_agent_thread.start()
     active_remote_agent_thread.join()
 
 
 if __name__ == "__main__":
-    if len(sys.argv) <= 4 or len(sys.argv) > 7:
-        print("You must pass at least 4 arguments:\n"
+    if len(sys.argv[1:]) <= 7 or len(sys.argv[1:]) > 10:
+        print(len(sys.argv[1:]))
+        print("You must pass at least 7 arguments:\n"
               "remote username\n"
               "remote password\n"
               "remote ip\n"
+              "mode\n"
+              "connection_type\n"
+              "timeout_seconds\n"
+              "buffer_size_bytes\n"
+              "And maximum of 10 arguments:\n"
               "responder port\n"
-              "And maximum of 7 arguments:\n"
               "responder ip\n"
               "local port")
     else:

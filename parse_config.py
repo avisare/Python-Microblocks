@@ -1,5 +1,7 @@
 from json_python.json_helper import JsonHelper
 
+config_dictionary = None
+
 
 def parse_config_files(config_files):
     parsed_config_dictionary = dict()
@@ -16,3 +18,8 @@ def parse_config_files(config_files):
         [print(f"key name: {key}, file which key is taken from: {key_file}") for key, key_file in override_keys.items()]
         print("The key in the latest config file inserted to the parsed config")
     return parsed_config_dictionary
+
+
+def init_configuration(config_files):
+    global config_dictionary
+    config_dictionary = parse_config_files(config_files)
