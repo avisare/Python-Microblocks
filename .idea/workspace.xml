@@ -2,13 +2,7 @@
 <project version="4">
   <component name="ChangeListManager">
     <list default="true" id="648efb22-c2ea-4387-b697-0aad0b4bbc43" name="Default Changelist" comment="">
-      <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/parse_config.py" beforeDir="false" afterPath="$PROJECT_DIR$/parse_config.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/pypsexec_client/shared_memory_client.py" beforeDir="false" afterPath="$PROJECT_DIR$/pypsexec_client/shared_memory_client.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/pypsexec_client/shared_memory_factory.py" beforeDir="false" afterPath="$PROJECT_DIR$/pypsexec_client/shared_memory_factory.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/remote_agent.py" beforeDir="false" afterPath="$PROJECT_DIR$/remote_agent.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/start_client.py" beforeDir="false" afterPath="$PROJECT_DIR$/start_client.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/transportation_protocols/comm_device.py" beforeDir="false" afterPath="$PROJECT_DIR$/transportation_protocols/comm_device.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/README.md" beforeDir="false" afterPath="$PROJECT_DIR$/README.md" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />

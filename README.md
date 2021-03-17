@@ -5,8 +5,10 @@ with shared memory.
 
 # Usage
 In order to create the server to listen on the remote machine,
-execute the script *`remote_agent.py`, with the remote **configuration files as
-an argument. 
+execute the script *`start_client.py`, with the remote **configuration files as
+an argument. you can also set the configuration without configuration files.
+You should first run `start_client.py` with the run_test.py script without any
+cmd arguments, in order to check that everything is good.
 
 After you started the remote machine to listen on the specific port,
 you should start the client aka - your test, with a suitable configuration file.
@@ -41,10 +43,10 @@ UDP+strict: local_port, responder_port, responder_ip
 The configuration file can contain also `timeout_remote_seconds` in seconds, until
 the connection to the remote machine will be close, and `timeout_seconds` in secondss,
 until the connection will stop waiting to message in recv function.
-There is example config file in the install directory named `config.json`.
+There is example config file in the installation directory named `config.json`.
 
 ### *Pay Attention!
-Before executing the `remote_agent.py` script, move the installer in the current directory named 
+Before executing the `start_client.py` script, move the installer in the current directory named 
 shared_memory_installer.exe to folder named servers in the remote machine.
 
 ### **Pay Attention!
