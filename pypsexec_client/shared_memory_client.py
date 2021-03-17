@@ -2,6 +2,12 @@ from .messages import Request
 
 
 class SharedMemoryClient:
+    """
+    The SharedMemoryClient class, is responsible for sending messages
+    to the remote server, in order to control his shared memory.
+    The client and the server are talking in unique protocol, which contains
+    Request and Response structures. Every request has its request code.
+    """
     ERROR = 0
     SMT_INIT = 1
     SMT_VERSION = 2

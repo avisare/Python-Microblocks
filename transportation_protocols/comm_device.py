@@ -4,7 +4,12 @@ from .transportation_protocols_exception import ArgumentMustBeInteger
 
 
 class CommDeviceInterface(metaclass=ABCMeta):
-
+    """
+    The CommDeviceInterface class, is the base class of all communication devices.
+    every communication device need to implement the send and receive methods.
+    The init function is just initialize the timeout and the buffer size pparameters
+    that are common for any connection type.
+    """
     SECONDS_IN_HOUR = 3600
 
     def __init__(self, timeout: "time", buffer_size_bytes: "int"):

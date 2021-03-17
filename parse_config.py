@@ -4,6 +4,12 @@ config_dictionary = None
 
 
 def parse_config_files(config_files):
+    """
+    function parse config files into one dictionary, if there are
+    multiplies, it overrides, and the later configuration file value is set
+    :param config_files: the configuration files
+    :return: dictionary contains all configurations
+    """
     parsed_config_dictionary = dict()
     override_keys = dict()
     for config_file in config_files:
@@ -21,5 +27,10 @@ def parse_config_files(config_files):
 
 
 def init_configuration(config_files):
+    """
+    function initialize the global config_dictionary variable
+    :param config_files: the configuration files
+    :return: None
+    """
     global config_dictionary
     config_dictionary = parse_config_files(config_files)

@@ -3,46 +3,61 @@ from threading import Thread
 from pypsexec.client import Client
 
 
-def active_remote_agent(arguments):
-    remote_control = Client(arguments[2], username=arguments[0], password=arguments[1])
+def active_remote_agent(configurations):
+    """
+    function activate the remote agent that run the server with an appropriate
+    configurations, printing the server output
+    :param configurations: the configurations set up the server
+    :return: None
+    """
+    remote_control = Client(configurations[2], username=configurations[0], password=configurations[1])
     remote_control.connect()
     try:
         remote_control.create_service()
-        stdout, stderr, rc = remote_control.run_executable("cmd.exe", arguments=f"/c cd.. & cd.. & cd test_remote & py start_server.py {' '.join(arguments[3:])}")
+        stdout, stderr, rc = remote_control.run_executable("cmd.exe", arguments=f"/c cd.. & cd.. & cd servers & py start_server.py {' '.join(configurations[3:])}")
         print(stdout.decode(), stderr.decode())
     finally:
         remote_control.remove_service()
         remote_control.disconnect()
 
 
-def main(args):
-    remote_username = args[0]
-    remote_password = args[1]
-    remote_ip = args[2]
-    mode = args[3]
-    connection_type = args[4]
-    timeout_seconds = args[5]
-    buffer_size_bytes = args[6]
-    remote_arguments = [remote_username, remote_password, remote_ip, mode, connection_type, timeout_seconds, buffer_size_bytes]
-    if len(args) == 7:
+def initialize_remote_arguments(configurations):
+    """
+    function initialize the remote base arguments
+    :param configurations: the configurations for the remote server
+    :return: list contains remote base arguments
+    """
+    remote_username = configurations[0]
+    remote_password = configurations[1]
+    remote_ip = configurations[2]
+    mode = configurations[3]
+    connection_type = configurations[4]
+    timeout_seconds = configurations[5]
+    buffer_size_bytes = configurations[6]
+    return [remote_username, remote_password, remote_ip, mode, connection_type, timeout_seconds, buffer_size_bytes]
+
+
+def main(configurations):
+    remote_arguments = initialize_remote_arguments(configurations)
+    if len(configurations) == 7:
         remote_arguments.append(str(None))
         remote_arguments.append(str(None))
         remote_arguments.append(str(None))
-    if len(args) == 8:
-        responder_port = args[7]
+    if len(configurations) == 8:
+        responder_port = configurations[7]
         remote_arguments.append(responder_port)
         remote_arguments.append(str(None))
         remote_arguments.append(str(None))
-    elif len(args) == 9:
-        responder_port = args[7]
-        responder_ip = args[8]
+    elif len(configurations) == 9:
+        responder_port = configurations[7]
+        responder_ip = configurations[8]
         remote_arguments.append(responder_port)
         remote_arguments.append(responder_ip)
         remote_arguments.append(str(None))
     else:
-        responder_port = args[7]
-        responder_ip = args[8]
-        local_port = args[9]
+        responder_port = configurations[7]
+        responder_ip = configurations[8]
+        local_port = configurations[9]
         remote_arguments.append(responder_port)
         remote_arguments.append(responder_ip)
         remote_arguments.append(local_port)
@@ -53,7 +68,6 @@ def main(args):
 
 if __name__ == "__main__":
     if len(sys.argv[1:]) <= 7 or len(sys.argv[1:]) > 10:
-        print(len(sys.argv[1:]))
         print("You must pass at least 7 arguments:\n"
               "remote username\n"
               "remote password\n"
