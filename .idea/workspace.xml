@@ -2,24 +2,10 @@
 <project version="4">
   <component name="ChangeListManager">
     <list default="true" id="648efb22-c2ea-4387-b697-0aad0b4bbc43" name="Default Changelist" comment="">
-      <change beforePath="$PROJECT_DIR$/GenericWrapperHandler.cpp" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/GenericWrapperHandler.h" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/HeadersParser.py" beforeDir="false" afterPath="$PROJECT_DIR$/HeadersParser.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/SMT_DataInfoClass.h" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/SharedMemoryContentClass.h" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/SharedMemoryWrapper.cpp" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/WrapperFunctions.h" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/WrapperFunctionsFile.h" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/classDefinitionFile.h" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/classImplementationFile.cpp" beforeDir="false" />
       <change beforePath="$PROJECT_DIR$/parserWriter.py" beforeDir="false" afterPath="$PROJECT_DIR$/parserWriter.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/pybindClassesFile.cpp" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/recursive_parser.py" beforeDir="false" afterPath="$PROJECT_DIR$/recursive_parser.py" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/struct.py" beforeDir="false" afterPath="$PROJECT_DIR$/struct.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/testStructFourClass.h" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/testStructOneClass.h" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/testStructThreeClass.h" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/testStructTwoClass.h" beforeDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -66,7 +52,7 @@
       <recent name="C:\Users\Administrator\Documents\python_netwrok_communication\transportation_protocols" />
     </key>
   </component>
-  <component name="RunManager" selected="Python.delete_files">
+  <component name="RunManager" selected="Python.example">
     <configuration name="GenericSharedMemoryTest" type="PythonConfigurationType" factoryName="Python" temporary="true" nameIsGenerated="true">
       <module name="Python-Microblocks" />
       <option name="INTERPRETER_OPTIONS" value="" />
@@ -89,17 +75,17 @@
       <method v="2" />
     </configuration>
     <configuration name="delete_files" type="PythonConfigurationType" factoryName="Python" temporary="true" nameIsGenerated="true">
-      <module name="Python-Microblocks" />
       <option name="INTERPRETER_OPTIONS" value="" />
       <option name="PARENT_ENVS" value="true" />
       <envs>
         <env name="PYTHONUNBUFFERED" value="1" />
       </envs>
-      <option name="SDK_HOME" value="" />
+      <option name="SDK_HOME" value="C:\Users\Administrator\AppData\Local\Programs\Python\Python39\python.exe" />
       <option name="WORKING_DIRECTORY" value="$PROJECT_DIR$" />
-      <option name="IS_MODULE_SDK" value="true" />
+      <option name="IS_MODULE_SDK" value="false" />
       <option name="ADD_CONTENT_ROOTS" value="true" />
       <option name="ADD_SOURCE_ROOTS" value="true" />
+      <module name="" />
       <option name="SCRIPT_NAME" value="$PROJECT_DIR$/delete_files.py" />
       <option name="PARAMETERS" value="" />
       <option name="SHOW_COMMAND_LINE" value="false" />
@@ -109,8 +95,28 @@
       <option name="INPUT_FILE" value="" />
       <method v="2" />
     </configuration>
-    <configuration name="json_example" type="PythonConfigurationType" factoryName="Python" temporary="true" nameIsGenerated="true">
-      <module name="Python-Microblocks" />
+    <configuration name="example" type="PythonConfigurationType" factoryName="Python" temporary="true" nameIsGenerated="true">
+      <option name="INTERPRETER_OPTIONS" value="" />
+      <option name="PARENT_ENVS" value="true" />
+      <envs>
+        <env name="PYTHONUNBUFFERED" value="1" />
+      </envs>
+      <option name="SDK_HOME" value="C:\Users\Administrator\AppData\Local\Programs\Python\Python39\python.exe" />
+      <option name="WORKING_DIRECTORY" value="$USER_HOME$/source/repos/SharedMemoryWrapper/x64/Release" />
+      <option name="IS_MODULE_SDK" value="false" />
+      <option name="ADD_CONTENT_ROOTS" value="true" />
+      <option name="ADD_SOURCE_ROOTS" value="true" />
+      <module name="" />
+      <option name="SCRIPT_NAME" value="$USER_HOME$/source/repos/SharedMemoryWrapper/x64/Release/example.py" />
+      <option name="PARAMETERS" value="" />
+      <option name="SHOW_COMMAND_LINE" value="false" />
+      <option name="EMULATE_TERMINAL" value="false" />
+      <option name="MODULE_MODE" value="false" />
+      <option name="REDIRECT_INPUT" value="false" />
+      <option name="INPUT_FILE" value="" />
+      <method v="2" />
+    </configuration>
+    <configuration name="parserWriter" type="PythonConfigurationType" factoryName="Python" temporary="true" nameIsGenerated="true">
       <option name="INTERPRETER_OPTIONS" value="" />
       <option name="PARENT_ENVS" value="true" />
       <envs>
@@ -118,10 +124,11 @@
       </envs>
       <option name="SDK_HOME" value="" />
       <option name="WORKING_DIRECTORY" value="$PROJECT_DIR$" />
-      <option name="IS_MODULE_SDK" value="true" />
+      <option name="IS_MODULE_SDK" value="false" />
       <option name="ADD_CONTENT_ROOTS" value="true" />
       <option name="ADD_SOURCE_ROOTS" value="true" />
-      <option name="SCRIPT_NAME" value="$PROJECT_DIR$/json_example.py" />
+      <module name="" />
+      <option name="SCRIPT_NAME" value="$PROJECT_DIR$/parserWriter.py" />
       <option name="PARAMETERS" value="" />
       <option name="SHOW_COMMAND_LINE" value="false" />
       <option name="EMULATE_TERMINAL" value="false" />
@@ -131,40 +138,19 @@
       <method v="2" />
     </configuration>
     <configuration name="recursive_parser" type="PythonConfigurationType" factoryName="Python" temporary="true" nameIsGenerated="true">
-      <module name="Python-Microblocks" />
       <option name="INTERPRETER_OPTIONS" value="" />
       <option name="PARENT_ENVS" value="true" />
       <envs>
         <env name="PYTHONUNBUFFERED" value="1" />
       </envs>
-      <option name="SDK_HOME" value="" />
+      <option name="SDK_HOME" value="C:\Users\Administrator\AppData\Local\Programs\Python\Python39\python.exe" />
       <option name="WORKING_DIRECTORY" value="$PROJECT_DIR$" />
-      <option name="IS_MODULE_SDK" value="true" />
+      <option name="IS_MODULE_SDK" value="false" />
       <option name="ADD_CONTENT_ROOTS" value="true" />
       <option name="ADD_SOURCE_ROOTS" value="true" />
+      <module name="" />
       <option name="SCRIPT_NAME" value="$PROJECT_DIR$/recursive_parser.py" />
       <option name="PARAMETERS" value="" />
-      <option name="SHOW_COMMAND_LINE" value="false" />
-      <option name="EMULATE_TERMINAL" value="false" />
-      <option name="MODULE_MODE" value="false" />
-      <option name="REDIRECT_INPUT" value="false" />
-      <option name="INPUT_FILE" value="" />
-      <method v="2" />
-    </configuration>
-    <configuration name="start_client" type="PythonConfigurationType" factoryName="Python" temporary="true" nameIsGenerated="true">
-      <module name="Python-Microblocks" />
-      <option name="INTERPRETER_OPTIONS" value="" />
-      <option name="PARENT_ENVS" value="true" />
-      <envs>
-        <env name="PYTHONUNBUFFERED" value="1" />
-      </envs>
-      <option name="SDK_HOME" value="" />
-      <option name="WORKING_DIRECTORY" value="$PROJECT_DIR$" />
-      <option name="IS_MODULE_SDK" value="true" />
-      <option name="ADD_CONTENT_ROOTS" value="true" />
-      <option name="ADD_SOURCE_ROOTS" value="true" />
-      <option name="SCRIPT_NAME" value="$PROJECT_DIR$/start_client.py" />
-      <option name="PARAMETERS" value="xd.json" />
       <option name="SHOW_COMMAND_LINE" value="false" />
       <option name="EMULATE_TERMINAL" value="false" />
       <option name="MODULE_MODE" value="false" />
@@ -195,19 +181,19 @@
     </configuration>
     <list>
       <item itemvalue="Python.test" />
-      <item itemvalue="Python.start_client" />
-      <item itemvalue="Python.json_example" />
       <item itemvalue="Python.GenericSharedMemoryTest" />
       <item itemvalue="Python.delete_files" />
       <item itemvalue="Python.recursive_parser" />
+      <item itemvalue="Python.parserWriter" />
+      <item itemvalue="Python.example" />
     </list>
     <recent_temporary>
       <list>
-        <item itemvalue="Python.delete_files" />
+        <item itemvalue="Python.example" />
         <item itemvalue="Python.recursive_parser" />
+        <item itemvalue="Python.delete_files" />
+        <item itemvalue="Python.parserWriter" />
         <item itemvalue="Python.GenericSharedMemoryTest" />
-        <item itemvalue="Python.json_example" />
-        <item itemvalue="Python.start_client" />
       </list>
     </recent_temporary>
   </component>

@@ -43,7 +43,7 @@ class ParserWriter:
         with open("sharedMemoryTopics.h", "r+") as shared_memory_topics_file:
             content = shared_memory_topics_file.read()
             shared_memory_topics_file.seek(0, 0)
-            shared_memory_topics_file.write(f'#pragma once\n#include "Shared_Memory_Topics_API.h"\n#include <pybind11/pybind11.h>\n#include <pybind11/stl.h>\n#include <pybind11/stl_bind.h>\n#include <iostream>\n')
+            shared_memory_topics_file.write(f'#pragma once\n#include "Shared_Memory_Topics_API.h"\n#include "GenericWrapperHandler.h"\n#include <pybind11/pybind11.h>\n#include <pybind11/stl.h>\n#include <pybind11/stl_bind.h>\n#include <iostream>\n')
             shared_memory_topics_file.write(content)
 
     def write_generic_function(self, function_name):
@@ -137,7 +137,7 @@ class ParserWriter:
                                   f' py::overload_cast<void*>(&{topic_name}::GetOldest),'
                                   f'py::return_value_policy::copy)',
                                   f'.def("getByCounter",'
-                                  f' py::overload_cast<void*&, '
+                                  f' py::overload_cast<void*, '
                                   f'uint32_t, uint64_t, SMT_DataInfo&>(&{topic_name}::GetByCounter), py::return_value_policy::copy)',
                                   f'.def("getByCounter",'
                                   f' py::overload_cast<void*, '
@@ -160,32 +160,61 @@ class ParserWriter:
         class_file.write(";\n}")
 
     def write_smt_functions(self, struct):
-        smt_functions_signature = [
-            (f"GetByCounter(void* structObject, uint32_t counter, uint64_t timeout_us, "
-             "SMT_DataInfo& data_info)",
-             f'return SMT_GetByCounter("{struct.topic_name}", structObject, counter, timeout_us, &data_info);'),
-            (f"GetByCounter(void* structObject, uint32_t counter, uint64_t timeout_us)",
-             'SMT_DataInfo data_info = SMT_DataInfo{0,0,0};\n\t\t'
-             f'return SMT_GetByCounter("{struct.topic_name}", structObject, counter, timeout_us, &data_info);'),
-            (f"GetLatest(void* structObject, SMT_DataInfo& data_info)",
-             f'return SMT_GetLatest("{struct.topic_name}", structObject, &data_info);'),
-            (f"GetLatest(void* structObject)",
-             'SMT_DataInfo data_info = SMT_DataInfo{0,0,0};\n\t\t'
-             f'return SMT_GetLatest("{struct.topic_name}", structObject, &data_info);'),
-            (f"Publish(void* structObject)",
-             f'return SMT_Publish("{struct.topic_name}", structObject, {struct.struct_size});'),
-            (f"Publish(void* structObject, size_t size)",
-             f'return SMT_Publish("{struct.topic_name}", structObject, size);'),
-            (f"GetOldest({struct.full_name}& structObject, SMT_DataInfo& data_info)",
-             f'return SMT_GetOldest("{struct.topic_name}", structObject, &data_info);'),
-            (f"GetOldest(void* structObject)",
-             'SMT_DataInfo data_info = SMT_DataInfo{0,0,0};\n\t\t'
-             f'return SMT_GetOldest("{struct.topic_name}", structObject, &data_info);')]
+        if struct.have_wrapper:
+            smt_functions_signature = [
+                (f"GetByCounter(void* structObject, uint32_t counter, uint64_t timeout_us, "
+                 "SMT_DataInfo& data_info)",
+                 f'bool result = SMT_GetByCounter(_topicName.c_str(), (({struct.full_name}*)structObject)->getPtr(), counter, timeout_us, &data_info);\n\t\t'
+                 f'(({struct.full_name}*)structObject)->updateGet();\n\t\treturn result;'),
+                (f"GetByCounter(void* structObject, uint32_t counter, uint64_t timeout_us)",
+                 'SMT_DataInfo data_info = SMT_DataInfo{0,0,0};\n\t\t'
+                 f'bool result = SMT_GetByCounter(_topicName.c_str(), (({struct.full_name}*)structObject)->getPtr(), counter, timeout_us, &data_info);\n\t\t'
+                 f'(({struct.full_name}*)structObject)->updateGet();\n\t\treturn result;'),
+                (f"GetLatest(void* structObject, SMT_DataInfo& data_info)",
+                 f'bool result = SMT_GetLatest(_topicName.c_str(), (({struct.full_name}*)structObject)->getPtr(), &data_info);\n\t\t'
+                 f'(({struct.full_name}*)structObject)->updateGet();\n\t\treturn result;'),
+                (f"GetLatest(void* structObject)",
+                 'SMT_DataInfo data_info = SMT_DataInfo{0,0,0};\n\t\t'
+                 f'bool result = SMT_GetLatest(_topicName.c_str(), (({struct.full_name}*)structObject)->getPtr(), &data_info);\n\t\t'
+                 f'(({struct.full_name}*)structObject)->updateGet();\n\t\treturn result;'),
+                (f"Publish(void* structObject)",
+                 f'((SharedMemoryContentWrapper*)structObject)->updatePublish();\n\t\treturn SMT_Publish(_topicName.c_str(), (({struct.full_name}*)structObject)->getPtr(), _topicSize);'),
+                (f"Publish(void* structObject, size_t size)",
+                 f'((SharedMemoryContentWrapper*)structObject)->updatePublish();\n\t\treturn SMT_Publish(_topicName.c_str(), (({struct.full_name}*)structObject)->getPtr(), size);'),
+                (f"GetOldest(void* structObject, SMT_DataInfo& data_info)",
+                 f'bool result = SMT_GetOldest(_topicName.c_str(), (({struct.full_name}*)structObject)->getPtr(), &data_info);\n\t\t'
+                 f'(({struct.full_name}*)structObject)->updateGet();\n\t\treturn result;'),
+                (f"GetOldest(void* structObject)",
+                 'SMT_DataInfo data_info = SMT_DataInfo{0,0,0};\n\t\t'
+                 f'bool result = SMT_GetOldest(_topicName.c_str(), (({struct.full_name}*)structObject)->getPtr(), &data_info);\n\t\t'
+                 f'(({struct.full_name}*)structObject)->updateGet();\n\t\treturn result;')]
+        else:
+            smt_functions_signature = [
+                (f"GetByCounter(void* structObject, uint32_t counter, uint64_t timeout_us, "
+                 "SMT_DataInfo& data_info)",
+                 f'return SMT_GetByCounter(_topicName.c_str(), structObject, counter, timeout_us, &data_info);'),
+                (f"GetByCounter(void* structObject, uint32_t counter, uint64_t timeout_us)",
+                 'SMT_DataInfo data_info = SMT_DataInfo{0,0,0};\n\t\t'
+                 f'return SMT_GetByCounter(_topicName.c_str(), structObject, counter, timeout_us, &data_info);'),
+                (f"GetLatest(void* structObject, SMT_DataInfo& data_info)",
+                 f'return SMT_GetLatest(_topicName.c_str(), structObject, &data_info);'),
+                (f"GetLatest(void* structObject)",
+                 'SMT_DataInfo data_info = SMT_DataInfo{0,0,0};\n\t\t'
+                 f'return SMT_GetLatest(_topicName.c_str(), structObject, &data_info);'),
+                (f"Publish(void* structObject)",
+                 f'return SMT_Publish(_topicName.c_str(), structObject, _topicSize);'),
+                (f"Publish(void* structObject, size_t size)",
+                 f'return SMT_Publish(_topicName.c_str(), structObject, size);'),
+                (f"GetOldest(void* structObject, SMT_DataInfo& data_info)",
+                 f'return SMT_GetOldest(_topicName.c_str(), structObject, &data_info);'),
+                (f"GetOldest(void* structObject)",
+                 'SMT_DataInfo data_info = SMT_DataInfo{0,0,0};\n\t\t'
+                 f'return SMT_GetOldest(_topicName.c_str(), structObject, &data_info);')]
         self._topics_file.write(f"class {struct.topic_name}\n")
-        self._topics_file.write("{\nprivate:\n\tstd::string _topicName\n\tint _topicSize;\npublic:\n\t")
+        self._topics_file.write("{\nprivate:\n\tstd::string _topicName;\n\tint _topicSize;\npublic:\n\t")
         self._topics_file.write(f'{struct.topic_name}()\n\t')
         self._topics_file.write("{\n\t\t_topicName=")
-        self._topics_file.write(f"{struct.topic_name}\n\t\t_topicSize={struct.struct_size}\n\t")
+        self._topics_file.write(f'"{struct.topic_name}";\n\t\t_topicSize={struct.struct_size};\n\t')
         self._topics_file.write("}\n")
         [self.write_function(smt_function_signature, smt_function_call) for smt_function_signature, smt_function_call in smt_functions_signature]
         self._topics_file.write("};\n")
@@ -223,7 +252,7 @@ class ParserWriter:
         self._class_definition_file.write(f"\n\t{functions_signature[-1][1]};")
 
     def write_get_class_pointer(self, struct, functions_signature):
-        functions_signature.append((f'{struct.namespace}::{struct.name}*', f"{struct.namespace}::{struct.name}* get{struct.name}Ptr()"))
+        functions_signature.append((f'{struct.namespace}::{struct.name}*', f"{struct.namespace}::{struct.name}* getPtr()"))
         self._class_definition_file.write(f"\n\t{functions_signature[-1][1]};")
 
     def write_class_private(self, struct):
@@ -244,6 +273,8 @@ class ParserWriter:
                 self._class_implementation_file.write("{\n\t\t")
                 self._class_implementation_file.write(f"{vector_name}.push_back(_{struct.name}.{vector_name}[i]);\n\t")
                 self._class_implementation_file.write("}")
+            for inner_struct in struct.inner_structs:
+                self._class_implementation_file.write(f"\n\t{inner_struct}.updateGet();")
             self._class_implementation_file.write("\n}\n")
         else:
             for vector_name, vector_size in zip(vector_names, vector_sizes):
@@ -252,6 +283,8 @@ class ParserWriter:
                 self._class_implementation_file.write("{\n\t\t")
                 self._class_implementation_file.write(f"_{struct.name}.{vector_name}[i] = {vector_name}[i];\n\t")
                 self._class_implementation_file.write("}")
+            for inner_struct in struct.inner_structs:
+                self._class_implementation_file.write(f"\n\t{inner_struct}.updatePublish();")
             self._class_implementation_file.write("\n}\n")
 
     def write_function_signature(self, function_name):
@@ -304,7 +337,7 @@ class ParserWriter:
 
     def write_struct_class_prefix(self, struct):
         with open(f"{struct.name}Class.h", "w") as class_file:
-            class_file.write('# pragma once\n#include "sharedMemoryTopics.h"\n#include "WrapperFunctions.h"\n'
+            class_file.write('# pragma once\n#include "sharedMemoryTopics.h"\n'
                              '#include "Shared_Memory_Topics_API.h"\n#include "GenericWrapperHandler.h"\n'
                              '#include <pybind11\pybind11.h>\n#include <pybind11\stl.h>\n'
                              '#include <pybind11\stl_bind.h>\n#include <iostream>\n'

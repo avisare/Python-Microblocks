@@ -9,6 +9,7 @@ class Struct:
         self.have_wrapper = have_wrapper
         self.topic_name = topic_name
         self.struct_size = struct_size
+        self.inner_structs = []
         if have_wrapper:
             self.full_name = struct_name + suffix
         else:

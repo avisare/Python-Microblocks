@@ -10,7 +10,7 @@ class Parser:
         self._structures = list()
         self._include_files = list()
         self._vectors_type = set()
-        self._writer = ParserWriter(main_header_file)
+        self._writer = ParserWriter([main_header_file,])
         self._main_header_file = main_header_file
 
     def _create_wrapper_class(self, struct):
@@ -19,8 +19,7 @@ class Parser:
         vector_names = list()
         vector_sizes = list()
         self._writer.write_class_prefix(struct, functions_signature)
-        if self._has_array(struct):
-            self._writer.write_update_functions_signatures(functions_signature)
+        self._writer.write_update_functions_signatures(functions_signature)
         for variable in struct.variables:
             if variable["name"] != "":
                 if variable["array"]:
@@ -79,6 +78,10 @@ class Parser:
         return False
 
     def parse(self):
+        for struct in self._structures:
+            for variable in struct.variables:
+                if "struct" in variable["raw_type"] and variable["raw_type"][variable["raw_type"].find("struct") + len("struct") + 1:] in self._wrapper_class:
+                    struct.inner_structs.append("_" + variable["name"])
         for struct in self._structures:
             self._include_files.append(f'#include "{struct.name}Class.h"\n\n')
             if struct.name in self._wrapper_class:
