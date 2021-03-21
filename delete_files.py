@@ -12,7 +12,7 @@ def delete_files():
                        "SharedMemoryContentClass.h", "SharedMemoryWrapper.cpp", "SMT_DataInfoClass.h",
                        "classImplementationFile.cpp", "classDefinitionFile.h", "WrapperFunctionsFile.h",
                        "WrapperFunctions.h", "pybindClassesFile.cpp", "pybindClassesFile.h", "GenericWrapperHandler.h",
-                       "GenericWrapperHandler.cpp", "sharedMemoryTopics.h", "enums.cpp", "enums.h")
+                       "GenericWrapperHandler.cpp", "sharedMemoryTopics.h", "enums.cpp", "enums.h", "NavCov_RecordClass.h")
     for file in files_to_delete:
         delete_parser_file(file)
 

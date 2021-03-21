@@ -1,4 +1,5 @@
 import CppHeaderParser
+import linecache
 from parserWriter import ParserWriter
 from struct import Struct
 
@@ -24,10 +25,19 @@ class Parser:
         for variable in struct.variables:
             if variable["name"] != "":
                 if variable["array"]:
-                    self._vectors_type.add(variable['raw_type'])
-                    vector_sizes.append(variable["array_size"])
+                    if "multi_dimensional_array" in variable.keys():
+                        type = f'std::vector<{variable["raw_type"]}>'
+                        full_declaration = linecache.getline(struct.file_name, variable["line_number"])
+                        first_size = full_declaration[full_declaration.find("[") + 1:full_declaration.find("]", full_declaration.find("["), -1)]
+                        second_size = full_declaration[full_declaration.rfind("[")+1:full_declaration.rfind("]")]
+                        print(first_size, second_size)
+                        vector_sizes.append(f"{first_size},{second_size}")
+                    else:
+                        type = variable['raw_type']
+                        vector_sizes.append(variable["array_size"])
+                    self._vectors_type.add(type)
                     vector_names.append(variable['name'])
-                    self._writer.write_vector(variable['raw_type'], variable['name'])
+                    self._writer.write_vector(type, variable['name'])
                 elif "struct" in variable["raw_type"] and \
                         variable["raw_type"][variable["raw_type"].find("struct") + len("struct") + 1:]\
                         in self._wrapper_class:
@@ -115,17 +125,18 @@ class Parser:
                         self._wrapper_class.append(struct_name)
                         class_keep_changing = True
         #  need to be deleted, after the sizes of topics will be received
-        structs_size = {"SharedMemoryContent": 36, "testStructOne": 9, "testStructTwo": 42, "testStructThree": 33, "testStructFour": 44, "NavCov_Record": 8}
+        structs_size = {"SharedMemoryContent": 36, "testStructOne": 9, "testStructTwo": 42, "testStructThree": 33, "testStructFour": 44, "NavCov_Record": 8, "test": 440}
         index = 1
         for header in headers:
+            file = headers_files[index-1]
             for struct_name, struct_content in header.classes.items():
                 struct_variables = struct_content["properties"]["public"]
                 if self._need_wrapper_class(struct_variables):
                     self._structures.append(Struct(struct_content["namespace"], struct_name,
-                                                   struct_variables, True, "Wrapper", index == 1, struct_name + "Topic", structs_size[struct_name]))
+                                                   struct_variables, True, "Wrapper", index == 1, struct_name + "Topic", structs_size[struct_name], file))
                 else:
                     self._structures.append(Struct(struct_content["namespace"], struct_name, struct_variables,
-                                                   False, struct_content["namespace"], index == 1, struct_name + "Topic", structs_size[struct_name]))
+                                                   False, struct_content["namespace"], index == 1, struct_name + "Topic", structs_size[struct_name], file))
             index += 1
         self._writer.set_structures(self._structures)
 

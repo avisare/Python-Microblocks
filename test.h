@@ -17,5 +17,10 @@ struct NavCov_Record
 {
     NavCov_Status           covStatus;
     float                   floatVar;
-}
+};
+struct test
+{
+    int                     testArr[10][10];
+    int                     regularArr[10];
+};
 }

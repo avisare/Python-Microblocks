@@ -271,24 +271,58 @@ class ParserWriter:
         self._class_implementation_file.write("{")
         if "Get" in function_name:
             for vector_name, vector_size in zip(vector_names, vector_sizes):
-                self._class_implementation_file.write(f"\n\t{vector_name}.clear();")
-                self._class_implementation_file.write(f"\n\tfor (int i = 0; i < {vector_size}; i++)\n\t")
-                self._class_implementation_file.write("{\n\t\t")
-                self._class_implementation_file.write(f"{vector_name}.push_back(_{struct.name}.{vector_name}[i]);\n\t")
-                self._class_implementation_file.write("}")
+                if "," in vector_size:
+                    self._write_get_update_dimensional_array(struct, vector_size, vector_name)
+                else:
+                    self._write_get_update_array(struct, vector_size, vector_name)
             for inner_struct in struct.inner_structs:
                 self._class_implementation_file.write(f"\n\t{inner_struct}.updateGet();")
             self._class_implementation_file.write("\n}\n")
         else:
             for vector_name, vector_size in zip(vector_names, vector_sizes):
-                self._class_implementation_file.write(f"\n\tint max_index = ({vector_name}.size() >= {vector_size}) ? {vector_size} : {vector_name}.size();")
-                self._class_implementation_file.write(f"\n\tfor (int i = 0; i < max_index; i++)\n\t")
-                self._class_implementation_file.write("{\n\t\t")
-                self._class_implementation_file.write(f"_{struct.name}.{vector_name}[i] = {vector_name}[i];\n\t")
-                self._class_implementation_file.write("}")
+                if "," in vector_size:
+                    self._write_publish_dimensional_array(struct, vector_size, vector_name)
+                else:
+                    self._write_publish_update_array(struct, vector_size, vector_name)
             for inner_struct in struct.inner_structs:
                 self._class_implementation_file.write(f"\n\t{inner_struct}.updatePublish();")
             self._class_implementation_file.write("\n}\n")
+
+    def _write_get_update_dimensional_array(self, struct, vector_size, vector_name):
+        print(vector_size)
+        first_size, second_size = vector_size.split(",")
+        self._class_implementation_file.write(f"\n\t{vector_name}.clear();")
+        self._class_implementation_file.write(f"\n\tfor (int i = 0; i < {first_size}; i++)\n\t")
+        self._class_implementation_file.write("{\n\t\t")
+        self._class_implementation_file.write(f"for (int j = 0; j < {second_size}; j++)\n\t\t")
+        self._class_implementation_file.write("{\n\t\t\t")
+        self._class_implementation_file.write(f"{vector_name}[i].push_back(_{struct.name}.{vector_name}[i][j]);\n\t")
+        self._class_implementation_file.write("\n\t\t}\n\t}")
+
+    def _write_get_update_array(self, struct, vector_size, vector_name):
+        self._class_implementation_file.write(f"\n\t{vector_name}.clear();")
+        self._class_implementation_file.write(f"\n\tfor (int i = 0; i < {vector_size}; i++)\n\t")
+        self._class_implementation_file.write("{\n\t\t")
+        self._class_implementation_file.write(f"{vector_name}.push_back(_{struct.name}.{vector_name}[i]);\n\t")
+        self._class_implementation_file.write("}")
+
+    def _write_publish_update_array(self, struct, vector_size, vector_name):
+        self._class_implementation_file.write(f"\n\tint max_index = ({vector_name}.size() >= {vector_size}) ? {vector_size} : {vector_name}.size();")
+        self._class_implementation_file.write(f"\n\tfor (int i = 0; i < max_index; i++)\n\t")
+        self._class_implementation_file.write("{\n\t\t")
+        self._class_implementation_file.write(f"_{struct.name}.{vector_name}[i] = {vector_name}[i];\n\t")
+        self._class_implementation_file.write("}")
+
+    def _write_publish_dimensional_array(self, struct, vector_size, vector_name):
+        first_size, second_size = vector_size.split(",")
+        self._class_implementation_file.write(f"\n\tint max_index = ({vector_name}.size() >= {first_size}) ? {first_size} : {vector_name}.size();")
+        self._class_implementation_file.write(f"\n\tfor (int i = 0; i < max_index; i++)\n\t")
+        self._class_implementation_file.write("{\n\t\t")
+        self._class_implementation_file.write(f"int second_max_index = (i.size() >= {second_size}) ? {second_size} : i.size();")
+        self._class_implementation_file.write(f"\n\t\tfor (int j = 0; j < second_max_index; j++)\n\t\t")
+        self._class_implementation_file.write("{\n\t\t\t")
+        self._class_implementation_file.write(f"_{struct.name}.{vector_name}[i][j] = {vector_name}[i][j];\n\t\t")
+        self._class_implementation_file.write("}\n\t}")
 
     def write_function_signature(self, function_name):
         self._class_implementation_file.write(f"{function_name}\n")

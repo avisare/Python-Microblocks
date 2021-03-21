@@ -34,7 +34,7 @@ class RecursiveParser:
 
 
 def main():
-    recursive_parser = RecursiveParser("SharedMemoryContent.h")
+    recursive_parser = RecursiveParser("test.h")
     recursive_parser.parse()
 
 
