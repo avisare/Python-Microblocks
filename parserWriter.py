@@ -63,7 +63,7 @@ class ParserWriter:
             variable_functions = []
             for variable in struct.variables:
                 if variable != "":
-                    if "struct" in variable["type"]:
+                    if "struct" in variable["raw_type"]:
                         variable_functions.append(f'obj.get{variable["name"]}Const()')
                         class_file.write(
                             f'\n\t\t.def_property("{variable["name"]}", &{struct.full_name}::get{variable["name"]},'
@@ -86,18 +86,21 @@ class ParserWriter:
             class_file.write(f"\n\t\t\t{struct.full_name} obj = {struct.full_name}();")
             tuple_index = 0
             for variable in struct.variables:
+                type = variable["raw_type"]
+                if "enum" in variable.keys():
+                    type = variable["enum"]
                 if variable["array"]:
-                    class_file.write(f'\n\t\t\tobj.{variable["name"]} = t[{tuple_index}].cast<std::vector<{variable["type"]}>>();')
-                elif "struct" in variable["type"]:
-                    inner_struct = self._find_struct(variable["type"][variable["type"].find("struct") + len("struct") + 1:])
+                    class_file.write(f'\n\t\t\tobj.{variable["name"]} = t[{tuple_index}].cast<std::vector<{type}>>();')
+                elif "struct" in type:
+                    inner_struct = self._find_struct(type[type.find("struct") + len("struct") + 1:])
                     if inner_struct is not None and inner_struct.have_wrapper:
-                        class_file.write(f'\n\t\t\tobj.set{variable["name"]}(t[{tuple_index}].cast<{variable["type"][variable["type"].find("struct") + len("struct") + 1:]}Wrapper>());')
+                        class_file.write(f'\n\t\t\tobj.set{variable["name"]}(t[{tuple_index}].cast<{type[variable["type"].find("struct") + len("struct") + 1:]}Wrapper>());')
                     elif inner_struct is not None:
-                        class_file.write(f'\n\t\t\tobj.set{variable["name"]}(t[{tuple_index}].cast<{variable["type"][variable["type"].find("struct") + len("struct") + 1:]}>());')
+                        class_file.write(f'\n\t\t\tobj.set{variable["name"]}(t[{tuple_index}].cast<{type[variable["type"].find("struct") + len("struct") + 1:]}>());')
                     else:
-                        print(f"Error occured, struct name {variable['type']} wasn't found")
+                        print(f"Error occured, struct name {variable['raw_type']} wasn't found")
                 else:
-                    class_file.write(f'\n\t\t\tobj.set{variable["name"]}(t[{tuple_index}].cast<{variable["type"]}>());')
+                    class_file.write(f'\n\t\t\tobj.set{variable["name"]}(t[{tuple_index}].cast<{type}>());')
                 tuple_index += 1
             class_file.write("\n\t\t\treturn obj;\n\t\t}\n\t\t));\n")
             if not struct.need_smt_functions:
@@ -121,7 +124,7 @@ class ParserWriter:
             class_file.write(f"\n\t\t\t{struct.full_name} obj = {struct.full_name}();")
             tuple_index = 0
             for variable in struct.variables:
-                class_file.write(f'\n\t\t\tobj.{variable["name"]} = t[{tuple_index}].cast<{variable["type"]}>();')
+                class_file.write(f'\n\t\t\tobj.{variable["name"]} = t[{tuple_index}].cast<{variable["raw_type"]}>();')
                 tuple_index += 1
             class_file.write("\n\t\t\treturn obj;\n\t\t}\n\t\t));\n")
             if not struct.need_smt_functions:
@@ -236,7 +239,7 @@ class ParserWriter:
         self._class_definition_file.write(f"\n\tstd::vector<{vector_type}> {vector_name};")
 
     def write_inner_struct(self, functions_signature, inner_structs, variable):
-        struct_wrapper_class = variable["type"][variable["type"].find("struct") + len("struct") + 1:] + "Wrapper"
+        struct_wrapper_class = variable["raw_type"][variable["raw_type"].find("struct") + len("struct") + 1:] + "Wrapper"
         functions_signature.append((f"{struct_wrapper_class}&", f"{struct_wrapper_class}& get{variable['name']}()"))
         self._class_definition_file.write(f"\n\t{functions_signature[-1][1]};")
         functions_signature.append((f"{struct_wrapper_class}", f"{struct_wrapper_class} get{variable['name']}Const() const"))
@@ -246,9 +249,9 @@ class ParserWriter:
         inner_structs.append((struct_wrapper_class, variable['name']))
 
     def write_class_variable(self, functions_signature, variable):
-        functions_signature.append((f"{variable['type']}",f"{variable['type']} get{variable['name']}() const"))
+        functions_signature.append((f"{variable['raw_type']}",f"{variable['raw_type']} get{variable['name']}() const"))
         self._class_definition_file.write(f"\n\t{functions_signature[-1][1]};")
-        functions_signature.append(("void", f"void set{variable['name']}({variable['type']} setVar{variable['name']})"))
+        functions_signature.append(("void", f"void set{variable['name']}({variable['raw_type']} setVar{variable['name']})"))
         self._class_definition_file.write(f"\n\t{functions_signature[-1][1]};")
 
     def write_get_class_pointer(self, struct, functions_signature):
@@ -323,6 +326,19 @@ class ParserWriter:
         self._class_implementation_file.write("{};\n")
         self._class_implementation_file.write("}\n")
 
+    def write_enums_file(self, enums):
+        with open("enums.h", "w") as enums_file:
+            includes = "\n".join(self._main_files)
+            enums_file.write(f'#pragma once\n#include "{includes}"\n#include <pybind11/pybind11.h>\n#include <pybind11/stl.h>\n#include <pybind11/stl_bind.h>\n#include <iostream>\n')
+            enums_file.write("namespace py = pybind11;\n")
+            enums_file.write("void enumsRunner(py::module & SharedMemoryWrapperModule)\n{")
+            for enum in enums:
+                enums_file.write(f'\n\tpy::enum_<{enum["namespace"]}{enum["name"]}>(SharedMemoryWrapperModule, "{enum["name"]}")')
+                for enum_value in enum["values"]:
+                    enums_file.write(f'\n\t\t.value("{enum_value["name"]}", {enum["namespace"]}{enum_value["name"]})')
+                enums_file.write(f'\n\t\t.export_values();')
+            enums_file.write("}")
+
     def write_main_file_prefix(self, vector_types):
         for vector_type in vector_types:
             self._pybind_classes_file.write(f"PYBIND11_MAKE_OPAQUE(std::vector<{vector_type}>);\n")
@@ -344,8 +360,10 @@ class ParserWriter:
                              f'namespace py = pybind11;\nvoid {struct.name}ClassRunner(py::module & SharedMemoryWrapperModule)\n'
                              '{\n')
 
-    def write_class_call(self, structs):
+    def write_class_call(self, structs, enums):
         [self._pybind_classes_file.write(f"\n\n\t{struct.name}ClassRunner(SharedMemoryWrapperModule);") for struct in structs]
+        if enums:
+            self._pybind_classes_file.write("\n\n\tenumsRunner(SharedMemoryWrapperModule);")
 
     def _find_struct(self, struct_name):
         for struct in self._structures:

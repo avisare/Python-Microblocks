@@ -6,6 +6,7 @@ from struct import Struct
 class Parser:
 
     def __init__(self, main_header_file):
+        self._enums = list()
         self._wrapper_class = list()
         self._structures = list()
         self._include_files = list()
@@ -23,10 +24,10 @@ class Parser:
         for variable in struct.variables:
             if variable["name"] != "":
                 if variable["array"]:
-                    self._vectors_type.add(variable['type'])
+                    self._vectors_type.add(variable['raw_type'])
                     vector_sizes.append(variable["array_size"])
                     vector_names.append(variable['name'])
-                    self._writer.write_vector(variable['type'], variable['name'])
+                    self._writer.write_vector(variable['raw_type'], variable['name'])
                 elif "struct" in variable["raw_type"] and \
                         variable["raw_type"][variable["raw_type"].find("struct") + len("struct") + 1:]\
                         in self._wrapper_class:
@@ -92,12 +93,18 @@ class Parser:
         for struct in self._structures:
             self._writer.write_struct_class_prefix(struct)
             self._create_pybind_class(struct)
-        self._writer.write_class_call(self._structures)
+        self._writer.write_class_call(self._structures, len(self._enums) > 0)
         self._writer.write_file_ending()
+        if len(self._enums) > 0:
+            self._include_files.append('#include "enums.h"\n')
         self._writer.write_includes(self._include_files)
 
     def initialize_structures(self, headers_files):
         headers = [CppHeaderParser.CppHeader(header_file) for header_file in headers_files]
+        for header in headers:
+            self._enums += header.enums
+        if len(self._enums) > 0:
+            self._writer.write_enums_file(self._enums)
         class_keep_changing = True
         while class_keep_changing:
             class_keep_changing = False
@@ -108,7 +115,7 @@ class Parser:
                         self._wrapper_class.append(struct_name)
                         class_keep_changing = True
         #  need to be deleted, after the sizes of topics will be received
-        structs_size = {"SharedMemoryContent": 36, "testStructOne": 9, "testStructTwo": 42, "testStructThree": 33, "testStructFour": 44}
+        structs_size = {"SharedMemoryContent": 36, "testStructOne": 9, "testStructTwo": 42, "testStructThree": 33, "testStructFour": 44, "NavCov_Record": 8}
         index = 1
         for header in headers:
             for struct_name, struct_content in header.classes.items():
