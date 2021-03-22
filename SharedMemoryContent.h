@@ -15,7 +15,7 @@
 
 #define INT_ARRAY_MAX_LEN 10
 
-
+#define INT_DIMENSIONAL_ARRAY_SIZE 2
 
 namespace sm_data {
 
@@ -38,6 +38,7 @@ struct testStructOne
 	int intNumber;
 	float floatNumber;
 	char character;
+	int dimensionalArray [INT_DIMENSIONAL_ARRAY_SIZE][INT_DIMENSIONAL_ARRAY_SIZE];
 };
 
 

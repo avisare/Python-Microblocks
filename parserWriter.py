@@ -5,17 +5,12 @@ class ParserWriter:
         self._main_files = main_files
         self._structures = list()
         self._pybind_classes_file = open("SharedMemoryWrapper.cpp", "w")
-        self._class_definition_file = open("GenericWrapperHandler.h", "w")
-        self._class_implementation_file = open("GenericWrapperHandler.cpp", "w")
         self._topics_file = open("sharedMemoryTopics.h", "w")
 
     def set_structures(self, structures):
         self._structures = structures
 
     def write_includes(self, include_files):
-        self._pybind_classes_file.close()
-        self._class_definition_file.close()
-        self._class_implementation_file.close()
         self._topics_file.close()
         outer_include_files = [f'#include "{include_file_path}"\n' for include_file_path in self._main_files]
         with open("SharedMemoryWrapper.cpp", "r+") as main_file:
@@ -23,22 +18,10 @@ class ParserWriter:
             main_file.seek(0, 0)
             main_file.write('#include "stdafx.h"\n')
             [main_file.write(include_path) for include_path in include_files]
-            main_file.write('#include "WrapperFunctions.h"\n\n'
-                            '#include "Shared_Memory_Topics_API.h"\n\n#include "GenericWrapperHandler.h"\n\n'
+            main_file.write('#include "Shared_Memory_Topics_API.h"\n\n'
                             '#include <pybind11\pybind11.h>\n\n#include <pybind11\stl.h>\n\n'
                             '#include <pybind11\stl_bind.h>\n\n#include <iostream>\n\n')
             main_file.write(content)
-        with open("GenericWrapperHandler.cpp", "r+") as wrapper_class_implementation:
-            content = wrapper_class_implementation.read()
-            wrapper_class_implementation.seek(0, 0)
-            wrapper_class_implementation.write('#include "stdafx.h"\n#include "GenericWrapperHandler.h"\n#include <iostream>\n')
-            wrapper_class_implementation.write(content)
-
-        with open("GenericWrapperHandler.h", "r+") as wrapper_functions_definition_file:
-            content = wrapper_functions_definition_file.read()
-            wrapper_functions_definition_file.seek(0, 0)
-            wrapper_functions_definition_file.write(f'#pragma once\n{"".join(outer_include_files)}\n#include <pybind11/pybind11.h>\n#include <pybind11/stl.h>\n')
-            wrapper_functions_definition_file.write(content)
 
         with open("sharedMemoryTopics.h", "r+") as shared_memory_topics_file:
             content = shared_memory_topics_file.read()
@@ -57,30 +40,47 @@ class ParserWriter:
         self._topics_file.write("}\n")
 
     def write_wrapper_pybind_class(self, struct):
+        class_variables = list()
         with open(f"{struct.name}Class.h", "a") as class_file:
             class_file.write(f'\n\tpy::class_<{struct.full_name}>(SharedMemoryWrapperModule, "{struct.name}")\n')
             class_file.write(f"\t\t.def(py::init<>())")
-            variable_functions = []
             for variable in struct.variables:
                 if variable != "":
-                    if "struct" in variable["raw_type"]:
-                        variable_functions.append(f'obj.get{variable["name"]}Const()')
-                        class_file.write(
-                            f'\n\t\t.def_property("{variable["name"]}", &{struct.full_name}::get{variable["name"]},'
-                            f' &{struct.full_name}::set{variable["name"]}, py::return_value_policy::reference)')
-                    elif variable["array"]:
-                        variable_functions.append(f'obj.{variable["name"]}')
-                        class_file.write(
-                            f'\n\t\t.def_readwrite("{variable["name"]}", &{struct.full_name}::{variable["name"]})'
-                        )
+                    if variable["array"]:
+                        if "multi_dimensional_array" in variable.keys():
+                            full_declaration = linecache.getline(struct.file_name, variable["line_number"])
+                            first_size = full_declaration[full_declaration.find("[") + 1:full_declaration.find("]",full_declaration.find("["),-1)]
+                            second_size = full_declaration[full_declaration.rfind("[") + 1:full_declaration.rfind("]")]
+                            class_variables.append(({variable["name"]}, "dimensionalVector", variable["raw_type"], first_size, second_size))
+                            class_file.write(f'\n\t\t.def_readwrite("{variable["name"]}", &{struct.full_name}::{variable["name"]})')
+                        else:
+                            class_variables.append((f'{variable["name"]}, {variable["name"]}Vector', variable['raw_type'], variable["size"]))
+                            class_file.write(f'\n\t\t.def_readwrite("{variable["name"]}", &{struct.full_name}::{variable["name"]})')
                     else:
-                        variable_functions.append(f'obj.get{variable["name"]}()')
-                        class_file.write(
-                            f'\n\t\t.def_property("{variable["name"]}", &{struct.full_name}::get{variable["name"]},'
-                            f' &{struct.full_name}::set{variable["name"]}, py::return_value_policy::copy)')
+                        class_variables.append(f'obj.{variable["name"]}')
+                        class_file.write(f'\n\t\t.def_readwrite("{variable["name"]}", &{struct.full_name}::{variable["name"]}, py::return_value_policy::copy)')
 
             class_file.write(f'\n\t\t.def(py::pickle(\n\t\t\t[](const {struct.full_name} &obj)')
-            class_file.write("{\n\t\t\treturn py::make_tuple(")
+            class_file.write("{\n\t\t\t")
+            for class_variable in class_variables:
+                if len(class_variable) == 5:
+                    class_file.write(f"std::vector<std::vector<{class_variable[2]}>> {class_variable[1]};\n\t\t\t")
+                    class_file.write(f"for (int i = 0; i < {class_variable[3]}; i++)\n\t\t\t")
+                    class_file.write("{\n\t\t\t\t")
+                    class_file.write(f"std::vector<{class_variable[2]}> temp;\n\t\t\t\t")
+                    class_file.write(f"for (int j = 0; j < {class_variable[4]}; j++)")
+                    class_file.write("{\n\t\t\t\t\t")
+                    class_file.write(f"temp.push_back(obj.{class_variable[0]}[i][j]);")
+                    class_file.write("\n\t\t\t\t\t}\n\t\t\t\t")
+                    class_file.write(f"{class_variable[1]}.push_back(temp);")
+                    class_file.write("\n\t\t\t\t}")
+                elif len(class_variable) == 4:
+                    class_file.write(f"std::vector<{class_variable[2]}> {class_variable[1]};\n\t\t\t")
+                    class_file.write(f"for (int i = 0; i < {class_variable[3]}; i++)\n\t\t\t")
+                    class_file.write("{\n\t\t\t\t")
+                    class_file.write(f"{class_variable[1]}.push_back(obj.{class_variable[0]}[i]);")
+                    class_file.write("\n\t\t\t\t}")
+            class_file.write("return py::make_tuple(")
             class_file.write(f"{','.join(variable_functions)});\n")
             class_file.write("\t\t},\n\t\t\t[](py::tuple t){")
             class_file.write(f"\n\t\t\t{struct.full_name} obj = {struct.full_name}();")
@@ -91,6 +91,9 @@ class ParserWriter:
                     type = variable["enum"]
                 if variable["array"]:
                     class_file.write(f'\n\t\t\tobj.{variable["name"]} = t[{tuple_index}].cast<std::vector<{type}>>();')
+                    class_file.write(f"for (int i = 0; i < ; i++)\n\t\t\t")
+                    class_file.write("{\n\t\t\t\t")
+                    class_file.write("")
                 elif "struct" in type:
                     inner_struct = self._find_struct(type[type.find("struct") + len("struct") + 1:])
                     if inner_struct is not None and inner_struct.have_wrapper:
@@ -108,29 +111,6 @@ class ParserWriter:
             else:
                 self.write_overload_smt_functions(class_file, struct.topic_name)
 
-    def write_pybind_class_without_wrappper(self, struct):
-        with open(f"{struct.name}Class.h", "a") as class_file:
-            class_file.write(f'\n\tpy::class_<{struct.full_name}>(SharedMemoryWrapperModule, "{struct.name}")\n')
-            class_file.write(f"\t\t.def(py::init<>())")
-            for variable in struct.variables:
-                if variable != "":
-                    class_file.write(
-                        f'\n\t\t.def_readwrite("{variable["name"]}", &{struct.full_name}::{variable["name"]},'
-                        f' py::return_value_policy::copy)')
-            class_file.write(f'\n\t\t.def(py::pickle(\n\t\t\t[](const {struct.full_name} &obj)')
-            class_file.write("{\n\t\t\treturn py::make_tuple(")
-            class_file.write(f'{",".join(["obj." + variable["name"] for variable in struct.variables])});\n')
-            class_file.write("\t\t},\n\t\t\t[](py::tuple t){")
-            class_file.write(f"\n\t\t\t{struct.full_name} obj = {struct.full_name}();")
-            tuple_index = 0
-            for variable in struct.variables:
-                class_file.write(f'\n\t\t\tobj.{variable["name"]} = t[{tuple_index}].cast<{variable["raw_type"]}>();')
-                tuple_index += 1
-            class_file.write("\n\t\t\treturn obj;\n\t\t}\n\t\t));\n")
-            if not struct.need_smt_functions:
-                class_file.write("}")
-            else:
-                self.write_overload_smt_functions(class_file, struct.topic_name)
 
     def write_overload_smt_functions(self, class_file, topic_name):
         smt_overload_functions = [f'.def("getOldest",'
@@ -163,56 +143,27 @@ class ParserWriter:
         class_file.write(";\n}")
 
     def write_smt_functions(self, struct):
-        if struct.have_wrapper:
-            smt_functions_signature = [
-                (f"GetByCounter(void* structObject, uint32_t counter, uint64_t timeout_us, "
-                 "SMT_DataInfo& data_info)",
-                 f'bool result = SMT_GetByCounter(_topicName.c_str(), (({struct.full_name}*)structObject)->getPtr(), counter, timeout_us, &data_info);\n\t\t'
-                 f'(({struct.full_name}*)structObject)->updateGet();\n\t\treturn result;'),
-                (f"GetByCounter(void* structObject, uint32_t counter, uint64_t timeout_us)",
-                 'SMT_DataInfo data_info = SMT_DataInfo{0,0,0};\n\t\t'
-                 f'bool result = SMT_GetByCounter(_topicName.c_str(), (({struct.full_name}*)structObject)->getPtr(), counter, timeout_us, &data_info);\n\t\t'
-                 f'(({struct.full_name}*)structObject)->updateGet();\n\t\treturn result;'),
-                (f"GetLatest(void* structObject, SMT_DataInfo& data_info)",
-                 f'bool result = SMT_GetLatest(_topicName.c_str(), (({struct.full_name}*)structObject)->getPtr(), &data_info);\n\t\t'
-                 f'(({struct.full_name}*)structObject)->updateGet();\n\t\treturn result;'),
-                (f"GetLatest(void* structObject)",
-                 'SMT_DataInfo data_info = SMT_DataInfo{0,0,0};\n\t\t'
-                 f'bool result = SMT_GetLatest(_topicName.c_str(), (({struct.full_name}*)structObject)->getPtr(), &data_info);\n\t\t'
-                 f'(({struct.full_name}*)structObject)->updateGet();\n\t\treturn result;'),
-                (f"Publish(void* structObject)",
-                 f'((SharedMemoryContentWrapper*)structObject)->updatePublish();\n\t\treturn SMT_Publish(_topicName.c_str(), (({struct.full_name}*)structObject)->getPtr(), _topicSize);'),
-                (f"Publish(void* structObject, size_t size)",
-                 f'((SharedMemoryContentWrapper*)structObject)->updatePublish();\n\t\treturn SMT_Publish(_topicName.c_str(), (({struct.full_name}*)structObject)->getPtr(), size);'),
-                (f"GetOldest(void* structObject, SMT_DataInfo& data_info)",
-                 f'bool result = SMT_GetOldest(_topicName.c_str(), (({struct.full_name}*)structObject)->getPtr(), &data_info);\n\t\t'
-                 f'(({struct.full_name}*)structObject)->updateGet();\n\t\treturn result;'),
-                (f"GetOldest(void* structObject)",
-                 'SMT_DataInfo data_info = SMT_DataInfo{0,0,0};\n\t\t'
-                 f'bool result = SMT_GetOldest(_topicName.c_str(), (({struct.full_name}*)structObject)->getPtr(), &data_info);\n\t\t'
-                 f'(({struct.full_name}*)structObject)->updateGet();\n\t\treturn result;')]
-        else:
-            smt_functions_signature = [
-                (f"GetByCounter(void* structObject, uint32_t counter, uint64_t timeout_us, "
-                 "SMT_DataInfo& data_info)",
-                 f'return SMT_GetByCounter(_topicName.c_str(), structObject, counter, timeout_us, &data_info);'),
-                (f"GetByCounter(void* structObject, uint32_t counter, uint64_t timeout_us)",
-                 'SMT_DataInfo data_info = SMT_DataInfo{0,0,0};\n\t\t'
-                 f'return SMT_GetByCounter(_topicName.c_str(), structObject, counter, timeout_us, &data_info);'),
-                (f"GetLatest(void* structObject, SMT_DataInfo& data_info)",
-                 f'return SMT_GetLatest(_topicName.c_str(), structObject, &data_info);'),
-                (f"GetLatest(void* structObject)",
-                 'SMT_DataInfo data_info = SMT_DataInfo{0,0,0};\n\t\t'
-                 f'return SMT_GetLatest(_topicName.c_str(), structObject, &data_info);'),
-                (f"Publish(void* structObject)",
-                 f'return SMT_Publish(_topicName.c_str(), structObject, _topicSize);'),
-                (f"Publish(void* structObject, size_t size)",
-                 f'return SMT_Publish(_topicName.c_str(), structObject, size);'),
-                (f"GetOldest(void* structObject, SMT_DataInfo& data_info)",
-                 f'return SMT_GetOldest(_topicName.c_str(), structObject, &data_info);'),
-                (f"GetOldest(void* structObject)",
-                 'SMT_DataInfo data_info = SMT_DataInfo{0,0,0};\n\t\t'
-                 f'return SMT_GetOldest(_topicName.c_str(), structObject, &data_info);')]
+        smt_functions_signature = [
+            (f"GetByCounter(void* structObject, uint32_t counter, uint64_t timeout_us, "
+             "SMT_DataInfo& data_info)",
+             f'return SMT_GetByCounter(_topicName.c_str(), structObject, counter, timeout_us, &data_info);'),
+            (f"GetByCounter(void* structObject, uint32_t counter, uint64_t timeout_us)",
+             'SMT_DataInfo data_info = SMT_DataInfo{0,0,0};\n\t\t'
+             f'return SMT_GetByCounter(_topicName.c_str(), structObject, counter, timeout_us, &data_info);'),
+            (f"GetLatest(void* structObject, SMT_DataInfo& data_info)",
+             f'return SMT_GetLatest(_topicName.c_str(), structObject, &data_info);'),
+            (f"GetLatest(void* structObject)",
+             'SMT_DataInfo data_info = SMT_DataInfo{0,0,0};\n\t\t'
+             f'return SMT_GetLatest(_topicName.c_str(), structObject, &data_info);'),
+            (f"Publish(void* structObject)",
+             f'return SMT_Publish(_topicName.c_str(), structObject, _topicSize);'),
+            (f"Publish(void* structObject, size_t size)",
+             f'return SMT_Publish(_topicName.c_str(), structObject, size);'),
+            (f"GetOldest(void* structObject, SMT_DataInfo& data_info)",
+             f'return SMT_GetOldest(_topicName.c_str(), structObject, &data_info);'),
+            (f"GetOldest(void* structObject)",
+             'SMT_DataInfo data_info = SMT_DataInfo{0,0,0};\n\t\t'
+             f'return SMT_GetOldest(_topicName.c_str(), structObject, &data_info);')]
         self._topics_file.write(f"class {struct.topic_name}\n")
         self._topics_file.write("{\nprivate:\n\tstd::string _topicName;\n\tint _topicSize;\npublic:\n\t")
         self._topics_file.write(f'{struct.topic_name}()\n\t')
@@ -221,144 +172,6 @@ class ParserWriter:
         self._topics_file.write("}\n")
         [self.write_function(smt_function_signature, smt_function_call) for smt_function_signature, smt_function_call in smt_functions_signature]
         self._topics_file.write("};\n")
-
-    def write_update_functions_signatures(self, functions_signature):
-        functions_signature.append(("void", "void updatePublish()"))
-        self._class_definition_file.write(f"\t{functions_signature[-1][1]};\n")
-        functions_signature.append(("void", "void updateGet()"))
-        self._class_definition_file.write(f"\t{functions_signature[-1][1]};")
-
-    def write_class_prefix(self, struct, functions_signature):
-        class_name = struct.name + "Wrapper"
-        self._class_definition_file.write(f"\nclass {class_name}\n")
-        self._class_definition_file.write("{\npublic:\n\t")
-        functions_signature.append(("", f"{class_name}()"))
-        self._class_definition_file.write(f"{functions_signature[-1][1]};\n")
-
-    def write_vector(self, vector_type, vector_name):
-        self._class_definition_file.write(f"\n\tstd::vector<{vector_type}> {vector_name};")
-
-    def write_inner_struct(self, functions_signature, inner_structs, variable):
-        struct_wrapper_class = variable["raw_type"][variable["raw_type"].find("struct") + len("struct") + 1:] + "Wrapper"
-        functions_signature.append((f"{struct_wrapper_class}&", f"{struct_wrapper_class}& get{variable['name']}()"))
-        self._class_definition_file.write(f"\n\t{functions_signature[-1][1]};")
-        functions_signature.append((f"{struct_wrapper_class}", f"{struct_wrapper_class} get{variable['name']}Const() const"))
-        self._class_definition_file.write(f"\n\t{functions_signature[-1][1]};")
-        functions_signature.append(("void", f"void set{variable['name']}({struct_wrapper_class} set{variable['name']})"))
-        self._class_definition_file.write(f"\n\t{functions_signature[-1][1]};")
-        inner_structs.append((struct_wrapper_class, variable['name']))
-
-    def write_class_variable(self, functions_signature, variable):
-        functions_signature.append((f"{variable['raw_type']}",f"{variable['raw_type']} get{variable['name']}() const"))
-        self._class_definition_file.write(f"\n\t{functions_signature[-1][1]};")
-        functions_signature.append(("void", f"void set{variable['name']}({variable['raw_type']} setVar{variable['name']})"))
-        self._class_definition_file.write(f"\n\t{functions_signature[-1][1]};")
-
-    def write_get_class_pointer(self, struct, functions_signature):
-        functions_signature.append((f'{struct.namespace}::{struct.name}*', f"{struct.namespace}::{struct.name}* getPtr()"))
-        self._class_definition_file.write(f"\n\t{functions_signature[-1][1]};")
-
-    def write_class_private(self, struct):
-        self._class_definition_file.write(f"\nprivate:\n\t{struct.namespace}::{struct.name} _{struct.name};\n")
-
-    def write_inner_structs_variables(self, inner_structs):
-        if len(inner_structs) > 0:
-            [self._class_definition_file.write(f"\t{inner_struct[0]} _{inner_struct[1]};\n") for inner_struct in inner_structs]
-        self._class_definition_file.write("};\n")
-
-    def write_update_function_implementation(self, struct, function_name, vector_sizes, vector_names):
-        self._class_implementation_file.write(f"{function_name}\n")
-        self._class_implementation_file.write("{")
-        if "Get" in function_name:
-            for vector_name, vector_size in zip(vector_names, vector_sizes):
-                if "," in vector_size:
-                    self._write_get_update_dimensional_array(struct, vector_size, vector_name)
-                else:
-                    self._write_get_update_array(struct, vector_size, vector_name)
-            for inner_struct in struct.inner_structs:
-                self._class_implementation_file.write(f"\n\t{inner_struct}.updateGet();")
-            self._class_implementation_file.write("\n}\n")
-        else:
-            for vector_name, vector_size in zip(vector_names, vector_sizes):
-                if "," in vector_size:
-                    self._write_publish_dimensional_array(struct, vector_size, vector_name)
-                else:
-                    self._write_publish_update_array(struct, vector_size, vector_name)
-            for inner_struct in struct.inner_structs:
-                self._class_implementation_file.write(f"\n\t{inner_struct}.updatePublish();")
-            self._class_implementation_file.write("\n}\n")
-
-    def _write_get_update_dimensional_array(self, struct, vector_size, vector_name):
-        print(vector_size)
-        first_size, second_size = vector_size.split(",")
-        self._class_implementation_file.write(f"\n\t{vector_name}.clear();")
-        self._class_implementation_file.write(f"\n\tfor (int i = 0; i < {first_size}; i++)\n\t")
-        self._class_implementation_file.write("{\n\t\t")
-        self._class_implementation_file.write(f"for (int j = 0; j < {second_size}; j++)\n\t\t")
-        self._class_implementation_file.write("{\n\t\t\t")
-        self._class_implementation_file.write(f"{vector_name}[i].push_back(_{struct.name}.{vector_name}[i][j]);\n\t")
-        self._class_implementation_file.write("\n\t\t}\n\t}")
-
-    def _write_get_update_array(self, struct, vector_size, vector_name):
-        self._class_implementation_file.write(f"\n\t{vector_name}.clear();")
-        self._class_implementation_file.write(f"\n\tfor (int i = 0; i < {vector_size}; i++)\n\t")
-        self._class_implementation_file.write("{\n\t\t")
-        self._class_implementation_file.write(f"{vector_name}.push_back(_{struct.name}.{vector_name}[i]);\n\t")
-        self._class_implementation_file.write("}")
-
-    def _write_publish_update_array(self, struct, vector_size, vector_name):
-        self._class_implementation_file.write(f"\n\tint max_index = ({vector_name}.size() >= {vector_size}) ? {vector_size} : {vector_name}.size();")
-        self._class_implementation_file.write(f"\n\tfor (int i = 0; i < max_index; i++)\n\t")
-        self._class_implementation_file.write("{\n\t\t")
-        self._class_implementation_file.write(f"_{struct.name}.{vector_name}[i] = {vector_name}[i];\n\t")
-        self._class_implementation_file.write("}")
-
-    def _write_publish_dimensional_array(self, struct, vector_size, vector_name):
-        first_size, second_size = vector_size.split(",")
-        self._class_implementation_file.write(f"\n\tint max_index = ({vector_name}.size() >= {first_size}) ? {first_size} : {vector_name}.size();")
-        self._class_implementation_file.write(f"\n\tfor (int i = 0; i < max_index; i++)\n\t")
-        self._class_implementation_file.write("{\n\t\t")
-        self._class_implementation_file.write(f"int second_max_index = (i.size() >= {second_size}) ? {second_size} : i.size();")
-        self._class_implementation_file.write(f"\n\t\tfor (int j = 0; j < second_max_index; j++)\n\t\t")
-        self._class_implementation_file.write("{\n\t\t\t")
-        self._class_implementation_file.write(f"_{struct.name}.{vector_name}[i][j] = {vector_name}[i][j];\n\t\t")
-        self._class_implementation_file.write("}\n\t}")
-
-    def write_function_signature(self, function_name):
-        self._class_implementation_file.write(f"{function_name}\n")
-        self._class_implementation_file.write("{\n\t")
-
-    def write_set_function(self, struct, function_name):
-        variable_name = function_name[function_name.find('set') + 3: function_name.find('(')]
-        input_var_name = function_name[function_name.rfind(" ", function_name.find('('), -1):function_name.find(')')]
-        if function_name.count("Wrapper") == 2:
-            self._class_implementation_file.write(f"_{variable_name} ={input_var_name};\n")
-        else:
-            self._class_implementation_file.write(f"_{struct.name}.{variable_name} ={input_var_name};\n")
-        self._class_implementation_file.write("}\n")
-
-    def write_get_function(self, struct, function_name):
-        variable_name = function_name[function_name.find('get') + 3: function_name.find('(')]
-        return_type = function_name[:function_name.find(" ")].strip()
-        if "Ptr" in function_name:
-            self._class_implementation_file.write(f"return &_{struct.name};\n")
-        elif "Const" in variable_name:
-            self._class_implementation_file.write(f"return _{variable_name[:variable_name.find('Const')]};\n")
-        elif function_name.count("Wrapper") == 2:
-            self._class_implementation_file.write(f"return _{variable_name};\n")
-        elif return_type == "float":
-            self._class_implementation_file.write(f"return _{struct.name}.{variable_name};\n")
-        else:
-            self._class_implementation_file.write(f"return _{struct.name}.{variable_name};\n")
-        self._class_implementation_file.write("}\n")
-
-    def write_constructor(self, struct_name):
-        class_name = struct_name + "Wrapper"
-        self._class_implementation_file.write(f"{class_name}::{class_name}()\n")
-        self._class_implementation_file.write("{\n\t")
-        self._class_implementation_file.write(f"_{struct_name} = ")
-        self._class_implementation_file.write("{};\n")
-        self._class_implementation_file.write("}\n")
 
     def write_enums_file(self, enums):
         with open("enums.h", "w") as enums_file:
@@ -410,6 +223,4 @@ class ParserWriter:
 
     def __del__(self):
         self._pybind_classes_file.close()
-        self._class_definition_file.close()
-        self._class_implementation_file.close()
         self._topics_file.close()
