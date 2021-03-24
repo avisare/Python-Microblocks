@@ -3,16 +3,14 @@
   <component name="ChangeListManager">
     <list default="true" id="648efb22-c2ea-4387-b697-0aad0b4bbc43" name="Default Changelist" comment="">
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/GenericWrapperHandler.cpp" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/GenericWrapperHandler.h" beforeDir="false" />
       <change beforePath="$PROJECT_DIR$/HeadersParser.py" beforeDir="false" afterPath="$PROJECT_DIR$/HeadersParser.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/NavCov_RecordClass.h" beforeDir="false" />
       <change beforePath="$PROJECT_DIR$/SharedMemoryContent.h" beforeDir="false" afterPath="$PROJECT_DIR$/SharedMemoryContent.h" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/SharedMemoryWrapper.cpp" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/enums.h" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/delete_files.py" beforeDir="false" afterPath="$PROJECT_DIR$/delete_files.py" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/parserWriter.py" beforeDir="false" afterPath="$PROJECT_DIR$/parserWriter.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/sharedMemoryTopics.h" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/recursive_parser.py" beforeDir="false" afterPath="$PROJECT_DIR$/recursive_parser.py" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/struct.py" beforeDir="false" afterPath="$PROJECT_DIR$/struct.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/test.h" beforeDir="false" afterPath="$PROJECT_DIR$/test.h" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/testClass.h" beforeDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -56,7 +54,7 @@
       <recent name="C:\Users\Administrator\Documents\python_netwrok_communication\transportation_protocols" />
     </key>
   </component>
-  <component name="RunManager" selected="Python.delete_files">
+  <component name="RunManager" selected="Python.recursive_parser">
     <configuration name="GenericSharedMemoryTest" type="PythonConfigurationType" factoryName="Python" temporary="true" nameIsGenerated="true">
       <module name="Python-Microblocks" />
       <option name="INTERPRETER_OPTIONS" value="" />
@@ -193,8 +191,8 @@
     </list>
     <recent_temporary>
       <list>
-        <item itemvalue="Python.delete_files" />
         <item itemvalue="Python.recursive_parser" />
+        <item itemvalue="Python.delete_files" />
         <item itemvalue="Python.example" />
         <item itemvalue="Python.parserWriter" />
         <item itemvalue="Python.GenericSharedMemoryTest" />

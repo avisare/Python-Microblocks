@@ -12,7 +12,6 @@ enum NavCov_Status
                                         all other cells are 0. */
     NAV_COV_STS_FULL_MATRIX = 2   /*  covData matrix is full */
 };
-
 struct NavCov_Record
 {
     NavCov_Status           covStatus;
@@ -20,7 +19,7 @@ struct NavCov_Record
 };
 struct test
 {
-    int                     testArr[10][10];
-    int                     regularArr[10];
+    int                     testArr[2][3];
+    int                     regularArr[4];
 };
 }

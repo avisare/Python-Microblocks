@@ -9,23 +9,21 @@ class RecursiveParser:
         self._main_file = open(main_file_path, "r")
         self._includes = list()
 
-    def get_includes_recursive(self, includes, file_path):
+    def get_includes_recursive(self, file_path):
         with open(file_path, "r") as sub_file:
             for line in sub_file:
                 if "#include" in line:
                     include_file = line[line.find('#include "') + len('#include "'):line.rfind('"')]
-                    if path.exists(include_file) and include_file not in includes:
+                    if path.exists(include_file) and include_file not in self._includes:
                         self._includes.append(include_file)
-                        self.get_includes_recursive(includes, include_file)
+                        self.get_includes_recursive(include_file)
 
     def parse(self):
-        temp_include_files = list()
-        self.get_includes_recursive(temp_include_files, self._main_file_path)
-        if self._main_file_path in temp_include_files:
-            temp_include_files.remove(self._main_file_path)
-        temp_include_files.append(self._main_file_path)
-        self._includes = temp_include_files
-        parser = Parser(self._includes[-1])
+        self.get_includes_recursive(self._main_file_path)
+        if self._main_file_path in self._includes:
+            self._includes.remove(self._main_file_path)
+        self._includes.insert(0, self._main_file_path)
+        parser = Parser(self._includes)
         parser.initialize_structures(self._includes)
         parser.parse()
 
@@ -34,7 +32,7 @@ class RecursiveParser:
 
 
 def main():
-    recursive_parser = RecursiveParser("test.h")
+    recursive_parser = RecursiveParser("SharedMemoryContent.h")
     recursive_parser.parse()
 
 

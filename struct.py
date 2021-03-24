@@ -1,7 +1,7 @@
 
 
 class Struct:
-    def __init__(self, namespace, struct_name, variables, suffix, need_smt_functions, topic_name, struct_size, file):
+    def __init__(self, namespace, struct_name, variables, need_smt_functions, topic_name, struct_size, file):
         self.namespace = namespace
         self.name = struct_name
         self.variables = variables
@@ -10,8 +10,8 @@ class Struct:
         self.struct_size = struct_size
         self.inner_structs = []
         self.file_name = file
-        if suffix == "":
+        if namespace == "":
             self.full_name = struct_name
         else:
-            self.full_name = suffix + "::" + struct_name
+            self.full_name = namespace + "::" + struct_name
 
