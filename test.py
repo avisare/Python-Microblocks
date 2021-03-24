@@ -1,26 +1,38 @@
-from transportation_protocols.connection_factory import ConnectionFactory
-from parse_config import parse_config_files
-
-#config_dictionary = parse_config_files(("config.json",))
-#JsonConfigSingleton(config_dictionary)
-
-y = 20
-
-def server():
-    tcp_server = ConnectionFactory.get_connection()
-    tcp_server.send("dwqd")
-    msg = tcp_server.receive()
-    print(msg)
-
-def test():
-    global y
-    y = 100
+import inspect
 
 
-def client():
-    tcp_client = ConnectionFactory.get_connection()
-    msg = tcp_client.receive()
-    print(msg)
-    tcp_client.send("hello")
+def wrapper_func(topic_name):
+    setattr(hello, topic_name, test(topic_name))
 
-#client()
+
+class wrapper_class:
+    def __init__(self, topic_name, name):
+        self._topic_name = test(name)
+
+
+
+class test:
+    def __init__(self, name):
+        self._name = name
+
+    def print_name(self):
+        print(self._name)
+    def __call__(self):
+        return self
+
+
+class hello:
+    def create_topic(self, topic_name):
+        wrapper_func(topic_name)
+
+x = hello()
+x.create_topic("noder")
+x.noder().print_name()
+
+
+
+
+
+"""x = sharedMemoryWrapper()
+topic = x.topicName()
+topic.foo()"""

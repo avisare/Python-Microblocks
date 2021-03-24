@@ -36,6 +36,7 @@ class SharedMemoryClient:
     def SMT_CreateTopic(self, topic_name, max_data_size, history_depth, cells_count):
         request = Request(self.SMT_CREATE_TOPIC, (topic_name, max_data_size, history_depth, cells_count))
         self._connection.send(request)
+        setattr(SharedMemoryClient, topic_name, get_topic)
         return self._connection.receive().response_code
 
     def SMT_GetPublishCount(self, topic_name):
@@ -48,11 +49,11 @@ class SharedMemoryClient:
         self._connection.send(request)
         return self._connection.receive().response_code
 
-    def getOldest(self, smt_object, data_info_object=None):
+    def getOldest(self, smt_object, topic_name, data_info_object=None):
         if data_info_object is None:
-            request = Request(self.SMT_GET_OLDEST, smt_object)
+            request = Request(self.SMT_GET_OLDEST, (smt_object, topic_name))
         else:
-            request = Request(self.SMT_GET_OLDEST, (smt_object, data_info_object))
+            request = Request(self.SMT_GET_OLDEST, (smt_object, data_info_object, topic_name))
         self._connection.send(request)
         response = self._connection.receive()
         if data_info_object is not None:
@@ -64,11 +65,11 @@ class SharedMemoryClient:
             self._copy_shared_memory_object(temp_data, data_info_object)
         return response.response_code
 
-    def getByCounter(self, smt_object, counter, timeout, data_info_object=None):
+    def getByCounter(self, smt_object, counter, timeout, topic_name, data_info_object=None):
         if data_info_object is None:
-            request = Request(self.SMT_GET_BY_COUNTER, [smt_object, counter, timeout])
+            request = Request(self.SMT_GET_BY_COUNTER, (smt_object, counter, timeout, topic_name))
         else:
-            request = Request(self.SMT_GET_BY_COUNTER, [smt_object, counter, timeout, data_info_object])
+            request = Request(self.SMT_GET_BY_COUNTER, (smt_object, counter, timeout, data_info_object, topic_name))
         self._connection.send(request)
         response = self._connection.receive()
         if data_info_object is not None:
@@ -80,17 +81,17 @@ class SharedMemoryClient:
             self._copy_shared_memory_object(temp_data, data_info_object)
         return response.response_code
 
-    def publish(self, smt_object):
-        request = Request(self.SMT_PUBLISH, smt_object)
+    def publish(self, smt_object, topic_name):
+        request = Request(self.SMT_PUBLISH, (smt_object, topic_name))
         self._connection.send(request)
         response = self._connection.receive()
         return response.response_code
 
-    def getLatest(self, smt_object, data_info_object=None):
+    def getLatest(self, smt_object, topic_name, data_info_object=None):
         if data_info_object is None:
-            request = Request(self.SMT_GET_LATEST, smt_object)
+            request = Request(self.SMT_GET_LATEST, (smt_object, topic_name))
         else:
-            request = Request(self.SMT_GET_LATEST, (smt_object, data_info_object))
+            request = Request(self.SMT_GET_LATEST, (smt_object, data_info_object, topic_name))
         self._connection.send(request)
         response = self._connection.receive()
         if data_info_object is not None:
@@ -111,3 +112,33 @@ class SharedMemoryClient:
     def __del__(self):
         request = Request(self.EXIT)
         self._connection.send(request)
+
+
+def get_topic(topic_name, shared_memory_client):
+    return GenericTopic(topic_name, shared_memory_client)
+
+
+class GenericTopic:
+    def __init__(self, shared_memory_client, topic_name):
+        self._topic_name = topic_name
+        self._shared_memory_client = shared_memory_client
+
+    def __call__(self):
+        return self
+
+    def getOldest(self, smt_object, data_info_object=None):
+        return self._shared_memory_client.getOldest(smt_object, self._topic_name, data_info_object)
+
+    def getByCounter(self, smt_object, counter, timeout, data_info_object=None):
+        return self._shared_memory_client.getByCounter(smt_object, counter, timeout, self._topic_name, data_info_object)
+
+    def publish(self, smt_object):
+        return self._shared_memory_client.publish(smt_object, self._topic_name)
+
+    def getLatest(self, smt_object, data_info_object=None):
+        return self._shared_memory_client.getLatest(smt_object, self._topic_name, data_info_object)
+
+
+
+
+
