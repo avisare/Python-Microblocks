@@ -6,8 +6,7 @@ class FunctionNotFound(Exception):
         self._connection_type = connection_type
 
     def __str__(self):
-        return f"There is no such function with the mode: {self._mode}\n" \
-               f"and the connection type of {self._connection_type} in the connection factory"
+        return f"There is no such function with the mode: {self._mode}\n and the connection type of {self._connection_type} in the connection factory"
 
 
 class ArgumentMustBeInteger(Exception):

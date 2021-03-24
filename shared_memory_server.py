@@ -29,21 +29,26 @@ class SharedMemoryServer:
             self.SMT_CLEAR_HISTORY: (self._check_smt_clear_history, self._smt_clear_history),
         }
 
-    def start_server(self):
-        server_client_connection = ConnectionFactory.get_connection()
+    def start_server(self, configurations):
+        server_client_connection = ConnectionFactory.get_connection(*configurations)
         self._handle_client(server_client_connection)
 
     def _handle_client(self, connection):
-        while True:
-            client_request = connection.receive()
-            if client_request and self._is_valid_request(client_request):
-                if client_request.request_code == self.EXIT:
-                    return
-                response = self._smt_functions.get(client_request.request_code, None)[1](client_request.arguments)
-                connection.send(response)
-            else:
-                error_response = Response(self.ERROR)
-                connection.send(error_response)
+        try:
+            while True:
+                client_request = connection.receive()
+                if client_request and self._is_valid_request(client_request):
+                    if client_request.request_code == self.EXIT:
+                        return
+                    response = self._smt_functions.get(client_request.request_code, None)[1](client_request.arguments)
+                    connection.send(response)
+                else:
+                    error_response = Response(self.ERROR)
+                    connection.send(error_response)
+
+        except ConnectionResetError:
+            print("Client close connection, server is down")
+            return
 
     def _is_valid_request(self, request):
         if isinstance(request, Request) and isinstance(request.request_code, int):
@@ -74,18 +79,22 @@ class SharedMemoryServer:
         return False
 
     def _check_smt_publish(self, arguments):
-        return not isinstance(arguments, int) and not isinstance(arguments, str)
+        return not isinstance(arguments[0], int) and not isinstance(arguments[0], str) and isinstance(arguments[1], str)
 
     def _check_smt_get_by_counter(self, arguments):
-        if isinstance(arguments, list) and (len(arguments) == 3 or len(arguments) == 4) and not isinstance(arguments[0], int) and not isinstance(arguments[0], str):
-            return isinstance(arguments[1], int) and isinstance(arguments[2], int)
+        if isinstance(arguments, tuple) and (len(arguments) == 4 or len(arguments) == 5) and not isinstance(arguments[0], int) and not isinstance(arguments[0], str):
+            return isinstance(arguments[1], int) and isinstance(arguments[2], int) and isinstance(arguments[3], str)
         return False
 
     def _check_smt_get_latest(self, arguments):
-        return (isinstance(arguments, tuple) and len(arguments) == 2) or not isinstance(arguments, int) and not isinstance(arguments, str)
+        if isinstance(arguments, tuple) and (len(arguments) == 2 or len(arguments) == 3):
+            return not isinstance(arguments[0], str) and not isinstance(arguments[0], int) and isinstance(arguments[1], str)
+        return False
 
     def _check_smt_get_oldest(self, arguments):
-        return (isinstance(arguments, tuple) and len(arguments) == 2) or not isinstance(arguments, int) and not isinstance(arguments, str)
+        if isinstance(arguments, tuple) and (len(arguments) == 2 or len(arguments) == 3):
+            return not isinstance(arguments[0], str) and not isinstance(arguments[0], int) and isinstance(arguments[1], str)
+        return False
 
     def _check_smt_get_publish_count(self, arguments):
         return isinstance(arguments, str)
@@ -105,24 +114,28 @@ class SharedMemoryServer:
         return Response(SharedMemoryWrapper.SMT_CreateTopic(*arguments))
 
     def _smt_publish(self, arguments):
-        return Response(SharedMemoryWrapper.publish(arguments))
+        return eval(f"Response(SharedMemoryWrapper.{arguments[1]}().publish(arguments))")
 
     def _smt_get_by_counter(self, arguments):
         if len(arguments) == 4:
-            return Response(SharedMemoryWrapper.getByCounter(*arguments), (arguments[0], arguments[3]))
-        temp = SharedMemoryWrapper.getByCounter(*arguments)
-        return Response(temp, arguments[0])
+            topic_name = arguments[2]
+            arguments = arguments[:2] + [arguments[-1]]
+            return eval(f"Response(SharedMemoryWrapper.{topic_name}().getByCounter(*arguments), (arguments[0], arguments[-1]))")
+        return eval(f"Response(SharedMemoryWrapper.{arguments[-1]}().getByCounter(*arguments[:-1]), arguments[0])")
 
     def _smt_get_latest(self, arguments):
-        if isinstance(arguments, tuple):
-            return Response(SharedMemoryWrapper.getLatest(*arguments), (arguments[0], arguments[1]))
-        result = SharedMemoryWrapper.getLatest(arguments)
-        return Response(result, arguments)
+        if len(arguments) == 3:
+            topic_name = arguments[1]
+            arguments = [arguments[0], arguments[-1]]
+            return eval(f"Response(SharedMemoryWrapper.{topic_name}().getLatest(*arguments), (arguments[0], arguments[1]))")
+        return eval(f"Response(SharedMemoryWrapper.{arguments[-1]}().getLatest(arguments[1]), arguments)")
 
     def _smt_get_oldest(self, arguments):
-        if isinstance(arguments, tuple):
-            return Response(SharedMemoryWrapper.getOldest(*arguments), (arguments[0], arguments[1]))
-        return Response(SharedMemoryWrapper.getOldest(arguments), arguments)
+        if len(arguments) == 3:
+            topic_name = arguments[1]
+            arguments = [arguments[0], arguments[-1]]
+            return eval(f"Response(SharedMemoryWrapper.{topic_name}().getOldest(*arguments), (arguments[0], arguments[1]))")
+        return eval(f"Response(SharedMemoryWrapper.{arguments[-1]}().getOldest(arguments[1]), arguments)")
 
     def _smt_get_publish_count(self, arguments):
         return Response(True, SharedMemoryWrapper.SMT_GetPublishCount(arguments))
