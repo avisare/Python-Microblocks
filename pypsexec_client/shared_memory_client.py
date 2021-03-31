@@ -1,3 +1,6 @@
+from traceback import format_stack
+from copy import deepcopy
+from numpy import ndarray
 from .messages import Request
 
 
@@ -107,15 +110,22 @@ class SharedMemoryClient:
         class_variables = [attr for attr in dir(dest_object) if
                            not callable(getattr(dest_object, attr)) and not attr.startswith("__")]
         for variable in class_variables:
-            setattr(dest_object, variable, getattr(source_object, variable))
+            attribute = getattr(source_object, variable)
+            if type(attribute) == ndarray:
+                attribute = attribute.tolist()
+                for i in range(len(attribute)):
+                    attribute[i] = chr(attribute[i])
+            setattr(dest_object, variable, attribute)
 
     def __del__(self):
         request = Request(self.EXIT)
         self._connection.send(request)
 
 
-def get_topic(topic_name, shared_memory_client):
-    return GenericTopic(topic_name, shared_memory_client)
+def get_topic(self):
+    last_call = format_stack()[-2].strip()
+    topic_name = last_call[last_call[:last_call.rfind(".")].rfind(".") + 1:last_call.find("()")]
+    return GenericTopic(self, topic_name)
 
 
 class GenericTopic:

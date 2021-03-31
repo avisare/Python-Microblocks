@@ -1,12 +1,12 @@
 {
-  "topics": ["testStructOne", "SharedMemoryContent"],
-  "testStructOne":
+  "topics": ["testStructOneTopic", "SharedMemoryContentTopic"],
+  "testStructOneTopic":
   {
     "max_data_size": 40,
     "history_depth": 3,
     "cells_count": 10
   },
-  "SharedMemoryContent":
+  "SharedMemoryContentTopic":
   {
     "max_data_size": 50,
     "history_depth": 4,

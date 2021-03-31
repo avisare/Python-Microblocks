@@ -58,32 +58,49 @@ class TestClient(unittest.TestCase):
         print("Creating a temporary shared memory object")
         shared_memory_temp_object = SharedMemoryWrapper.SharedMemoryContent()
         print("get the latest object enter to the memory, into the temporary object")
-        topic = TestClient.shared_memory_object.SharedMemoryContentTopic()
-        topic.getLatest(shared_memory_temp_object)
+        TestClient.shared_memory_object.SharedMemoryContentTopic().getLatest(shared_memory_temp_object)
         print("Now the temporary object contain the values:")
         lst = [chr(char) for char in shared_memory_temp_object.cstringData]
         print(f"cstringData: {lst}, intData: {shared_memory_temp_object.intData}")
         return lst, shared_memory_temp_object.intData
+
+    def _get_latest_data(self):
+        shared_memory_temp_object = SharedMemoryWrapper.SharedMemoryContent()
+        data_info = SharedMemoryWrapper.SMT_DataInfo()
+        TestClient.shared_memory_object.SharedMemoryContentTopic().getLatest(shared_memory_temp_object, data_info)
+        lst = [chr(char) for char in shared_memory_temp_object.cstringData]
+        return lst, shared_memory_temp_object.intData, data_info.m_dataSize, data_info.m_publishCount
 
     def _get_by_counter(self):
         print("Creating a temporary shared memory object")
         shared_memory_temp_object = SharedMemoryWrapper.SharedMemoryContent()
         print("get object by counter equal to 1 and timeout equal to 30, into the temporary object")
-        topic = TestClient.shared_memory_object.SharedMemoryContentTopic()
-        topic.getByCounter(shared_memory_temp_object, 1, 30)
+        TestClient.shared_memory_object.SharedMemoryContentTopic().getByCounter(shared_memory_temp_object, 1, 30)
         print("Now the temporary object contain the values:")
         lst = [chr(char) for char in shared_memory_temp_object.cstringData]
         print(f"cstringData: {lst}, intData: {shared_memory_temp_object.intData}")
         return lst, shared_memory_temp_object.intData
 
+    def _get_by_counter_data(self):
+        shared_memory_temp_object = SharedMemoryWrapper.SharedMemoryContent()
+        data_info = SharedMemoryWrapper.SMT_DataInfo()
+        TestClient.shared_memory_object.SharedMemoryContentTopic().getByCounter(shared_memory_temp_object, 1, 30, data_info)
+        lst = [chr(char) for char in shared_memory_temp_object.cstringData]
+        return lst, shared_memory_temp_object.intData, data_info.m_dataSize, data_info.m_publishCount
+
     def _get_oldest(self):
+        shared_memory_temp_object = SharedMemoryWrapper.SharedMemoryContent()
+        TestClient.shared_memory_object.SharedMemoryContentTopic().getOldest(shared_memory_temp_object)
+        lst = [chr(char) for char in shared_memory_temp_object.cstringData]
+        return lst, shared_memory_temp_object.intData
+
+    def _get_oldest_data(self):
         print("Creating a data info object")
         data_info = SharedMemoryWrapper.SMT_DataInfo()
         print("Creating a temporary shared memory object")
         shared_memory_temp_object = SharedMemoryWrapper.SharedMemoryContent()
         print("get the oldest object enter into the shared memory, into the temporary object")
-        topic = TestClient.shared_memory_object.SharedMemoryContentTopic()
-        topic.getOldest(shared_memory_temp_object, data_info)
+        TestClient.shared_memory_object.SharedMemoryContentTopic().getOldest(shared_memory_temp_object, data_info)
         print("Now the temporary object contain the values:")
         lst = [chr(char) for char in shared_memory_temp_object.cstringData]
         print(f"cstringData: {lst}, intData: {shared_memory_temp_object.intData}")
@@ -118,14 +135,27 @@ class TestClient(unittest.TestCase):
 
     def test_4_get_by_counter(self):
         tuple_result = self._get_by_counter()
-        self.assertEqual(tuple_result, (['a']*32, TestClient.shared_memory_objects[0].intData))
+        self.assertEqual(tuple_result, (['a'] * 32, TestClient.shared_memory_objects[0].intData))
 
-    def test_5_get_oldest(self):
+    def test_5_get_oldest_data(self):
+        tuple_result = self._get_oldest_data()
+        self.assertEqual(tuple_result, (['a'] * 32, TestClient.shared_memory_objects[0].intData, 36, 1))
+
+    def test_6_get_latest_data(self):
+        tuple_result = self._get_latest_data()
+        self.assertEqual(tuple_result, (['b'] * 32, TestClient.shared_memory_objects[1].intData, 36, 2))
+
+    def test_7_get_by_counter_data(self):
+        tuple_result = self._get_by_counter_data()
+        self.assertEqual(tuple_result, (['a'] * 32, TestClient.shared_memory_objects[0].intData, 36, 1))
+
+    def test_8_get_oldest(self):
         tuple_result = self._get_oldest()
-        self.assertEqual(tuple_result, (['a']*32, TestClient.shared_memory_objects[0].intData, 36, 1))
+        self.assertEqual(tuple_result, (['a'] * 32, TestClient.shared_memory_objects[0].intData))
 
     def run_test(self):
         unittest.main()
+
 
     @classmethod
     def tearDownClass(self):
@@ -167,6 +197,7 @@ def main():
         add_if_exist(remote_configs, parse_config.config_dictionary, "responder_ip")
         add_if_exist(remote_configs, parse_config.config_dictionary, "initiator_port")
         local_configs = deepcopy(remote_configs)
+        local_configs.insert(3, parse_config.config_dictionary["control"])
         if parse_config.config_dictionary["mode"] == "strict":
             remote_configs[-3] = str(parse_config.config_dictionary["initiator_port"])
             remote_configs[-1] = str(parse_config.config_dictionary["responder_port"])

@@ -1,12 +1,12 @@
 {
-  "topics": ["testStructOne", "SharedMemoryContent"],
-  "testStructOne":
+  "topics": ["testStructOneTopic", "SharedMemoryContentTopic"],
+  "testStructOneTopic":
   {
     "max_data_size": 40,
     "history_depth": 3,
     "cells_count": 10
   },
-  "SharedMemoryContent":
+  "SharedMemoryContentTopic":
   {
     "max_data_size": 50,
     "history_depth": 4,
@@ -18,9 +18,9 @@
   "remote_password": "1234",
   "remote_ip": "127.0.0.1",
   "initiator_ip": "127.0.0.1",
-  "initiator_port": 1004,
+  "initiator_port": 1009,
   "responder_ip": "127.0.0.1",
-  "responder_port": 1007,
+  "responder_port": 1011,
   "connection_type": "TCP",
   "timeout_seconds": 30,
   "buffer_size_bytes": 1024
