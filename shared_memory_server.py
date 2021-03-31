@@ -83,17 +83,17 @@ class SharedMemoryServer:
 
     def _check_smt_get_by_counter(self, arguments):
         if isinstance(arguments, tuple) and (len(arguments) == 4 or len(arguments) == 5) and not isinstance(arguments[0], int) and not isinstance(arguments[0], str):
-            return isinstance(arguments[1], int) and isinstance(arguments[2], int) and isinstance(arguments[3], str)
+            return isinstance(arguments[1], int) and isinstance(arguments[2], int) and isinstance(arguments[-1], str)
         return False
 
     def _check_smt_get_latest(self, arguments):
         if isinstance(arguments, tuple) and (len(arguments) == 2 or len(arguments) == 3):
-            return not isinstance(arguments[0], str) and not isinstance(arguments[0], int) and isinstance(arguments[1], str)
+            return not isinstance(arguments[0], str) and not isinstance(arguments[0], int) and isinstance(arguments[-1], str)
         return False
 
     def _check_smt_get_oldest(self, arguments):
         if isinstance(arguments, tuple) and (len(arguments) == 2 or len(arguments) == 3):
-            return not isinstance(arguments[0], str) and not isinstance(arguments[0], int) and isinstance(arguments[1], str)
+            return not isinstance(arguments[0], str) and not isinstance(arguments[0], int) and isinstance(arguments[-1], str)
         return False
 
     def _check_smt_get_publish_count(self, arguments):
@@ -114,28 +114,28 @@ class SharedMemoryServer:
         return Response(SharedMemoryWrapper.SMT_CreateTopic(*arguments))
 
     def _smt_publish(self, arguments):
-        return eval(f"Response(SharedMemoryWrapper.{arguments[1]}().publish(arguments))")
+        if len(arguments) == 3:
+            return eval(f"Response(SharedMemoryWrapper.{arguments[1]}().publish(arguments[0], arguments[2]))")
+        else:
+            return eval(f"Response(SharedMemoryWrapper.{arguments[1]}().publish(arguments[0]))")
 
     def _smt_get_by_counter(self, arguments):
-        if len(arguments) == 4:
-            topic_name = arguments[2]
-            arguments = arguments[:2] + [arguments[-1]]
-            return eval(f"Response(SharedMemoryWrapper.{topic_name}().getByCounter(*arguments), (arguments[0], arguments[-1]))")
+        if len(arguments) == 5 and arguments[-1] is not None:
+            topic_name = arguments[-1]
+            return eval(f"Response(SharedMemoryWrapper.{topic_name}().getByCounter(*arguments[:-1]), (arguments[0], arguments[-2]))")
         return eval(f"Response(SharedMemoryWrapper.{arguments[-1]}().getByCounter(*arguments[:-1]), arguments[0])")
 
     def _smt_get_latest(self, arguments):
-        if len(arguments) == 3:
-            topic_name = arguments[1]
-            arguments = [arguments[0], arguments[-1]]
-            return eval(f"Response(SharedMemoryWrapper.{topic_name}().getLatest(*arguments), (arguments[0], arguments[1]))")
-        return eval(f"Response(SharedMemoryWrapper.{arguments[-1]}().getLatest(arguments[1]), arguments)")
+        if len(arguments) == 3 and arguments[1] is not None:
+            topic_name = arguments[-1]
+            return eval(f"Response(SharedMemoryWrapper.{topic_name}().getLatest(arguments[0], arguments[1]), (arguments[0], arguments[1]))")
+        return eval(f"Response(SharedMemoryWrapper.{arguments[-1]}().getLatest(arguments[0]), arguments[0])")
 
     def _smt_get_oldest(self, arguments):
-        if len(arguments) == 3:
-            topic_name = arguments[1]
-            arguments = [arguments[0], arguments[-1]]
-            return eval(f"Response(SharedMemoryWrapper.{topic_name}().getOldest(*arguments), (arguments[0], arguments[1]))")
-        return eval(f"Response(SharedMemoryWrapper.{arguments[-1]}().getOldest(arguments[1]), arguments)")
+        if len(arguments) == 3 and arguments[-1] is not None:
+            topic_name = arguments[-1]
+            return eval(f"Response(SharedMemoryWrapper.{topic_name}().getOldest(arguments[0], arguments[1]), (arguments[0], arguments[1]))")
+        return eval(f"Response(SharedMemoryWrapper.{arguments[-1]}().getOldest(arguments[0]), arguments[0])")
 
     def _smt_get_publish_count(self, arguments):
         return Response(True, SharedMemoryWrapper.SMT_GetPublishCount(arguments))

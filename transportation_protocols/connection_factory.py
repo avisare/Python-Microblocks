@@ -43,7 +43,6 @@ class ConnectionFactory:
     @staticmethod
     def _get_TCP_server(timeout_seconds, buffer_size_bytes, server_port, responder_ip=None, local_port=None):
         local_ip = "0.0.0.0"
-        print(server_port)
         if server_port is None:
             raise TypeError("_get_TCP_server missing one required argument: server_port")
         if type(server_port) != int:
