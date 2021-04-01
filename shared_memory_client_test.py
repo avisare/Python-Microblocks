@@ -1,12 +1,8 @@
-from os import system
-from threading import Thread
-from time import sleep
 import unittest
-from copy import deepcopy
 from numpy import float32
-from pypsexec_client.shared_memory_factory import get_shared_memory, initialize_shared_memory
 import parse_config
 from pypsexec_client.shared_memory_client import SharedMemoryClient
+from pypsexec_client.shared_memory_factory import initialize_shared_memory
 import SharedMemoryWrapper
 
 
@@ -131,7 +127,8 @@ class TestClient(unittest.TestCase):
         print("Creating a temporary shared memory object")
         shared_memory_temp_object = SharedMemoryWrapper.SharedMemoryContent()
         print("get object by counter equal to 1 and timeout equal to 30, into the temporary object")
-        TestClient.shared_memory_object.SharedMemoryContentTopic().getByCounter(shared_memory_temp_object, 1, 30)
+        topic = TestClient.shared_memory_object.SharedMemoryContentTopic()
+        topic.getByCounter(shared_memory_temp_object, 1, 30)
         print("Now the temporary object contain the values:")
         lst = [chr(char) for char in shared_memory_temp_object.cstringData]
         print(f"cstringData: {lst}, intData: {shared_memory_temp_object.intData}")
@@ -349,20 +346,10 @@ class TestClient(unittest.TestCase):
             self.shared_memory_object.__del__()
 
 
-def execute_remote_machine(remote_configs):
-    system(f'py remote_agent.py {" ".join(remote_configs)}')
-
-
-def add_if_exist(lst, dictionary, key):
-    if key in dictionary.keys():
-        lst.append(str(dictionary[key]))
-
-
 def main():
     test_method = input("Enter what do you want to test:\n1. local shared memory\n"
                         "2. remote shared memory with UDP strict\n"
                         "3. remote shared memory with TCP server and client\n")
-    local_configs = []
     if test_method == "1":
         local_config_file = ["local_config.json"]
         parse_config.init_configuration(local_config_file)
@@ -375,26 +362,7 @@ def main():
             parse_config.init_configuration(local_config_file)
         else:
             raise Exception(f"test method with number {test_method} was not found")
-        remote_configs = [parse_config.config_dictionary["remote_username"], parse_config.config_dictionary["remote_password"],
-                          parse_config.config_dictionary["remote_ip"], parse_config.config_dictionary["mode"],
-                          parse_config.config_dictionary["connection_type"],
-                          str(parse_config.config_dictionary["timeout_seconds"]), str(parse_config.config_dictionary["buffer_size_bytes"])]
-        add_if_exist(remote_configs, parse_config.config_dictionary, "responder_port")
-        add_if_exist(remote_configs, parse_config.config_dictionary, "responder_ip")
-        add_if_exist(remote_configs, parse_config.config_dictionary, "initiator_port")
-        local_configs = deepcopy(remote_configs)
-        local_configs.insert(3, parse_config.config_dictionary["control"])
-        if parse_config.config_dictionary["mode"] == "strict":
-            remote_configs[-3] = str(parse_config.config_dictionary["initiator_port"])
-            remote_configs[-1] = str(parse_config.config_dictionary["responder_port"])
-            remote_configs[-2] = parse_config.config_dictionary["initiator_ip"]
-        if parse_config.config_dictionary["mode"] == "client":
-            remote_configs[3] = "server"
-        remote_thread = Thread(target=execute_remote_machine, args=(remote_configs, ), daemon=True)
-        remote_thread.start()
-        print("waiting for server to up")
-        sleep(5)
-    shared_memory_object = get_shared_memory(*local_configs[3:])
+    shared_memory_object = parse_config.execute_preparations()
     initialize_shared_memory(shared_memory_object)
     test = TestClient()
     test.setObject(shared_memory_object)

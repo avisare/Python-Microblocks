@@ -11,7 +11,7 @@ You should first run `start_client.py` with the run_test.py script without any
 cmd arguments, in order to check that everything is good.
 
 After you started the remote machine to listen on the specific port,
-you should start the client aka - your test, with a suitable configuration file.
+you should start the client AKA - your test, with a suitable configuration file.
 Just execute the script `start_client.py` with configuration files as an argument.
 The first three lines in the main function will always be the same, after that, you should write your test.
 For example if you would like to publish a topic on the ***remote machine, just write object.SMT_Publish() with suitable

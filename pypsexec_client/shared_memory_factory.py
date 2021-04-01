@@ -5,6 +5,12 @@ import parse_config
 import SharedMemoryWrapper
 
 
+def get_value_if_exist(dictionary, key):
+    if key in dictionary.keys():
+        return dictionary[key]
+    return None
+
+
 def get_shared_memory(control_method=None, mode=None, connection_type=None, timeout_seconds=None, buffer_size_bytes=None, responder_port=None, responder_ip=None, local_port=None):
     """
     function return shared memory object, based on the parameters
@@ -22,6 +28,13 @@ def get_shared_memory(control_method=None, mode=None, connection_type=None, time
     """
     if control_method is None:
         control_method = parse_config.config_dictionary["control"]
+        mode = get_value_if_exist(parse_config.config_dictionary, "mode")
+        connection_type = get_value_if_exist(parse_config.config_dictionary, "connection_type")
+        timeout_seconds = get_value_if_exist(parse_config.config_dictionary, "timeout_seconds")
+        buffer_size_bytes = get_value_if_exist(parse_config.config_dictionary, "buffer_size_bytes")
+        responder_port = get_value_if_exist(parse_config.config_dictionary, "responder_port")
+        responder_ip = get_value_if_exist(parse_config.config_dictionary, "responder_ip")
+        local_port = get_value_if_exist(parse_config.config_dictionary, "local_port")
     if control_method == "remote":
         return SharedMemoryClient(ConnectionFactory.get_connection(mode, connection_type, timeout_seconds, buffer_size_bytes, responder_port, responder_ip, local_port))
     elif control_method == "local":
@@ -31,6 +44,12 @@ def get_shared_memory(control_method=None, mode=None, connection_type=None, time
 
 
 def initialize_shared_memory(shared_memory_object):
+    """
+    function initalize the shared memory SMT_Init and creating all the
+    topics from the configuration file
+    :param shared_memory_object: the object (the module if local or client of remote)
+    :return: None
+    """
     shared_memory_object.SMT_Init()
     topics_to_init = parse_config.config_dictionary["topics"]
     for topic in topics_to_init:

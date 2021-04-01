@@ -1,3 +1,8 @@
+from os import system
+from copy import deepcopy
+from threading import Thread
+from time import sleep
+from pypsexec_client.shared_memory_factory import get_shared_memory
 from json_python.json_helper import JsonHelper
 
 config_dictionary = None
@@ -34,3 +39,43 @@ def init_configuration(config_files):
     """
     global config_dictionary
     config_dictionary = parse_config_files(config_files)
+
+
+def execute_remote_machine(remote_configs):
+    system(f'py remote_agent.py {" ".join(remote_configs)}')
+
+
+def add_if_exist(lst, dictionary, key):
+    if key in dictionary.keys():
+        lst.append(str(dictionary[key]))
+
+
+def execute_preparations():
+    """
+    function execute the remote server after the config_dictionary initialize
+    :return: return the shared memory object created based on the config_dictionary
+    """
+    if config_dictionary["control"] == "local":
+        return get_shared_memory("local")
+    remote_configs = [config_dictionary["remote_username"],
+                      config_dictionary["remote_password"],
+                      config_dictionary["remote_ip"], config_dictionary["mode"],
+                      config_dictionary["connection_type"],
+                      str(config_dictionary["timeout_seconds"]),
+                      str(config_dictionary["buffer_size_bytes"])]
+    add_if_exist(remote_configs, config_dictionary, "responder_port")
+    add_if_exist(remote_configs, config_dictionary, "responder_ip")
+    add_if_exist(remote_configs, config_dictionary, "initiator_port")
+    local_configs = deepcopy(remote_configs)
+    local_configs.insert(3, config_dictionary["control"])
+    if config_dictionary["mode"] == "strict":
+        remote_configs[-3] = str(config_dictionary["initiator_port"])
+        remote_configs[-1] = str(config_dictionary["responder_port"])
+        remote_configs[-2] = config_dictionary["initiator_ip"]
+    if config_dictionary["mode"] == "client":
+        remote_configs[3] = "server"
+    remote_thread = Thread(target=execute_remote_machine, args=(remote_configs,), daemon=True)
+    remote_thread.start()
+    print("waiting for server to up")
+    sleep(5)
+    return get_shared_memory(*local_configs[3:])

@@ -134,7 +134,10 @@ class SharedMemoryClient:
 
 def get_topic(self):
     last_call = format_stack()[-2].strip()
-    topic_name = last_call[last_call[:last_call.rfind(".")].rfind(".") + 1:last_call.find("()")]
+    if last_call[last_call.rfind("."):].find("()") == -1:
+        topic_name = last_call[last_call[:last_call.rfind(".")].rfind(".") + 1:last_call.find("()")]
+    else:
+        topic_name = last_call[last_call.rfind(".") + 1: last_call.find("()")]
     return GenericTopic(self, topic_name)
 
 
