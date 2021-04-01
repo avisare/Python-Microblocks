@@ -111,11 +111,21 @@ class SharedMemoryClient:
                            not callable(getattr(dest_object, attr)) and not attr.startswith("__")]
         for variable in class_variables:
             attribute = getattr(source_object, variable)
-            if type(attribute) == ndarray:
+            if type(attribute) == ndarray and attribute.dtype == 'int8':
                 attribute = attribute.tolist()
-                for i in range(len(attribute)):
-                    attribute[i] = chr(attribute[i])
+                self._convert_to_char_list(attribute)
+            elif type(attribute) == ndarray:
+                attribute = attribute.tolist()
             setattr(dest_object, variable, attribute)
+
+    def _convert_to_char_list(self, lst):
+        if type(lst[0]) == list:
+            for i in range(len(lst)):
+                for j in range(len(lst[i])):
+                    lst[i][j] = chr(lst[i][j])
+        else:
+            for i in range(len(lst)):
+                lst[i] = chr(lst[i])
 
     def __del__(self):
         request = Request(self.EXIT)

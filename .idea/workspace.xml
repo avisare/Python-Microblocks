@@ -3,13 +3,12 @@
   <component name="ChangeListManager">
     <list default="true" id="648efb22-c2ea-4387-b697-0aad0b4bbc43" name="Default Changelist" comment="">
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/SharedMemoryWrapper.pyd" beforeDir="false" afterPath="$PROJECT_DIR$/SharedMemoryWrapper.pyd" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/TCP_config.json" beforeDir="false" afterPath="$PROJECT_DIR$/TCP_config.json" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/UDP_config.json" beforeDir="false" afterPath="$PROJECT_DIR$/UDP_config.json" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/local_config.json" beforeDir="false" afterPath="$PROJECT_DIR$/local_config.json" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/pypsexec_client/shared_memory_client.py" beforeDir="false" afterPath="$PROJECT_DIR$/pypsexec_client/shared_memory_client.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/remote_agent.py" beforeDir="false" afterPath="$PROJECT_DIR$/remote_agent.py" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/shared_memory_client_test.py" beforeDir="false" afterPath="$PROJECT_DIR$/shared_memory_client_test.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/test.py" beforeDir="false" afterPath="$PROJECT_DIR$/test.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/test_remote_control.py" beforeDir="false" afterPath="$PROJECT_DIR$/test_remote_control.py" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -53,7 +52,7 @@
       <recent name="C:\Users\Administrator\Documents\python_netwrok_communication\transportation_protocols" />
     </key>
   </component>
-  <component name="RunManager" selected="Python.simple_test">
+  <component name="RunManager" selected="Python.test">
     <configuration name="json_example" type="PythonConfigurationType" factoryName="Python" temporary="true" nameIsGenerated="true">
       <module name="Python-Microblocks" />
       <option name="INTERPRETER_OPTIONS" value="" />
@@ -174,12 +173,12 @@
       <method v="2" />
     </configuration>
     <list>
-      <item itemvalue="Python.test" />
-      <item itemvalue="Python.start_client" />
       <item itemvalue="Python.json_example" />
       <item itemvalue="Python.shared_memory_client_test" />
-      <item itemvalue="Python tests.Unittests in shared_memory_client_test.py" />
       <item itemvalue="Python.simple_test" />
+      <item itemvalue="Python.start_client" />
+      <item itemvalue="Python.test" />
+      <item itemvalue="Python tests.Unittests in shared_memory_client_test.py" />
     </list>
     <recent_temporary>
       <list>
