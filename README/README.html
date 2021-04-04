@@ -6,14 +6,13 @@
 	</head>
 	<body>
 		<div class="tab">
-		  <button class="tablinks" onclick="openTab(event, 'General')">General</button>
+		  <button class="tablinks" onclick="openTab(event, 'General')" id="default_tab">General</button>
 		  <button class="tablinks" onclick="openTab(event, 'MicroBlocks')">MicroBlocks</button>
 		  <button class="tablinks" onclick="openTab(event, 'Shared Memory Wrapper Remote')">Shared Memory</button>
 		  <button class="tablinks" onclick="openTab(event, 'Json Parser')">Json Parser</button>
 		  <button class="tablinks" onclick="openTab(event, 'Transportation Protocols')">Transportation Protocols</button>
 		  <button class="tablinks" onclick="openTab(event, 'Parallel Sequential')">Parallel Sequential</button>
 		</div>
-
 		<!-- Tab content -->
 		<div id="General" class="tabcontent">
 		  <h1>General</h1>
@@ -253,7 +252,7 @@ py remote_agent.py arguments...
 		  from one ip address and port to another ip address and port. So its override all the functions of 
 		  the UDPDevice base class:</p>
 		  <pre><code>1. init(self, udp_connection, timeout, buffer_size_bytes) </code></pre>
-		  <p>) function call the init of the UDPDevice with the buffer size and the timeout, 
+		  <p>function call the init of the UDPDevice with the buffer size and the timeout, 
 		  and also initialize the udp connection of the class</p>
 		  <pre><code>2.	receive (self, timeout_seconds, buffer_size_bytes)</code></pre>
 		  <p>function receive message from the current UDP connection with the timeout and the buffer size.</p>
@@ -346,4 +345,7 @@ sequential_parallel.start_parallel(func, func1, time(seconds=5))
 	<p>You can see more examples in the installation directory in the test_parallel_sequential.py file</p>
 		</div>
 	</body>
+	<script>
+		document.getElementById("default_tab").click();
+	</script>
 </html>

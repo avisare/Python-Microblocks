@@ -1,5 +1,4 @@
-from traceback import format_stack
-from copy import deepcopy
+from types import FunctionType
 from numpy import ndarray
 from .messages import Request
 
@@ -39,7 +38,9 @@ class SharedMemoryClient:
     def SMT_CreateTopic(self, topic_name, max_data_size, history_depth, cells_count):
         request = Request(self.SMT_CREATE_TOPIC, (topic_name, max_data_size, history_depth, cells_count))
         self._connection.send(request)
-        setattr(SharedMemoryClient, topic_name, get_topic)
+        f_code = compile(f'def get_topic(self): return(GenericTopic(self, "{topic_name}")) ', "<GenericTopic>", "exec")
+        f_func = FunctionType(f_code.co_consts[0], globals(), "get_topic")
+        setattr(SharedMemoryClient, topic_name, f_func)
         return self._connection.receive().response_code
 
     def SMT_GetPublishCount(self, topic_name):
@@ -129,16 +130,10 @@ class SharedMemoryClient:
 
     def __del__(self):
         request = Request(self.EXIT)
-        self._connection.send(request)
-
-
-def get_topic(self):
-    last_call = format_stack()[-2].strip()
-    if last_call[last_call.rfind("."):].find("()") == -1:
-        topic_name = last_call[last_call[:last_call.rfind(".")].rfind(".") + 1:last_call.find("()")]
-    else:
-        topic_name = last_call[last_call.rfind(".") + 1: last_call.find("()")]
-    return GenericTopic(self, topic_name)
+        try:
+            self._connection.send(request)
+        except Exception:
+            pass
 
 
 class GenericTopic:
@@ -160,8 +155,3 @@ class GenericTopic:
 
     def getLatest(self, smt_object, data_info_object=None):
         return self._shared_memory_client.getLatest(smt_object, self._topic_name, data_info_object)
-
-
-
-
-
