@@ -6,13 +6,13 @@ from struct import Struct
 
 class Parser:
 
-    def __init__(self, main_header_file):
+    def __init__(self, main_headers_file):
         self._enums = list()
         self._wrapper_class = list()
         self._structures = list()
         self._include_files = list()
-        self._writer = ParserWriter(main_header_file)
-        self._main_header_file = main_header_file
+        self._writer = ParserWriter(main_headers_file)
+        self._main_headers_file = main_headers_file
 
     def _create_wrapper_class(self, struct):
         vector_names = list()
@@ -29,21 +29,6 @@ class Parser:
                         vector_sizes.append(variable["array_size"])
                     vector_names.append(variable['name'])
 
-    def _has_array(self, struct):
-        for variable in struct.variables:
-            if variable["array"]:
-                return True
-        return False
-
-    def _need_wrapper_class(self, struct_variables):
-        for struct_variable in struct_variables:
-            if struct_variable["array"] or\
-                    ("struct" in struct_variable["raw_type"]
-                     and struct_variable["raw_type"][struct_variable["raw_type"].find("struct") + len("struct") + 1:]
-                     in self._wrapper_class):
-                return True
-        return False
-
     def parse(self):
         for struct in self._structures:
             self._include_files.append(f'#include "{struct.name}Class.h"\n\n')
@@ -59,29 +44,34 @@ class Parser:
             self._include_files.append('#include "enums.h"\n\n')
         self._writer.write_includes(self._include_files)
 
-    def initialize_structures(self, headers_files):
-        headers = [CppHeaderParser.CppHeader(header_file) for header_file in headers_files]
+    def initialize_structures(self, main_files_path):
+        headers = [CppHeaderParser.CppHeader(header_file) for header_file in self._main_headers_file]
         structures_dictionary = dict()
         for header in headers:
             self._enums += header.enums
         if len(self._enums) > 0:
             self._writer.write_enums_file(self._enums)
-        #  need to be deleted, after the sizes of topics will be received
-        structs_size = {"SharedMemoryContent": 36, "testStructOne": 25, "testStructTwo": 42,
-                        "testStructThree": 33, "testStructFour": 44, "NavCov_Record": 8,
-                        "test": 40, "SMT_DataInfo": 16}
-        index = 1
+        index = 0
         for header in headers:
-            file = headers_files[index-1]
+            file = main_files_path[index]
             for struct_name, struct_content in header.classes.items():
                 struct_variables = struct_content["properties"]["public"]
                 struct = Struct(struct_content["namespace"], struct_name,
-                                               struct_variables, index == 1, struct_name + "Topic", structs_size[struct_name], file)
+                                               struct_variables, file)
                 self._structures.append(struct)
                 structures_dictionary[struct_name] = struct
             index += 1
+            self._get_missing_structs(structures_dictionary, header, file)
         self._writer.set_structures(self._structures)
         self._writer.set_structures_dictionary(structures_dictionary)
+
+    def _get_missing_structs(self, structures_dictionary, header, file):
+        for struct_name, struct_content in header.classes.items():
+            for var in struct_content["properties"]["public"]:
+                if len(var['aliases']) > 0:
+                    if var['typedef'] == None and "enum" not in var.keys():
+                        print(var)
+                        #search for struct in other files here
 
     def initialize_generic_topic_functions(self):
         generic_functions = ("SMT_Version", "SMT_Init", "SMT_Show", "SMT_CreateTopic",

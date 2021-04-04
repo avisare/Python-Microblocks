@@ -16,6 +16,7 @@ struct NavCov_Record
 {
     NavCov_Status           covStatus;
     float                   floatVar;
+    test                    test_var;
 };
 struct test
 {

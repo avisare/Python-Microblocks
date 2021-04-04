@@ -1,13 +1,11 @@
 
 
 class Struct:
-    def __init__(self, namespace, struct_name, variables, need_smt_functions, topic_name, struct_size, file):
+    def __init__(self, namespace, struct_name, variables, file):
         self.namespace = namespace
         self.name = struct_name
         self.variables = variables
-        self.need_smt_functions = need_smt_functions
-        self.topic_name = topic_name
-        self.struct_size = struct_size
+        self.need_smt_functions = True
         self.inner_structs = []
         self.file_name = file
         if namespace == "":

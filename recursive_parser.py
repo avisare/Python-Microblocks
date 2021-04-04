@@ -1,12 +1,16 @@
 from os import path
 from HeadersParser import Parser
+from sys import argv
+from json_python import JsonHelper
+import glob
 
 
 class RecursiveParser:
 
-    def __init__(self, main_file_path):
-        self._main_file_path = main_file_path
-        self._main_file = open(main_file_path, "r")
+    def __init__(self, collab_directory, topics_info_file_path):
+        self._topics_info = JsonHelper.read_file(topics_info_file_path)
+        self._main_files_path = glob.glob(collab_directory + "*.h")
+        self._main_files = [open(main_file_path, "r") for main_file_path in self._main_files]
         self._includes = list()
 
     def get_includes_recursive(self, file_path):
@@ -19,22 +23,20 @@ class RecursiveParser:
                         self.get_includes_recursive(include_file)
 
     def parse(self):
-        self.get_includes_recursive(self._main_file_path)
-        if self._main_file_path in self._includes:
-            self._includes.remove(self._main_file_path)
-        self._includes.insert(0, self._main_file_path)
-        parser = Parser(self._includes)
-        parser.initialize_structures(self._includes)
+        parser = Parser(self._main_files)
+        parser.initialize_structures(self._main_files_path)
         parser.parse()
 
     def __del__(self):
-        self._main_file.close()
+        [main_file.close() for main_file in self._main_files]
 
 
-def main():
-    recursive_parser = RecursiveParser("SharedMemoryContent.h")
+def main(arguments):
+    if len(arguments) != 2:
+        raise Exception("Program expected to 2 arguments exactly. directory path of all collabs file and topic_info json file path")
+    recursive_parser = RecursiveParser(arguments[0], arguments[1])
     recursive_parser.parse()
 
 
 if __name__ == "__main__":
-    main()
+    main(argv[1:])
