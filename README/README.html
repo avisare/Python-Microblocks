@@ -41,7 +41,10 @@
 		  you need to write</p> <pre><code>SharedMemoryWrapper.function_name</pre></code>
 		  <p>All the other functions are topic related (on each topic you can publish or get). This kind of functions can be executed in the following syntax.</p>
 		  <pre><code>topic = SharedMemoryWrapper.topicName()<br>topic.publish(struct_object)<br></pre></code><p>or in one line</p><pre><code>SharedMemoryWrapper.topicName().publish(struct_object)</pre></code>
-		  <p>You can use the module in the installer in order to see and test the usage of the microblocks functions.<br>
+		  <p>You can use the module in the installer in order to see and test the usage of the microblocks functions.</p>
+		  <h2>Attention</h2>
+		  <p>If you want to print or see char array (or dimensional char array), you need to write the arrayName.view('S1'). Otherwise, you will see array of type
+		  int8 iinstead of char array.<br>
 		  The following structs are supported to publish and get from topics<br>Topic Name: testStructOneTopic<br>struct</p>
 		  <pre><code>struct testStructOne<br>{<br>  int intNumber;<br>  float floatNumber;<br>  char character;<br>  float arr[10];<br>};</pre></code>
 		  <p>Topic Name: testStructTwoTopic<br>struct</p><pre><code>struct testStructTwo<br>{<br>  long longNumber;<br>  unsigned int uintNumber;<br>  bool boolean;<br>  struct testStructThree structThree;<br>};</pre></code>
@@ -151,11 +154,12 @@ responder_port(optional), responder_ip(optional), local_port(optional))
 		<h2>Attention</h2>
 		<p>
 		Before starting, move and run the installer in C:\servers directory.<br>
+		You should check befire the first running that the name python (when type in command prompt), is related to python3.8<br>
 		If you pass couple of configuration files, and some of them overriding each other, only the latest will count.<br>
 		The syntax in order to publish topic or get object on the local machine
 		or on the remote machine is exactly the same.<br>
 		The server can maybe take few seconds to load and bind the socket,
-		so after running one oof thhe following commands:</p>
+		so after running one of the following commands:</p>
 <pre><code>parse_config.execute_preparations() 
 py remote_agent.py arguments...
 </code></pre>

@@ -130,10 +130,7 @@ class SharedMemoryClient:
 
     def __del__(self):
         request = Request(self.EXIT)
-        try:
-            self._connection.send(request)
-        except Exception:
-            pass
+        self._connection.send(request)
 
 
 class GenericTopic:
