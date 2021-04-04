@@ -14,7 +14,7 @@ def active_remote_agent(configurations):
     remote_control.connect()
     try:
         remote_control.create_service()
-        stdout, stderr, rc = remote_control.run_executable("cmd.exe", arguments=f"/c cd.. & cd.. & cd servers & py start_server.py {' '.join(configurations[3:])}")
+        stdout, stderr, rc = remote_control.run_executable("cmd.exe", arguments=f"/c cd.. & cd.. & cd servers & python start_server.py {' '.join(configurations[3:])}")
         print(stdout.decode(), stderr.decode())
     finally:
         remote_control.remove_service()
