@@ -1,14 +1,12 @@
 from os import path
 from HeadersParser import Parser
 from sys import argv
-from json_python import JsonHelper
 import glob
 
 
 class RecursiveParser:
 
-    def __init__(self, collab_directory, topics_info_file_path):
-        self._topics_info = JsonHelper.read_file(topics_info_file_path)
+    def __init__(self, collab_directory):
         self._main_files_path = glob.glob(collab_directory + "*.h")
         self._main_files = [open(main_file_path, "r") for main_file_path in self._main_files]
         self._includes = list()
@@ -22,8 +20,8 @@ class RecursiveParser:
                         self._includes.append(include_file)
                         self.get_includes_recursive(include_file)
 
-    def parse(self):
-        parser = Parser(self._main_files)
+    def parse(self, topics_index_file):
+        parser = Parser(self._main_files, topics_index_file)
         parser.initialize_structures(self._main_files_path)
         parser.parse()
 
@@ -34,8 +32,8 @@ class RecursiveParser:
 def main(arguments):
     if len(arguments) != 2:
         raise Exception("Program expected to 2 arguments exactly. directory path of all collabs file and topic_info json file path")
-    recursive_parser = RecursiveParser(arguments[0], arguments[1])
-    recursive_parser.parse()
+    recursive_parser = RecursiveParser(arguments[0])
+    recursive_parser.parse(arguments[1])
 
 
 if __name__ == "__main__":

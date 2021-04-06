@@ -1,10 +1,42 @@
 {
-  "SharedMemoryContent": 36,
-  "testStructOne": 25,
-  "testStructTwo": 42,
-  "testStructThree": 33,
-  "testStructFour": 44,
-  "NavCov_Record": 8,
-  "test": 40,
-  "SMT_DataInfo": 16
+  "SharedMemoryContentTopic": {
+    "Data Size": 36,
+    "History Depth": 3,
+    "Cells Count": 10
+  },
+  "testStructOneTopic":{
+    "Data Size": 25,
+    "History Depth": 4,
+    "Cells Count": 10
+  },
+  "testStructTwoTopic": {
+    "Data Size": 42,
+    "History Depth": 2,
+    "Cells Count": 7
+  },
+  "testStructThreeTopic": {
+    "Data Size": 33,
+    "History Depth": 3,
+    "Cells Count": 10
+  },
+  "testStructFourTopic": {
+    "Data Size": 44,
+    "History Depth": 5,
+    "Cells Count": 12
+  },
+  "NavCov_RecordTopic": {
+    "Data Size": 8,
+    "History Depth": 3,
+    "Cells Count": 10
+  },
+  "testTopic": {
+    "Data Size": 40,
+    "History Depth": 3,
+    "Cells Count": 10
+  },
+  "SMT_DataInfo": {
+    "Data Size": 16,
+    "History Depth": 3,
+    "Cells Count": 10
+  }
 }

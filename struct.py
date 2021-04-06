@@ -5,7 +5,6 @@ class Struct:
         self.namespace = namespace
         self.name = struct_name
         self.variables = variables
-        self.need_smt_functions = True
         self.inner_structs = []
         self.file_name = file
         if namespace == "":

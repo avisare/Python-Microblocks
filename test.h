@@ -23,4 +23,12 @@ struct test
     int                     testArr[2][3];
     int                     regularArr[4];
 };
+struct t
+{
+    int i;
+};
+struct test1
+{
+    t test[2][2];
+};
 }
