@@ -1,4 +1,5 @@
 import unittest
+import os
 from numpy import float32
 import parse_config
 from pypsexec_client.shared_memory_client import SharedMemoryClient
@@ -15,7 +16,7 @@ class TestClient(unittest.TestCase):
 
     def _create_topic(self):
         print("Create a new topic to the shared memory called SharedMemoryContent")
-        TestClient.shared_memory_object.SMT_CreateTopic("SharedMemoryContentTopic", 40, 3, 10)
+        TestClient.shared_memory_object.SMT_CreateTopic("SharedMemoryContentTopic")
 
     def _create_topic_object(self):
         try:
@@ -26,6 +27,12 @@ class TestClient(unittest.TestCase):
                                                       'a','a','a','a','a','a','a','a','a','a','a','a','a','a']
             print("Setting to intData of the object to equal to : 1111")
             shared_memory_first_object.intData = 1111
+            shared_memory_first_object.test = SharedMemoryWrapper.t2([SharedMemoryWrapper.t1([SharedMemoryWrapper.t(), SharedMemoryWrapper.t()]), SharedMemoryWrapper.t1([SharedMemoryWrapper.t(), SharedMemoryWrapper.t()])])
+            index = 0
+            for i in range(2):
+                for j in range(2):
+                    shared_memory_first_object.test[i][j].i = index
+                    index += 1
             TestClient.shared_memory_objects.append(shared_memory_first_object)
             print("Creating another shared memory object")
             shared_memory_second_object = SharedMemoryWrapper.SharedMemoryContent()
@@ -35,6 +42,12 @@ class TestClient(unittest.TestCase):
                                                        'b', 'b', 'b', 'b', 'b', 'b', 'b', 'b']
             print("Setting to intData of the object to equal to : 2222")
             shared_memory_second_object.intData = 2222
+            shared_memory_second_object.test = SharedMemoryWrapper.t2([SharedMemoryWrapper.t1([SharedMemoryWrapper.t(), SharedMemoryWrapper.t()]),SharedMemoryWrapper.t1([SharedMemoryWrapper.t(), SharedMemoryWrapper.t()])])
+            index = 3
+            for i in range(2):
+                for j in range(2):
+                    shared_memory_second_object.test[i][j].i = index
+                    index -= 1
             TestClient.shared_memory_objects.append(shared_memory_second_object)
             shared_memory_third_object = SharedMemoryWrapper.testStructOne()
             shared_memory_third_object.intNumber = 20
@@ -72,11 +85,11 @@ class TestClient(unittest.TestCase):
             TestClient.shared_memory_objects.append(shared_memory_eighth_object)
             shared_memory_ninth_object = SharedMemoryWrapper.testStructFour()
             shared_memory_ninth_object.singleInteger = 123
-            shared_memory_ninth_object.dimensionalArray = [[1, 2, 3], [4, 5, 6]]
+            shared_memory_ninth_object.dimensionalArray = [[[1, 2, 3, 4], [5, 6, 7, 8], [9, 10, 11, 12]], [[13, 14, 15, 16], [17, 18, 19, 20], [21, 22, 23, 24]]]
             TestClient.shared_memory_objects.append(shared_memory_ninth_object)
             shared_memory_tenth_object = SharedMemoryWrapper.testStructFour()
             shared_memory_tenth_object.singleInteger = 456
-            shared_memory_tenth_object.dimensionalArray = [[6, 5, 4], [3, 2, 1]]
+            shared_memory_tenth_object.dimensionalArray = [[[13, 14, 15, 16], [17, 18, 19, 20], [21, 22, 23, 24]], [[1, 2, 3, 4], [5, 6, 7, 8], [9, 10, 11, 12]]]
             TestClient.shared_memory_objects.append(shared_memory_tenth_object)
             return True
 
@@ -114,14 +127,14 @@ class TestClient(unittest.TestCase):
         print("Now the temporary object contain the values:")
         lst = [chr(char) for char in shared_memory_temp_object.cstringData]
         print(f"cstringData: {lst}, intData: {shared_memory_temp_object.intData}")
-        return lst, shared_memory_temp_object.intData
+        return lst, shared_memory_temp_object.intData, shared_memory_temp_object.test
 
     def _get_latest_data(self):
         shared_memory_temp_object = SharedMemoryWrapper.SharedMemoryContent()
         data_info = SharedMemoryWrapper.SMT_DataInfo()
         TestClient.shared_memory_object.SharedMemoryContentTopic().getLatest(shared_memory_temp_object, data_info)
         lst = [chr(char) for char in shared_memory_temp_object.cstringData]
-        return lst, shared_memory_temp_object.intData, data_info.m_dataSize, data_info.m_publishCount
+        return lst, shared_memory_temp_object.intData, data_info.m_dataSize, data_info.m_publishCount, shared_memory_temp_object.test
 
     def _get_by_counter(self):
         print("Creating a temporary shared memory object")
@@ -132,20 +145,20 @@ class TestClient(unittest.TestCase):
         print("Now the temporary object contain the values:")
         lst = [chr(char) for char in shared_memory_temp_object.cstringData]
         print(f"cstringData: {lst}, intData: {shared_memory_temp_object.intData}")
-        return lst, shared_memory_temp_object.intData
+        return lst, shared_memory_temp_object.intData, shared_memory_temp_object.test
 
     def _get_by_counter_data(self):
         shared_memory_temp_object = SharedMemoryWrapper.SharedMemoryContent()
         data_info = SharedMemoryWrapper.SMT_DataInfo()
         TestClient.shared_memory_object.SharedMemoryContentTopic().getByCounter(shared_memory_temp_object, 1, 30, data_info)
         lst = [chr(char) for char in shared_memory_temp_object.cstringData]
-        return lst, shared_memory_temp_object.intData, data_info.m_dataSize, data_info.m_publishCount
+        return lst, shared_memory_temp_object.intData, data_info.m_dataSize, data_info.m_publishCount, shared_memory_temp_object.test
 
     def _get_oldest(self):
         shared_memory_temp_object = SharedMemoryWrapper.SharedMemoryContent()
         TestClient.shared_memory_object.SharedMemoryContentTopic().getOldest(shared_memory_temp_object)
         lst = [chr(char) for char in shared_memory_temp_object.cstringData]
-        return lst, shared_memory_temp_object.intData
+        return lst, shared_memory_temp_object.intData, shared_memory_temp_object.test
 
     def _get_oldest_data(self):
         print("Creating a data info object")
@@ -158,7 +171,7 @@ class TestClient(unittest.TestCase):
         lst = [chr(char) for char in shared_memory_temp_object.cstringData]
         print(f"cstringData: {lst}, intData: {shared_memory_temp_object.intData}")
         print(f"data about the topic: data size: {data_info.m_dataSize}\npublish count: {data_info.m_publishCount}\npublish time:{data_info.m_publishTime}")
-        return lst, shared_memory_temp_object.intData, data_info.m_dataSize, data_info.m_publishCount
+        return lst, shared_memory_temp_object.intData, data_info.m_dataSize, data_info.m_publishCount, shared_memory_temp_object.test
 
     def _get_oldest_struct_one(self):
         shared_memory_temp_object = SharedMemoryWrapper.testStructOne()
@@ -244,29 +257,36 @@ class TestClient(unittest.TestCase):
 
     def test_3_get_latest_content(self):
         tuple_result = self._get_latest()
-        self.assertEqual(tuple_result, (['b']*32, TestClient.shared_memory_objects[1].intData))
+        self.assertEqual(tuple_result[:-1], (['b']*32, TestClient.shared_memory_objects[1].intData))
+        self.assertTrue(self._compare_2d_struct_t_lists(tuple_result[-1], TestClient.shared_memory_objects[1].test))
 
     def test_4_get_by_counter(self):
         tuple_result = self._get_by_counter()
-        self.assertEqual(tuple_result, (['a'] * 32, TestClient.shared_memory_objects[0].intData))
+        self.assertEqual(tuple_result[:-1], (['a'] * 32, TestClient.shared_memory_objects[0].intData))
+        self.assertTrue(self._compare_2d_struct_t_lists(tuple_result[-1], TestClient.shared_memory_objects[0].test))
 
     def test_5_get_oldest_data_content(self):
         tuple_result = self._get_oldest_data()
-        self.assertEqual(tuple_result, (['a'] * 32, TestClient.shared_memory_objects[0].intData, 36, 1))
+        self.assertEqual(tuple_result[:-1], (['a'] * 32, TestClient.shared_memory_objects[0].intData, 52, 1))
+        self.assertTrue(self._compare_2d_struct_t_lists(tuple_result[-1], TestClient.shared_memory_objects[0].test))
+
 
     def test_6_get_latest_data_content(self):
         tuple_result = self._get_latest_data()
-        self.assertEqual(tuple_result, (['b'] * 32, TestClient.shared_memory_objects[1].intData, 36, 2))
+        self.assertEqual(tuple_result[:-1], (['b'] * 32, TestClient.shared_memory_objects[1].intData, 52, 2))
+        self.assertTrue(self._compare_2d_struct_t_lists(tuple_result[-1], TestClient.shared_memory_objects[1].test))
 
     def test_7_get_by_counter_data_content(self):
         tuple_result = self._get_by_counter_data()
-        self.assertEqual(tuple_result, (['a'] * 32, TestClient.shared_memory_objects[0].intData, 36, 1))
+        self.assertEqual(tuple_result[:-1], (['a'] * 32, TestClient.shared_memory_objects[0].intData, 52, 1))
+        self.assertTrue(self._compare_2d_struct_t_lists(tuple_result[-1], TestClient.shared_memory_objects[0].test))
 
     def test_8_get_oldest_content(self):
         tuple_result = self._get_oldest()
-        self.assertEqual(tuple_result, (['a'] * 32, TestClient.shared_memory_objects[0].intData))
+        self.assertEqual(tuple_result[:-1], (['a'] * 32, TestClient.shared_memory_objects[0].intData))
+        self.assertTrue(self._compare_2d_struct_t_lists(tuple_result[-1], TestClient.shared_memory_objects[0].test))
 
-    def test_9_get_latest_struct_one(self):
+    """def test_9_get_latest_struct_one(self):
         tuple_result = self._get_latest_struct_one()
         self.assertEqual(tuple_result[:-1], (TestClient.shared_memory_objects[3].intNumber, float32(TestClient.shared_memory_objects[3].floatNumber), TestClient.shared_memory_objects[3].character))
         self.assertTrue(self._compare_lists(tuple_result[-1].tolist(), TestClient.shared_memory_objects[3].arr.tolist()))
@@ -325,12 +345,22 @@ class TestClient(unittest.TestCase):
         tuple_result = self._get_oldest_struct_four()
         self.assertEqual(tuple_result[:-1], (TestClient.shared_memory_objects[8].singleInteger,))
         self.assertTrue(self._compare_lists(tuple_result[-1].tolist(), TestClient.shared_memory_objects[8].dimensionalArray.tolist()))
-
+"""
     def _compare_struct_three(self, first_struct, second_struct):
         lst = [chr(char) for char in first_struct.charArray]
         lst1 = [chr(char) for char in second_struct.charArray]
         return first_struct.booleanValue == second_struct.booleanValue and \
                float32(first_struct.floatValue) == float32(second_struct.floatValue) and lst == lst1
+
+    def _compare_struct_t(self, first_struct, second_struct):
+        return first_struct.i == second_struct.i
+
+    def _compare_2d_struct_t_lists(self, first_list, second_list):
+        for i in range(len(first_list)):
+            for j in range(len(first_list[i])):
+                if not self._compare_struct_t(first_list[i][j], second_list[i][j]):
+                    return False
+        return True
 
     def _compare_lists(self, lst1, lst2):
         lst1 = lst1.sort()
@@ -338,7 +368,7 @@ class TestClient(unittest.TestCase):
         return lst1 == lst2
 
     def run_test(self):
-        unittest.main()
+        unittest.main(exit=False)
 
     @classmethod
     def tearDownClass(self):
@@ -367,6 +397,7 @@ def main():
     test = TestClient()
     test.setObject(shared_memory_object)
     test.run_test()
+    os._exit(0)
 
 
 if __name__ == "__main__":

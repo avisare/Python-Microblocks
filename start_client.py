@@ -1,4 +1,3 @@
-from sys import argv
 from os import system
 from copy import deepcopy
 from time import sleep
@@ -10,7 +9,7 @@ import SharedMemoryWrapper
 
 
 def execute_remote_machine(remote_configs):
-    system(f'py remote_agent.py {" ".join(remote_configs)}')
+    system(f'python remote_agent.py {" ".join(remote_configs)}')
 
 
 def add_if_exist(lst, dictionary, key):
@@ -67,7 +66,3 @@ def main(configuration_files):
 
 if __name__ == "__main__":
     run_test()
-    """if len(argv) <= 1:
-        print("You must pass at least one config file to the script")
-    else:
-        main(argv[1:])"""

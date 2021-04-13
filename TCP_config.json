@@ -1,44 +1,14 @@
 {
   "topics": ["testStructOneTopic", "testStructTwoTopic", "testStructThreeTopic", "testStructFourTopic", "SharedMemoryContentTopic"],
-  "testStructOneTopic":
-  {
-    "max_data_size": 40,
-    "history_depth": 3,
-    "cells_count": 10
-  },
-  "testStructTwoTopic":
-  {
-    "max_data_size": 46,
-    "history_depth": 3,
-    "cells_count": 10
-  },
-  "testStructThreeTopic":
-  {
-    "max_data_size": 37,
-    "history_depth": 3,
-    "cells_count": 10
-  },
-  "testStructFourTopic":
-  {
-    "max_data_size": 28,
-    "history_depth": 3,
-    "cells_count": 10
-  },
-  "SharedMemoryContentTopic":
-  {
-    "max_data_size": 50,
-    "history_depth": 4,
-    "cells_count": 10
-  },
   "control": "remote",
   "mode": "client",
   "remote_username": "Administrator",
   "remote_password": "1234",
   "remote_ip": "127.0.0.1",
   "initiator_ip": "127.0.0.1",
-  "initiator_port": 1025,
+  "initiator_port": 1029,
   "responder_ip": "127.0.0.1",
-  "responder_port": 1026,
+  "responder_port": 1030,
   "connection_type": "TCP",
   "timeout_seconds": 30,
   "buffer_size_bytes": 1024

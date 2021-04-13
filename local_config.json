@@ -1,34 +1,4 @@
 {
   "topics": ["testStructOneTopic", "testStructTwoTopic", "testStructThreeTopic", "testStructFourTopic", "SharedMemoryContentTopic"],
-  "testStructOneTopic":
-  {
-    "max_data_size": 40,
-    "history_depth": 3,
-    "cells_count": 10
-  },
-  "testStructTwoTopic":
-  {
-    "max_data_size": 46,
-    "history_depth": 3,
-    "cells_count": 10
-  },
-  "testStructThreeTopic":
-  {
-    "max_data_size": 37,
-    "history_depth": 3,
-    "cells_count": 10
-  },
-  "testStructFourTopic":
-  {
-    "max_data_size": 28,
-    "history_depth": 3,
-    "cells_count": 10
-  },
-  "SharedMemoryContentTopic":
-  {
-    "max_data_size": 50,
-    "history_depth": 4,
-    "cells_count": 10
-  },
   "control": "local"
 }

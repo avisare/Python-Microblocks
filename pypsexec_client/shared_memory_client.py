@@ -43,6 +43,14 @@ class SharedMemoryClient:
         setattr(SharedMemoryClient, topic_name, f_func)
         return self._connection.receive().response_code
 
+    def SMT_CreateTopic(self, topic_name):
+        request = Request(self.SMT_CREATE_TOPIC, (topic_name, ))
+        self._connection.send(request)
+        f_code = compile(f'def get_topic(self): return(GenericTopic(self, "{topic_name}")) ', "<GenericTopic>", "exec")
+        f_func = FunctionType(f_code.co_consts[0], globals(), "get_topic")
+        setattr(SharedMemoryClient, topic_name, f_func)
+        return self._connection.receive().response_code
+
     def SMT_GetPublishCount(self, topic_name):
         request = Request(self.SMT_GET_PUBLISH_COUNT, topic_name)
         self._connection.send(request)

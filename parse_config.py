@@ -42,7 +42,7 @@ def init_configuration(config_files):
 
 
 def execute_remote_machine(remote_configs):
-    system(f'py remote_agent.py {" ".join(remote_configs)}')
+    system(f'python remote_agent.py {" ".join(remote_configs)}')
 
 
 def add_if_exist(lst, dictionary, key):
@@ -74,7 +74,7 @@ def execute_preparations():
         remote_configs[-2] = config_dictionary["initiator_ip"]
     if config_dictionary["mode"] == "client":
         remote_configs[3] = "server"
-    remote_thread = Thread(target=execute_remote_machine, args=(remote_configs,), daemon=True)
+    remote_thread = Thread(target=execute_remote_machine, args=(remote_configs,))
     remote_thread.start()
     print("waiting for server to up")
     sleep(5)

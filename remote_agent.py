@@ -1,5 +1,4 @@
 import sys
-from threading import Thread
 from pypsexec.client import Client
 
 
@@ -15,7 +14,7 @@ def active_remote_agent(configurations):
     try:
         remote_control.create_service()
         stdout, stderr, rc = remote_control.run_executable("cmd.exe", arguments=f"/c cd.. & cd.. & cd servers & python start_server.py {' '.join(configurations[3:])}")
-        print(stdout.decode(), stderr.decode())
+        #print(stdout.decode(), stderr.decode())
     finally:
         remote_control.remove_service()
         remote_control.disconnect()
@@ -61,9 +60,7 @@ def main(configurations):
         remote_arguments.append(responder_port)
         remote_arguments.append(responder_ip)
         remote_arguments.append(local_port)
-    active_remote_agent_thread = Thread(target=active_remote_agent, args=(tuple(remote_arguments), ), daemon=True)
-    active_remote_agent_thread.start()
-    active_remote_agent_thread.join()
+    active_remote_agent(tuple(remote_arguments))
 
 
 if __name__ == "__main__":
