@@ -30,7 +30,7 @@ void SharedMemoryContentClassRunner(py::module & SharedMemoryWrapperModule)
 		.def_readwrite("intData", &sm_data::SharedMemoryContent::intData)
 		.def_property("cstringData", [](sm_data::SharedMemoryContent & obj)->py::array{
 		auto dtype = py::dtype(py::format_descriptor<unsigned char>::format());
-		auto base = py::array(dtype, {{ CSTRING_DATA_MAX_LEN }, }, { sizeof(unsigned char) * 1 });
+		auto base = py::array(dtype, { CSTRING_DATA_MAX_LEN  }, { sizeof(unsigned char) * 1 });
 		return py::array(dtype, {{ CSTRING_DATA_MAX_LEN }}, { sizeof(unsigned char) * 1 }, obj.cstringData, base);
 
 	}, [](sm_data::SharedMemoryContent& obj, py::list setArr)
