@@ -1,12 +1,15 @@
 import linecache
+import functools
 from json_python import JsonHelper
 
 
 class ParserWriter:
-    def __init__(self, main_file, topics_index_file):
-        self._main_file = main_file
-        self._topics_index_file = JsonHelper.read_file(topics_index_file)
+    def __init__(self, main_files, topics_index_file):
+        self._main_files = main_files
+        self._topics_dictionary = JsonHelper.read_file(topics_index_file)
         self._structures = list()
+        main_files = [f'#include "{main_file}"' for main_file in main_files]
+        self._includes = "\n\n".join(main_files)
         self._pybind_classes_file = open("SharedMemoryWrapper.cpp", "w")
         self._topics_file = open("sharedMemoryTopics.h", "w")
         self._structures_dictionary = dict()
@@ -23,12 +26,34 @@ class ParserWriter:
         with open("sharedMemoryTopics.h", "r+") as shared_memory_topics_file:
             content = shared_memory_topics_file.read()
             shared_memory_topics_file.seek(0, 0)
-            shared_memory_topics_file.write(f'#pragma once\n\n#include "{self._main_file[0]}"\n\n#include "Shared_Memory_Topics_API.h"\n\n#include <pybind11/pybind11.h>\n\n#include <pybind11/stl.h>\n\n#include <pybind11/stl_bind.h>\n\n#include <iostream>\n\n')
+            includes = "".join(include_files)
+            shared_memory_topics_file.write(f'#pragma once\n\n#pragma warning( disable:4267 )\n\n{includes}#include "Shared_Memory_Topics_API.h"\n\n#include <iostream>\n\n')
             shared_memory_topics_file.write(content)
 
-    def write_generic_function(self, function_name):
-        self._pybind_classes_file.write(
-            f'\n\tSharedMemoryWrapperModule.def("{function_name}", &{function_name}, py::return_value_policy::copy);\n')
+    def write_generic_function(self, function_name, file):
+        if function_name == "SMT_CreateTopic":
+            file.write(
+                f'\n\tSharedMemoryWrapperModule.def("{function_name}", py::overload_cast<std::string>(&{function_name}), py::return_value_policy::copy);\n')
+            file.write(
+                f'\n\tSharedMemoryWrapperModule.def("{function_name}", py::overload_cast<const char*, const uint32_t, const uint32_t, const uint32_t>(&{function_name}), py::return_value_policy::copy);\n')
+        else:
+            file.write(
+                f'\n\tSharedMemoryWrapperModule.def("{function_name}", &{function_name}, py::return_value_policy::copy);\n')
+
+    def write_topics_shared_memory(self):
+        with open("smt.h", "w") as smt_file:
+            self._write_smt_includes(smt_file)
+            smt_file.write("namespace py = pybind11;\nvoid smtRunner(py::module & SharedMemoryWrapperModule)\n{\n")
+            for topic in self._topics_dictionary.keys():
+                if topic == "SMT_DataInfo":
+                    continue
+                self.write_overload_smt_functions(topic, smt_file)
+                smt_file.write("\n\n")
+            smt_file.write("\n}")
+
+    def _write_smt_includes(self, smt_file):
+        smt_file.write(
+            f'#pragma once\n\n#include "sharedMemoryTopics.h"\n\n#include "Shared_Memory_Topics_API.h"\n\n#include <pybind11\pybind11.h>\n\n#include <iostream>\n\n')
 
     def write_function(self, function_signature, function_call):
         self._topics_file.write(f'\n\tbool {function_signature}\n\t')
@@ -39,7 +64,7 @@ class ParserWriter:
     def write_wrapper_pybind_class(self, struct, vector_types):
         with open(f"{struct.name}Class.h", "a") as class_file:
             class_file.write(f'\n\tpy::class_<{struct.full_name}>(SharedMemoryWrapperModule, "{struct.name}")\n')
-            class_file.write(f"\t\t.def(py::init<>())")
+            class_file.write(f"\t\t.def(py::init<>())\n")
             class_variables_names, class_variables = self._write_class_variables(class_file, struct, vector_types)
             class_file.write(f'\n\t.def(py::pickle(\n\t\t[](const {struct.full_name} &obj)')
             class_file.write("{\n\t\t")
@@ -50,7 +75,7 @@ class ParserWriter:
             class_file.write("\n\t\treturn obj;\n\t}\n\t));\n")
             class_file.write("}")
 
-    def _write_class_variables(self, class_file, struct, vector_types, vector_sizes):
+    def _write_class_variables(self, class_file, struct, vector_types):
         class_variables_names = list()
         class_variables = list()
         for variable in struct.variables:
@@ -58,90 +83,88 @@ class ParserWriter:
                 if variable["array"]:
                     if len(variable['aliases']) > 0 and variable['typedef'] is None and "enum" not in variable.keys():
                         self._write_vector(struct, class_file, variable, vector_types)
-
-                    else:
-                        self._write_array(struct, class_file, variable, vector_types)
                         full_declaration = linecache.getline(struct.file_name, variable["line_number"])
-                        first_size = full_declaration[full_declaration.find("[") + 1:full_declaration.find("]", full_declaration.find("["), -1)]
-                        second_size = full_declaration[full_declaration.rfind("[") + 1:full_declaration.rfind("]")]
-                        class_variables.append((variable["name"], f'{variable["name"]}Vector', variable["raw_type"],
-                                                first_size, second_size))
-                        class_file.write(
-                            f'\n\t\t.def_property("{variable["name"]}", []({struct.full_name} &obj)->py::array')
-                        class_file.write("{\n\t\t")
-                        class_file.write(f'auto dtype = py::dtype(py::format_descriptor<{variable["raw_type"]}>::format());\n\t\t')
-                        class_file.write('auto base = py::array(dtype, { '
-                                         f'{first_size}, {second_size}'
-                                         ' }, { sizeof('
-                                         f'{variable["raw_type"]}) * {second_size}, sizeof({variable["raw_type"]})'
-                                         ' });')
-                        class_file.write("\n\t\treturn py::array(dtype, {"
-                                         f"{first_size}, {second_size}"
-                                         " }, { sizeof("
-                                         f'{variable["raw_type"]}) * {second_size}, sizeof({variable["raw_type"]})'
-                                         ' }, '
-                                         f'obj.{variable["name"]}, base);')
-                        class_file.write("\n\t\t},")
-                        class_file.write(f'[]({struct.full_name}& obj, py::list set{variable["name"]})\n\t\t')
-                        class_file.write("{\n\t\t\t")
-                        class_file.write(f"for (int i = 0; i < {first_size}; i++)\n\t\t\t"
-                                         "{\n\t\t\t\t"
-                                         f"py::list temp = set{variable['name']}[i].cast<py::list>();\n\t\t\t\t"
-                                         f"for (int j =0; j < {second_size}; j++)"
-                                         "\n\t\t\t\t{\n\t\t\t\t\t"
-                                         f"obj.{variable['name']}[i][j] = temp[j].cast<{variable['raw_type']}>();\n\t\t\t\t"
-                                         "}\n\t\t\t}\n\t\t})")
+                        sizes = self._get_sizes(full_declaration)
                         class_variables_names.append(f'{variable["name"]}Vector')
+                        class_variables.append((struct.full_name, sizes, self._structures_dictionary[variable['raw_type']].full_name, variable['name']))
                     else:
-                        if len(variable['aliases']) > 0 and variable['typedef'] is None and "enum" not in variable.keys():
-
-                        else:
-                            class_variables.append((variable["name"], f'{variable["name"]}Vector', variable['raw_type'],
-                                                    variable["array_size"]))
-                            class_variables_names.append(f'{variable["name"]}Vector')
-                            class_file.write(f'\n\t\t.def_property("{variable["name"]}", []({struct.full_name} &obj)->py::array ')
-                            class_file.write("{\n\t\t")
-                            class_file.write(
-                                f"auto dtype = py::dtype(py::format_descriptor<{variable['raw_type']}>::format());\n\t\t"
-                                "auto base = py::array(dtype, {"
-                                f" {variable['array_size']}"
-                                " }, { "
-                                f"sizeof({variable['raw_type']}) "
-                                "});")
-                            class_file.write("\n\t\treturn py::array(dtype, {"
-                                             f"{variable['array_size']}"
-                                             " }, { sizeof("
-                                             f'{variable["raw_type"]})'
-                                             ' }, '
-                                             f'obj.{variable["name"]}, base);')
-                            class_file.write("\n\t\t},")
-                            class_file.write(f'[]({struct.full_name}& obj, py::list set{variable["name"]})\n\t\t')
-                            class_file.write("{\n\t\t\t")
-                            class_file.write(f"for (int i = 0; i < {variable['array_size']}; i++)\n\t\t\t"
-                                             "{\n\t\t\t\t"
-                                             f'obj.{variable["name"]}[i] = set{variable["name"]}[i].cast<{variable["raw_type"]}>();'
-                                             "\n\t\t\t}\n\t\t})")
+                        full_declaration = linecache.getline(struct.file_name, variable["line_number"])
+                        sizes = self._get_sizes(full_declaration)
+                        self._write_array(variable['name'], struct.full_name, variable['raw_type'], sizes, class_file)
+                        class_variables_names.append(f'{variable["name"]}Vector')
+                        class_variables.append((struct.full_name, sizes, variable['raw_type'], variable['name']))
                 else:
                     class_variables_names.append(f'obj.{variable["name"]}')
                     class_file.write(f'\n\t\t.def_readwrite("{variable["name"]}", &{struct.full_name}::{variable["name"]})')
         return class_variables_names, class_variables
 
-    def write_array(self, struct, class_file, variable, vector_types):
+    def _get_multiply(self, array_sizes, array_type):
+        multiply_lst = list()
+        index = 1
+        for size in array_sizes:
+            if size == array_sizes[-1]:
+                multiply_lst.append(1)
+            else:
+                multiply_lst.append(functools.reduce(lambda a, b: int(a) * int(b), array_sizes[index:]))
+            index += 1
+        final_multiply = "{ "
+        for multiply in multiply_lst:
+            final_multiply += f"sizeof({array_type}) * {multiply}, "
+        final_multiply += "}"
+        final_multiply = final_multiply.replace(", }", " }")
+        return final_multiply
 
+    def _write_array(self, name, full_name, array_type, array_sizes, file):
+        sizes = "{ " + ",".join(array_sizes) + " }"
+        multipliers = self._get_multiply(array_sizes, array_type)
+        file.write(f'\n\t\t.def_property("{name}", []({full_name} & obj)->py::array')
+        file.write("{\n\t\tauto dtype = "
+                   f"py::dtype(py::format_descriptor<{array_type}>::format());\n\t")
+        file.write("\tauto base = py::array(dtype, {"
+                   f"{sizes}, "
+                   "}, "
+                   f"{multipliers});"
+                   "\n\t\treturn py::array(dtype, {"
+                   f"{sizes}"
+                   "}, "
+                   f"{multipliers}"
+                   ", "
+                   f"obj.{name}, base);\n")
+        characters = [chr(ord('i') + i) for i in range(len(array_sizes))]
+        file.write("\n\t}, []("
+                   f"{full_name}& obj, py::list setArr)\n\t"
+                   "{\n")
+        self._write_set_array(characters, array_type, name, array_sizes, 0, file)
+        file.write("\n\t})")
+
+    def _write_pickle(self, array_sizes, array_type, name, file):
+        characters = [chr(ord('i') + i) for i in range(len(array_sizes))]
+        self._write_for_loop_get(characters, array_type, name, array_sizes, 0, file, True)
 
     def _write_vector(self, struct, class_file, variable, vector_types):
         full_declaration = linecache.getline(struct.file_name, variable["line_number"])
         sizes = self._get_sizes(full_declaration)
         characters = [chr(ord('i') + i) for i in range(len(sizes))]
-        vector_types.append("std::vector<" * len(sizes) + self._structures_dictionary[variable['type']].full_name + '>' * len(sizes))
-        self._write_for_loop_get(characters, variable, sizes, 0, class_file)
+        vector_types.add("std::vector<" * (len(sizes)-1) + self._structures_dictionary[variable['type']].full_name + '>'*(len(sizes) - 1))
+        class_file.write(f'\n\t\t.def_property("{variable["name"]}", []({struct.full_name} &obj)->'
+                         f'{"std::vector<" * len(sizes)}{self._structures_dictionary[variable["raw_type"]].full_name + "*"}{">" * len(sizes)}'
+                         ' {')
+        self._write_for_loop_get(characters, self._structures_dictionary[variable["raw_type"]].full_name + "*", variable['name'], sizes, 0, class_file, False)
         class_file.write("\n\n")
-        self._write_for_loop_set(characters, variable, sizes, 0, class_file)
+        class_file.write('\t}, '
+                         f'[]({struct.full_name}& obj, {"std::vector<" * len(sizes)}{self._structures_dictionary[variable["raw_type"]].full_name + "*"}{">" * len(sizes)} setArr)'
+                         '\n\t{')
+        self._write_for_loop_set(characters, variable['name'], sizes, 0, class_file, False)
+        class_file.write("\n\t})")
 
-    def _write_for_loop_get(self, characters, variable, sizes, call_index, file):
+    def _write_for_loop_get(self, characters, array_type, variable_name, sizes, call_index, file, is_pickle):
         loop_character = characters[call_index]
-        file.write("\n\t\t" + call_index * '\t' + "std::vector<" * (len(sizes) - call_index) + variable['type'] + '>' * (
-                    len(sizes) - call_index) + f" temp{call_index};")
+        if call_index == 0 and is_pickle:
+            file.write("\n\t\t" + call_index * '\t' + "std::vector<" * (len(sizes) - call_index) + array_type + '>' * (
+                        len(sizes) - call_index) + f" {variable_name}Vector;")
+        else:
+            file.write("\n\t\t" + call_index * '\t' + "std::vector<" * (len(sizes) - call_index) + array_type + '>' * (
+                        len(sizes) - call_index) + f" temp{call_index};")
         file.write(
             "\n\t\t" + call_index * '\t' + f"for (int {loop_character} = 0; {loop_character} < {sizes[call_index]}; {loop_character}++)")
         file.write("\n\t\t" + call_index * '\t' + "{")
@@ -150,16 +173,28 @@ class ParserWriter:
             call_stack = ""
             for char in characters:
                 call_stack += "[" + char + "]"
-            file.write(f"temp{call_index}.push_back(&obj.{variable['name']}{call_stack});")
+            if is_pickle:
+                if call_index == 0:
+                    file.write(f"{variable_name}Vector.push_back(obj.{variable_name}{call_stack});")
+                else:
+                    file.write(f"temp{call_index}.push_back(obj.{variable_name}{call_stack});")
+            else:
+                if call_index == 0:
+                    file.write(f"{variable_name}Vector.push_back(&obj.{variable_name}{call_stack});")
+                else:
+                    file.write(f"temp{call_index}.push_back(&obj.{variable_name}{call_stack});")
             file.write("\n\t\t" + call_index * '\t' + "}")
         else:
-            self._write_for_loop_get(characters, variable, sizes, call_index + 1, file)
-            file.write("\n\t\t" + (call_index + 1) * '\t' + f"temp{call_index}.push_back(temp{call_index + 1});")
+            self._write_for_loop_get(characters, array_type, variable_name, sizes, call_index + 1, file, is_pickle)
+            if call_index == 0 and is_pickle:
+                file.write("\n\t\t" + (call_index + 1) * '\t' + f"{variable_name}Vector.push_back(temp{call_index + 1});")
+            else:
+                file.write("\n\t\t" + (call_index + 1) * '\t' + f"temp{call_index}.push_back(temp{call_index + 1});")
             file.write("\n\t\t" + call_index * '\t' + "}")
-            if call_index == 0:
+            if call_index == 0 and not is_pickle:
                 file.write("\n\t\t" + "return temp0;")
 
-    def _write_for_loop_set(self, characters, variable, sizes, call_index, file):
+    def _write_for_loop_set(self, characters, variable_name, sizes, call_index, file, is_pickle):
         loop_character = characters[call_index]
         file.write(
             "\n\t\t" + call_index * '\t' + f"for (int {loop_character} = 0; {loop_character} < {sizes[call_index]}; {loop_character}++)")
@@ -169,10 +204,39 @@ class ParserWriter:
             file.write("\n\t\t" + (call_index + 1) * '\t')
             for char in characters:
                 call_stack += "[" + char + "]"
-            file.write(f"obj.{variable['name']}{call_stack} = *setArr{call_stack};")
+            if is_pickle:
+                file.write(f"obj.{variable_name}{call_stack} = {variable_name}Vector{call_stack};")
+            else:
+                file.write(f"obj.{variable_name}{call_stack} = *setArr{call_stack};")
             file.write("\n\t\t" + call_index * '\t' + "}")
         else:
-            self._write_for_loop_set(characters, variable, sizes, call_index + 1, file)
+            self._write_for_loop_set(characters, variable_name, sizes, call_index + 1, file, is_pickle)
+            file.write("\n\t\t" + call_index * '\t' + "}")
+
+    def _write_set_array(self, characters, array_type, variable_name, sizes, call_index, file):
+        loop_character = characters[call_index]
+        file.write(
+            "\n\t\t" + call_index * '\t' + f"for (int {loop_character} = 0; {loop_character} < {sizes[call_index]}; {loop_character}++)")
+        file.write("\n\t\t" + call_index * '\t' + "{")
+        if call_index == len(sizes) - 1:
+            call_stack = ""
+            for char in characters:
+                call_stack += "[" + char + "]"
+            file.write("\n\t\t" + (call_index + 1) * '\t')
+            if call_index == 0:
+                file.write(f"obj.{variable_name}{call_stack} = setArr[{loop_character}].cast<{array_type}>();")
+            else:
+                file.write(f"obj.{variable_name}{call_stack} = temp{call_index-1}[{loop_character}].cast<{array_type}>();")
+            file.write("\n\t\t" + call_index * '\t' + "}")
+        elif call_index == 0:
+            file.write("\n\t\t" + (call_index + 1) * '\t')
+            file.write(f"py::list temp{call_index} = setArr[{loop_character}].cast<py::list>();")
+            self._write_set_array(characters, array_type, variable_name, sizes, call_index + 1, file)
+            file.write("\n\t\t" + call_index * '\t' + "}")
+        else:
+            file.write("\n\t\t" + (call_index + 1) * '\t')
+            file.write(f"py::list temp{call_index} = temp{call_index - 1}[{loop_character}].cast<py::list>();")
+            self._write_set_array(characters, array_type, variable_name, sizes, call_index + 1, file)
             file.write("\n\t\t" + call_index * '\t' + "}")
 
     def _get_sizes(self, full_declaration):
@@ -183,20 +247,19 @@ class ParserWriter:
         return sizes
 
     def write_topics(self):
-        self._write_create_topic_name(self._topics_index_file, self._topics_file)
-        for topic in self._topics_index_file.keys():
-            self._write_smt_class(topic, self._topics_index_file[topic]["Data Size"])
-            self.write_overload_smt_functions(topic)
+        self._write_create_topic_name()
+        for topic in self._topics_dictionary.keys():
+            self._write_smt_class(topic, self._topics_dictionary[topic]["Data Size"])
 
-    def _write_create_topic_name(self, topics, topics_file):
+    def _write_create_topic_name(self):
         self._topics_file.write("\nstd::map<std::string, std::array<uint32_t, 3>> getTopicsInfo()\n{\n")
-        self._topics_file.write("std::map<std::string, std::array<uint32_t, 3>> topicsInfo;")
-        for topic_name, topic_info in self._topics_index_file.items():
+        self._topics_file.write("\tstd::map<std::string, std::array<uint32_t, 3>> topicsInfo;")
+        for topic_name, topic_info in self._topics_dictionary.items():
             self._topics_file.write(f'\n\ttopicsInfo["{topic_name}"] = '
                                     '{ '
                                     f'{topic_info["Data Size"]}, {topic_info["History Depth"]}, {topic_info["Cells Count"]}'
                                     '};')
-        self._topics_file.write("\n\treturn topicsInfo;\n")
+        self._topics_file.write("\n\treturn topicsInfo;\n}\n")
         self._topics_file.write(
             "struct topicsInfo\n{\n\tstatic std::map<std::string, std::array<uint32_t, 3>> topicsInfoMap;\n};\n")
         self._topics_file.write(
@@ -206,27 +269,12 @@ class ParserWriter:
                                 '\n\t\tstd::cerr << "ERROR!! No topic named " + topicName << std::endl;\n\t\t'
                                 'return false;\n\t}')
         self._topics_file.write("\n\telse\n\t{\n\t\tauto topic_info = topicsInfo::topicsInfoMap[topicName];\n\t\t"
-                                "return SMT_CreateTopic(topicName.c_str(), topic_info[0], topic_info[1], topic_info[2]);\n\t}\n}")
+                                "return SMT_CreateTopic(topicName.c_str(), topic_info[0], topic_info[1], topic_info[2]);\n\t}\n}\n")
 
     def _write_pack_class_pickle(self, class_file, class_variables, class_variables_names):
         for class_variable in class_variables:
-            if len(class_variable) == 5:
-                class_file.write(f"std::vector<std::vector<{class_variable[2]}>> {class_variable[1]};\n\t\t")
-                class_file.write(f"for (int i = 0; i < {class_variable[3]}; i++)\n\t\t")
-                class_file.write("{\n\t\t\t")
-                class_file.write(f"std::vector<{class_variable[2]}> temp;\n\t\t\t")
-                class_file.write(f"for (int j = 0; j < {class_variable[4]}; j++)\n\t\t\t")
-                class_file.write("{\n\t\t\t\t")
-                class_file.write(f"temp.push_back(obj.{class_variable[0]}[i][j]);")
-                class_file.write("\n\t\t\t}\n\t\t\t")
-                class_file.write(f"{class_variable[1]}.push_back(temp);")
-                class_file.write("\n\t\t}")
-            else:
-                class_file.write(f"\n\t\tstd::vector<{class_variable[2]}> {class_variable[1]};\n\t\t")
-                class_file.write(f"for (int i = 0; i < {class_variable[3]}; i++)\n\t\t")
-                class_file.write("{\n\t\t\t")
-                class_file.write(f"{class_variable[1]}.push_back(obj.{class_variable[0]}[i]);")
-                class_file.write("\n\t\t}")
+            self._write_pickle(class_variable[1], class_variable[2],
+                               class_variable[3], class_file)
         class_file.write("\n\t\treturn py::make_tuple(")
         class_file.write(f"{','.join(class_variables_names)});\n")
 
@@ -234,39 +282,29 @@ class ParserWriter:
         tuple_index = 0
         for variable in struct.variables:
             type = variable["type"]
-            if "struct " in type:
-                type = type[type.find("struct ") + len("struct "):]
+            if (len(variable['aliases']) > 0 and variable['typedef'] is None and "enum" not in variable.keys()) or "struct" in type:
+                if "struct" in type:
+                    type = type[type.find("struct ") + len("struct "):]
                 if type in self._structures_dictionary.keys():
                     type = self._structures_dictionary[type].full_name
             if "enum" in variable.keys():
                 type = variable["enum"]
             if variable["array"]:
-                if "multi_dimensional_array" in variable.keys():
-                    full_declaration = linecache.getline(struct.file_name, variable["line_number"])
-                    first_size = full_declaration[
-                                 full_declaration.find("[") + 1:full_declaration.find("]", full_declaration.find("["),
-                                                                                      -1)]
-                    second_size = full_declaration[full_declaration.rfind("[") + 1:full_declaration.rfind("]")]
+                full_declaration = linecache.getline(struct.file_name, variable["line_number"])
+                sizes = self._get_sizes(full_declaration)
+                if variable['raw_type'] in self._structures_dictionary.keys():
                     class_file.write(
-                        f'\n\t\tauto {variable["name"]}Vector = t[{tuple_index}].cast<std::vector<std::vector<{type}>>>();')
-                    class_file.write(f"\n\t\tfor (int i = 0; i < {first_size}; i++)\n\t\t")
-                    class_file.write("{\n\t\t\t")
-                    class_file.write(f"for (int j = 0; j < {second_size}; j++)\n\t\t\t")
-                    class_file.write("{\n\t\t\t\t")
-                    class_file.write(f"obj.{variable['name']}[i][j] = {variable['name']}Vector[i][j];")
-                    class_file.write("\n\t\t\t}\n\t\t}\n\t\t")
+                        f'\n\t\tauto {variable["name"]}Vector = t[{tuple_index}].cast<{"std::vector<" * len(sizes) + self._structures_dictionary[variable["raw_type"]].full_name + ">" * len(sizes)}>();')
                 else:
                     class_file.write(
-                        f'\n\t\tauto {variable["name"]}Vector = t[{tuple_index}].cast<std::vector<{type}>>();')
-                    class_file.write(f"\n\t\tfor (int i = 0; i < {variable['array_size']}; i++)\n\t\t")
-                    class_file.write("{\n\t\t\t")
-                    class_file.write(f"obj.{variable['name']}[i] = {variable['name']}Vector[i];")
-                    class_file.write("\n\t\t}")
+                        f'\n\t\tauto {variable["name"]}Vector = t[{tuple_index}].cast<{"std::vector<" * len(sizes) + variable["raw_type"] + ">" * len(sizes)}>();')
+                characters = [chr(ord('i') + i) for i in range(len(sizes))]
+                self._write_for_loop_set(characters, variable['name'], sizes, 0, class_file, True)
             else:
                 class_file.write(f'\n\t\tobj.{variable["name"]} = t[{tuple_index}].cast<{type}>();')
             tuple_index += 1
 
-    def write_overload_smt_functions(self, topic_name):
+    def write_overload_smt_functions(self, topic_name, shared_memory_topics_file):
         smt_overload_functions = [f'.def("getOldest",'
                                   f' py::overload_cast<void*, SMT_DataInfo&>(&{topic_name}::GetOldest),'
                                   f'py::return_value_policy::copy)',
@@ -291,11 +329,10 @@ class ParserWriter:
                                   f'.def("getLatest",'
                                   f' py::overload_cast<void*>(&{topic_name}::GetLatest),'
                                   f' py::return_value_policy::copy)']
-        with open("SharedMemoryTopics.h", "w") as shared_memory_topics_file:
-            shared_memory_topics_file.write(f'\n\tpy::class_<{topic_name}>(SharedMemoryWrapperModule, "{topic_name}")')
-            shared_memory_topics_file.write("\n\t\t.def(py::init<>())")
-            [shared_memory_topics_file.write("\n\t\t" + smt_overload_function) for smt_overload_function in smt_overload_functions]
-            shared_memory_topics_file.write(";\n}")
+        shared_memory_topics_file.write(f'\n\tpy::class_<{topic_name}>(SharedMemoryWrapperModule, "{topic_name}")')
+        shared_memory_topics_file.write("\n\t\t.def(py::init<>())")
+        [shared_memory_topics_file.write("\n\t\t" + smt_overload_function) for smt_overload_function in smt_overload_functions]
+        shared_memory_topics_file.write(";")
 
     def _write_smt_class(self, topic_name, topic_size):
 
@@ -331,7 +368,7 @@ class ParserWriter:
 
     def write_enums_file(self, enums):
         with open("enums.h", "w") as enums_file:
-            enums_file.write(f'#pragma once\n\n#include "{self._main_file[0]}"\n\n#include <pybind11/pybind11.h>\n\n#include <pybind11/stl.h>\n\n#include <pybind11/stl_bind.h>\n\n#include <iostream>\n\n')
+            enums_file.write(f'#pragma once\n\n{self._includes}\n\n#include <pybind11/pybind11.h>\n\n#include <pybind11/stl.h>\n\n#include <pybind11/stl_bind.h>\n\n#include <iostream>\n\n')
             enums_file.write("namespace py = pybind11;\n\n")
             enums_file.write("void enumsRunner(py::module & SharedMemoryWrapperModule)\n\n{")
             for enum in enums:
@@ -346,27 +383,44 @@ class ParserWriter:
         with open("SharedMemoryWrapper.cpp", "r+") as main_file:
             content = main_file.read()
             main_file.seek(0, 0)
-            main_file.write('#include "stdafx.h"\n\n')
+            main_file.write('#include "stdafx.h"\n\n#include "smt.h"\n\n')
             [main_file.write(include_path) for include_path in include_files]
-            main_file.write('#include "Shared_Memory_Topics_API.h"\n\n'
+            main_file.write('#include "SharedMemoryTopics.h"\n\n#include "Shared_Memory_Topics_API.h"\n\n'
                             '#include <pybind11\pybind11.h>\n\n#include <pybind11\stl.h>\n\n'
                             '#include <pybind11\stl_bind.h>\n\n#include <iostream>\n\n')
-            main_file.write("namespace py = pybind11;\n\nPYBIND11_MODULE(SharedMemoryWrapper, SharedMemoryWrapperModule)\n{\n\t")
+            main_file.write("namespace py = pybind11;\n\n")
+            all_vector_types = []
             for vector_type in vectors_type:
-                main_file.write(f"PYBIND11_MAKE_OPAQUE(std::vector <{vector_type}>);")
                 main_file.write("\n")
+                main_file.write(f"PYBIND11_MAKE_OPAQUE(std::vector<{vector_type}>);\n")
+                vector_inner_types = self._get_inner_types_vector("std::vector<" + vector_type + ">")
+                for inner_type in vector_inner_types:
+                    main_file.write(f"PYBIND11_MAKE_OPAQUE({inner_type});\n")
+                    all_vector_types.append("std::vector<" + inner_type + ">")
+                all_vector_types.append(vector_type)
+            main_file.write("PYBIND11_MODULE(SharedMemoryWrapper, SharedMemoryWrapperModule)\n{\n")
+            for vector_type in all_vector_types:
+                inner_type = vector_type[vector_type.rfind("<"):vector_type.find(">")-1]
+                if "::" in inner_type:
+                    inner_type = inner_type[inner_type.find("::") + 2:]
+                dimensions = vector_type.count("std::vector")
+                main_file.write(f'\n\tpy::bind_vector<{vector_type}>(SharedMemoryWrapperModule, "{inner_type}{dimensions}");')
             generic_functions = ("SMT_Version", "SMT_Init", "SMT_Show", "SMT_CreateTopic",
                                  "SMT_GetPublishCount", "SMT_ClearHistory")
-            main_file.write("PYBIND11_MODULE(SharedMemoryWrapper, SharedMemoryWrapperModule)\n{\n")
-            for vector_type in vectors_type:
-                main_file.write(f'py::bind_vector<std::vector<{vector_type}>>(SharedMemoryWrapperModule, "{vector_type}List");')
             for generic_function in generic_functions:
-                self.write_generic_function(generic_function)
+                self.write_generic_function(generic_function, main_file)
             main_file.write(content)
+
+    def _get_inner_types_vector(self, vector_type):
+        inner_types = []
+        while vector_type.count("std::vector") > 1:
+            inner_types.append(vector_type[vector_type.find("std::vector") + len("std::vector") + 1:-1])
+            vector_type = vector_type[vector_type.find("std::vector") + len("std::vector") + 1:-1]
+        return inner_types
 
     def write_struct_class_prefix(self, struct):
         with open(f"{struct.name}Class.h", "w") as class_file:
-            class_file.write(f'# pragma once\n\n#include "{self._main_file[0]}"\n\n#include "sharedMemoryTopics.h"\n\n'
+            class_file.write(f'# pragma once\n\n{self._includes}\n\n#include "sharedMemoryTopics.h"\n\n'
                              '#include "Shared_Memory_Topics_API.h"\n\n'
                              '#include <pybind11\pybind11.h>\n\n#include <pybind11\stl.h>\n\n'
                              '#include <pybind11\stl_bind.h>\n\n#include <pybind11\\numpy.h>\n\n'
@@ -375,6 +429,7 @@ class ParserWriter:
                              '{\n')
 
     def write_class_call(self, structs, enums):
+        self._pybind_classes_file.write("\n\n\tsmtRunner(SharedMemoryWrapperModule);")
         [self._pybind_classes_file.write(f"\n\n\t{struct.name}ClassRunner(SharedMemoryWrapperModule);") for struct in structs]
         if enums:
             self._pybind_classes_file.write("\n\n\tenumsRunner(SharedMemoryWrapperModule);")

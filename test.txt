@@ -1,21 +1,45 @@
+		.def_property("test", [](sm_data::testt & obj)->py::array{
+		auto dtype = py::dtype(py::format_descriptor <int>::format());
+		auto base = py::array(dtype, {{ 2,3,4 }, }, { sizeof(int) * 12, sizeof(int) * 4, sizeof(int) * 1 });
+		return py::array(dtype, {{ 2,3,4 }}, { sizeof(int) * 12, sizeof(int) * 4, sizeof(int) * 1 }), obj.test, base);
 
-std::vector<std::vector<sm_data::t*>> temp0;
-for (int i = 0; i < 2; i++)
-{
-	std::vector<sm_data::t*> temp1;
-	for (int j = 0; j < 2; j++)
-	{
-		temp1.push_back(&obj.test[i][j]);
-	}
-	temp0.push_back(temp1);
-}
-return temp0;
-
-
-for (int i = 0; i < 2; i++)
-{
-	for (int j = 0; j < 2; j++)
-	{
-		obj.test[i][j] = *setArr[i][j];
-	}
-}
+		for (int i = 0; i < 2; i++)
+		{
+			py::list temp0 = setArr[i].cast<py::list>();
+			for (int j = 0; j < 3; j++)
+			{
+				py::list temp1 = temp0[j].cast<py::list>();
+				for (int k = 0; k < 4; k++)
+				{
+					obj.test[i][j][k] = temp2[k].cast<int>();
+				}
+			}
+		}
+		.def(py::pickle(
+			[](const sm_data::test &obj){
+		for (int i = 0; i < 2; i++)
+		{
+			for (int j = 0; j < 3; j++)
+			{
+				for (int k = 0; k < 4; k++)
+				{
+					obj.test[i][j][k] = testVector[i][j][k];
+				}
+			}
+		}
+			[](py::tuple t) {
+		std::vector<std::vector<std::vector<int>>> testVector;
+		for (int i = 0; i < 2; i++)
+		{
+			std::vector<std::vector<int>> temp1;
+			for (int j = 0; j < 3; j++)
+			{
+				std::vector<int> temp2;
+				for (int k = 0; k < 4; k++)
+				{
+					temp2.push_back(&obj.test[i][j][k]);
+				}
+				temp1.push_back(temp2);
+			}
+			testVector.push_back(temp1);
+		}

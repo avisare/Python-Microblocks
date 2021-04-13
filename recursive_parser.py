@@ -6,9 +6,11 @@ import glob
 
 class RecursiveParser:
 
-    def __init__(self, collab_directory):
-        self._main_files_path = glob.glob(collab_directory + "*.h")
-        self._main_files = [open(main_file_path, "r") for main_file_path in self._main_files]
+    def __init__(self, base_directory):
+        self._base_directory = base_directory
+        collab_directory = base_directory + "\\collabs"
+        self._main_files_path = glob.glob(collab_directory + "\\*.h")
+        self._main_files = [open(main_file_path, "r") for main_file_path in self._main_files_path]
         self._includes = list()
 
     def get_includes_recursive(self, file_path):
@@ -21,7 +23,7 @@ class RecursiveParser:
                         self.get_includes_recursive(include_file)
 
     def parse(self, topics_index_file):
-        parser = Parser(self._main_files, topics_index_file)
+        parser = Parser(self._main_files_path, self._base_directory, topics_index_file)
         parser.initialize_structures(self._main_files_path)
         parser.parse()
 
