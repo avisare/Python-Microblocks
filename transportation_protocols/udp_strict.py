@@ -4,6 +4,10 @@ from .udp_device import UDPDevice
 
 
 class UDPStrictConnection(UDPDevice):
+    """
+    This class represent UDP Strict, which means side that can receive
+    and send packets, but only from or to sepcific address.
+    """
 
     def __init__(self, udp_connection, destination_ip, destination_port, timeout: 'time', buffer_size_bytes: 'int'):
         super().__init__(timeout, buffer_size_bytes)

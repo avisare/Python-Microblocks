@@ -16,6 +16,7 @@ class ArgumentMustBeInteger(Exception):
     def __str__(self):
         return f"The argument {self._argument_name} must be integer"
 
+
 class ControlMethodNotFound(Exception):
     def __init__(self, control_method):
         self._control_method = control_method

@@ -4,6 +4,11 @@ from .udp_device import UDPDevice
 
 
 class UDPResponderConnection(UDPDevice):
+    """
+    This class represent UDP Responder, which means UDP connection, who can only
+    receive packets from different sources, but cannot send.
+    Because of that, the class is only implement the receive function.
+    """
     def __init__(self, udp_connection, timeout: "time", buffer_size_bytes: "int"):
         super().__init__(timeout, buffer_size_bytes)
         self._udp_connection = udp_connection

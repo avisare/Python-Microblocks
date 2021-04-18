@@ -4,6 +4,12 @@ from .comm_device import CommDeviceInterface
 
 
 class TCPDevice(CommDeviceInterface):
+    """
+    This class is representing TCP Device, which is implement basic
+    function like send and receive with tcp socket.
+    The class make sure that every TCP Device that inherited from her,
+    will have receive and send functions.
+    """
     def __init__(self, tcp_connection, timeout: "time", buffer_size_bytes: "int"):
         super().__init__(timeout, buffer_size_bytes)
         self._tcp_connection = tcp_connection

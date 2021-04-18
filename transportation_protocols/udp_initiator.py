@@ -4,7 +4,11 @@ from .udp_device import UDPDevice
 
 
 class UDPInitiatorConnection(UDPDevice):
-
+    """
+    This class represent UDP Initiator, which means connection type, who can
+    only send packets to destinations, but not receive. Because of that this connection
+    implement only the send  function.
+    """
     def __init__(self, udp_connection, destination_ip, destination_port, timeout: 'time', buffer_size_bytes: 'int'):
         super().__init__(timeout, buffer_size_bytes)
         self._udp_connection = udp_connection

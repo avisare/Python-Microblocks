@@ -3,6 +3,12 @@ from datetime import time
 
 
 class TCPClient(TCPDevice):
+    """
+    This class is representing TCP client, which means the connection who
+    start the conversation between the sever and the client.
+    The client have the same functions as TCP Device class, and the connect function
+    which connect the client to the server
+    """
     def __init__(self, tcp_connection, timeout: "time", buffer_size_bytes: "int", remote_ip: "str", remote_port: "int"):
         super().__init__(tcp_connection, timeout, buffer_size_bytes)
         self._remote_ip = remote_ip

@@ -24,7 +24,7 @@
 		  3. Download the shared memory wrapper installer, which will provide you all the python scripts you need in order to use Shared Memory Wrapper.<br>
 		  4. Download the shared memory server installer on the remote machine you want to connect.  This installer is in the shared memory wrapper installer.</p>
 		  <h2>Attention</h2>
-		  <p>1. If you want to print or see char array (or dimensional char array), you need to write the arrayName.view('S1'). Otherwise, you will see array of type
+		  <p>1. If you want to print, see or modify char array (or dimensional char array), you need to write the arrayName.view('S1'). Otherwise, you will see array of type
 		  int8 instead of char array.<br>
 		  2. The python module supported only in python version 3.8<br>
 		  3. The python basic float type is way more precise than the float basic type in c++. Because of that, when receiving
@@ -33,11 +33,18 @@
 float_var = cpp_function_return_float()
 float_var = numpy.float32(float_var)
 </code></pre>
-		  4. In order to assign one value witin char array, you need to do:
-		  <pre><code>charArrayName[0] = ord('a')</code></pre>
+		  4. In order to assign one value within char array, you need to do:
+		  <pre><code>charArrayName.asview("S1")[0] = 'a'
+# or
+charArrayName[0] = ord('a')</code></pre>
 		  But in order to change the whole array you can just do:
 		  <pre><code>charArrayName = ['a']*array_size</code></pre>
-		  5. In order to create struct array or dimensional struct array. You shoud use special syntax.
+			5. Notice that the return value from specific char in char array will be binary char.
+			So .decode after the return value will be necessary. Example:
+			<pre><code>print(charArrayName.view("S1")[0].decode()
+# or
+print(chr(charArrayName[0]))</code></pre>
+			6. In order to create struct array or dimensional struct array. You shoud use special syntax.
 <pre><code>cpp code:
 struct t
 {
@@ -59,7 +66,7 @@ anotherInnerArray = SharedMemoryWrapper.t1([structTObj1, structTObj2])
 anotherStruct.arr = SharedMemoryWrapper.t2([innerArray, anotherInnerArray])
 #t2 = t is the name of the struct and 2 is the dimension number
 </code></pre>
-		  6. assiging specific struct within struct array is not supported. You should change each value separately.
+		  7. assiging specific struct within struct array is not supported. You should change each value separately.
 		  Continue of the previous example:
 <pre><code>structTObj3 = SharedMemoryWrapper.t()
 structTObj3.i = 20
