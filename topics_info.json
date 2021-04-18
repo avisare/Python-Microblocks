@@ -1,6 +1,6 @@
 {
   "SharedMemoryContentTopic": {
-    "Data Size": 36,
+    "Data Size": 52,
     "History Depth": 3,
     "Cells Count": 10
   },
@@ -10,17 +10,17 @@
     "Cells Count": 10
   },
   "testStructTwoTopic": {
-    "Data Size": 42,
+    "Data Size": 52,
     "History Depth": 2,
     "Cells Count": 7
   },
   "testStructThreeTopic": {
-    "Data Size": 33,
+    "Data Size": 40,
     "History Depth": 3,
     "Cells Count": 10
   },
   "testStructFourTopic": {
-    "Data Size": 44,
+    "Data Size": 152,
     "History Depth": 5,
     "Cells Count": 12
   },

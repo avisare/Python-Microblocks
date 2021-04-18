@@ -2,18 +2,6 @@
 
 #pragma warning( disable:4267 )
 
-#include "SharedMemoryContentClass.h"
-
-#include "testStructThreeClass.h"
-
-#include "testStructTwoClass.h"
-
-#include "testStructFourClass.h"
-
-#include "tClass.h"
-
-#include "testStructOneClass.h"
-
 #include "Shared_Memory_Topics_API.h"
 
 #include <iostream>
@@ -22,11 +10,11 @@
 std::map<std::string, std::array<uint32_t, 3>> getTopicsInfo()
 {
 	std::map<std::string, std::array<uint32_t, 3>> topicsInfo;
-	topicsInfo["SharedMemoryContentTopic"] = { 36, 3, 10};
+	topicsInfo["SharedMemoryContentTopic"] = { 52, 3, 10};
 	topicsInfo["testStructOneTopic"] = { 25, 4, 10};
-	topicsInfo["testStructTwoTopic"] = { 42, 2, 7};
-	topicsInfo["testStructThreeTopic"] = { 33, 3, 10};
-	topicsInfo["testStructFourTopic"] = { 44, 5, 12};
+	topicsInfo["testStructTwoTopic"] = { 52, 2, 7};
+	topicsInfo["testStructThreeTopic"] = { 40, 3, 10};
+	topicsInfo["testStructFourTopic"] = { 152, 5, 12};
 	topicsInfo["SMT_DataInfo"] = { 16, 3, 10};
 	return topicsInfo;
 }
@@ -57,7 +45,7 @@ public:
 	SharedMemoryContentTopic()
 	{
 		_topicName="SharedMemoryContentTopic";
-		_topicSize=36;
+		_topicSize=52;
 	}
 
 	bool GetByCounter(void* structObject, uint32_t counter, uint64_t timeout_us, SMT_DataInfo& data_info)
@@ -167,7 +155,7 @@ public:
 	testStructTwoTopic()
 	{
 		_topicName="testStructTwoTopic";
-		_topicSize=42;
+		_topicSize=52;
 	}
 
 	bool GetByCounter(void* structObject, uint32_t counter, uint64_t timeout_us, SMT_DataInfo& data_info)
@@ -222,7 +210,7 @@ public:
 	testStructThreeTopic()
 	{
 		_topicName="testStructThreeTopic";
-		_topicSize=33;
+		_topicSize=40;
 	}
 
 	bool GetByCounter(void* structObject, uint32_t counter, uint64_t timeout_us, SMT_DataInfo& data_info)
@@ -277,7 +265,7 @@ public:
 	testStructFourTopic()
 	{
 		_topicName="testStructFourTopic";
-		_topicSize=44;
+		_topicSize=152;
 	}
 
 	bool GetByCounter(void* structObject, uint32_t counter, uint64_t timeout_us, SMT_DataInfo& data_info)
