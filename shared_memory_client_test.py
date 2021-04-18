@@ -286,7 +286,7 @@ class TestClient(unittest.TestCase):
         self.assertEqual(tuple_result[:-1], (['a'] * 32, TestClient.shared_memory_objects[0].intData))
         self.assertTrue(self._compare_2d_struct_t_lists(tuple_result[-1], TestClient.shared_memory_objects[0].test))
 
-    """def test_9_get_latest_struct_one(self):
+    def test_9_get_latest_struct_one(self):
         tuple_result = self._get_latest_struct_one()
         self.assertEqual(tuple_result[:-1], (TestClient.shared_memory_objects[3].intNumber, float32(TestClient.shared_memory_objects[3].floatNumber), TestClient.shared_memory_objects[3].character))
         self.assertTrue(self._compare_lists(tuple_result[-1].tolist(), TestClient.shared_memory_objects[3].arr.tolist()))
@@ -345,7 +345,7 @@ class TestClient(unittest.TestCase):
         tuple_result = self._get_oldest_struct_four()
         self.assertEqual(tuple_result[:-1], (TestClient.shared_memory_objects[8].singleInteger,))
         self.assertTrue(self._compare_lists(tuple_result[-1].tolist(), TestClient.shared_memory_objects[8].dimensionalArray.tolist()))
-"""
+
     def _compare_struct_three(self, first_struct, second_struct):
         lst = [chr(char) for char in first_struct.charArray]
         lst1 = [chr(char) for char in second_struct.charArray]
