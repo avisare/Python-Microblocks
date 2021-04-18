@@ -21,7 +21,7 @@ namespace sm_data {
 struct SharedMemoryContent
 {
 	uint32_t intData;
-	unsigned char	 cstringData[CSTRING_DATA_MAX_LEN];
+	char	 cstringData[CSTRING_DATA_MAX_LEN];
 	t test[2][2];
 };
 

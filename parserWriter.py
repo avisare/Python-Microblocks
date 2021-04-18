@@ -121,7 +121,7 @@ class ParserWriter:
         file.write("{\n\t\tauto dtype = "
                    f"py::dtype(py::format_descriptor<{array_type}>::format());\n\t")
         file.write(f"\tauto base = py::array(dtype, {sizes}, {multipliers});"
-                   "\n\t\treturn py::array(dtype, {"
+                   "\n\t\treturn py::array(dtype, "
                    f"{sizes}, {multipliers}, obj.{name}, base);\n")
         characters = [chr(ord('i') + i) for i in range(len(array_sizes))]
         file.write("\n\t}, []("
@@ -132,7 +132,10 @@ class ParserWriter:
 
     def _write_pickle(self, array_sizes, array_type, name, file):
         characters = [chr(ord('i') + i) for i in range(len(array_sizes))]
-        if array_type in self._structures_dictionary.keys():
+        temp_type = array_type
+        if "::" in array_type:
+            temp_type = array_type[array_type.find("::") + 2:]
+        if temp_type in self._structures_dictionary.keys():
             self._write_pickle_pack_structs_list(characters, name, array_sizes, 0, file)
         else:
             self._write_for_loop_get(characters, array_type, name, array_sizes, 0, file, True)
@@ -277,6 +280,7 @@ class ParserWriter:
     def _write_unpack_class_pickle(self, class_file, struct):
         tuple_index = 0
         for variable in struct.variables:
+            unpacked = False
             is_basic_type_array = True
             type = variable["type"]
             if (len(variable['aliases']) > 0 and variable['typedef'] is None and "enum" not in variable.keys()) or "struct" in type:
@@ -288,9 +292,10 @@ class ParserWriter:
                 if variable["array"]:
                     full_declaration = linecache.getline(struct.file_name, variable["line_number"])
                     sizes = self._get_sizes(full_declaration)
-                    class_file.write(f"\n\t\tauto lst = t[{tuple_index}].cast<py::list>();")
+                    class_file.write(f"\n\t\tauto {variable['name']}lst0 = t[{tuple_index}].cast<py::list>();")
                     characters = [chr(ord('i') + i) for i in range(len(sizes))]
                     self._write_pickle_unpack_structs_list(characters, variable['name'], type, sizes, 0, class_file)
+                    unpacked = True
             if "enum" in variable.keys():
                 type = variable["enum"]
             if variable["array"] and is_basic_type_array:
@@ -305,7 +310,8 @@ class ParserWriter:
                 characters = [chr(ord('i') + i) for i in range(len(sizes))]
                 self._write_for_loop_set(characters, variable['name'], sizes, 0, class_file, True)
             else:
-                class_file.write(f'\n\t\tobj.{variable["name"]} = t[{tuple_index}].cast<{type}>();')
+                if not unpacked:
+                    class_file.write(f'\n\t\tobj.{variable["name"]} = t[{tuple_index}].cast<{type}>();')
             tuple_index += 1
 
     def _write_pickle_pack_structs_list(self, characters, array_name, array_sizes, call_index, file):
@@ -317,31 +323,39 @@ class ParserWriter:
                 file.write("\n\t\t" + '\t'*call_index + f"{array_name}Vector.append(obj.{array_name}{call_stack});")
             else:
                 file.write("\n\t\t" + '\t'*call_index + f"lst{call_index-1}.append(obj.{array_name}{call_stack});")
+            file.write("\n\t\t" + '\t'*(call_index-1) + "}")
         else:
             if call_index == 0:
                 file.write(f"\n\t\t" + '\t'*call_index + f"py::list {array_name}Vector;")
-                file.write(f"\n\t\t" + '\t' * call_index + f"for(int {characters[call_index]} = 0; {characters[call_index]} < {array_sizes[call_index]}; {characters[call_index]}++\n")
+                file.write(f"\n\t\t" + '\t' * call_index + f"for(int {characters[call_index]} = 0; {characters[call_index]} < {array_sizes[call_index]}; {characters[call_index]}++)")
                 file.write(f"\n\t\t" + '\t' * call_index + "{")
                 self._write_pickle_pack_structs_list(characters, array_name, array_sizes, call_index + 1, file)
-                file.write("\n\t\t" + '\t'*call_index + f"{array_name}Vector.append(lst{call_index + 1};")
+                file.write("\n\t\t" + '\t'*(call_index+1) + f"{array_name}Vector.append(lst{call_index + 1});")
+                file.write("\n\t\t" + '\t' * call_index + "}")
             else:
-                file.write(f"\n\t\t" + '\t'*call_index + f"py::list lst{call_index}")
-                file.write(f"\n\t\t" + '\t'*call_index + f"for(int {characters[call_index]} = 0; {characters[call_index]} < {array_sizes[call_index]}; {characters[call_index]}++\n")
+                file.write(f"\n\t\t" + '\t'*call_index + f"py::list lst{call_index};")
+                file.write(f"\n\t\t" + '\t'*call_index + f"for(int {characters[call_index]} = 0; {characters[call_index]} < {array_sizes[call_index]}; {characters[call_index]}++)")
                 file.write(f"\n\t\t" + '\t' * call_index + "{")
                 self._write_pickle_pack_structs_list(characters, array_name, array_sizes, call_index+1, file)
-                file.write(f"lst{call_index}.append(lst{call_index+1}")
+                if call_index != 1:
+                    file.write("\n\t\t" + '\t'*call_index + f"lst{call_index}.append(lst{call_index+1})")
+                    file.write("\n\t\t" + '\t' * call_index + "}")
 
     def _write_pickle_unpack_structs_list(self, characters, array_name, array_type, array_sizes, call_index, file):
-        file.write("\n\t\t" + '\t'*call_index + f"for int {characters[call_index]} = 0; {characters[call_index]} < {array_sizes[call_index]}; {characters[call_index]}++)")
         if call_index + 1 == len(array_sizes):
             call_stack = ""
             for char in characters:
                 call_stack += "[" + char + "]"
-            file.write("\n\t\t" + '\t'*(call_index + 1) + f"obj.{array_name}[{call_stack}] = lst{call_index-1}.cast<{array_type}>();")
+            file.write("\n\t\t" + '\t' * call_index + f"for (int {characters[call_index]} = 0; {characters[call_index]} < {array_sizes[call_index]}; {characters[call_index]}++)")
+            file.write("\n\t\t" + '\t' * call_index + "{")
+            file.write("\n\t\t" + '\t'*(call_index + 1) + f"obj.{array_name}{call_stack} = {array_name}lst{call_index}[{characters[call_index]}].cast<{array_type}>();")
+            file.write("\n\t\t" + '\t' * call_index + "}")
         else:
-            file.write("\n\t\t" + '\t'*(call_index + 1) + f"auto lst{call_index+1} = lst{call_index}[{characters[call_index]}].cast<py::list>();")
+            file.write("\n\t\t" + '\t' * call_index + f"for (int {characters[call_index]} = 0; {characters[call_index]} < {array_sizes[call_index]}; {characters[call_index]}++)")
+            file.write("\n\t\t" + '\t' * call_index + "{")
+            file.write("\n\t\t" + '\t'*(call_index + 1) + f"auto {array_name}lst{call_index+1} = {array_name}lst{call_index}[{characters[call_index]}].cast<py::list>();")
             self._write_pickle_unpack_structs_list(characters, array_name, array_type, array_sizes, call_index+1, file)
-            file.write("\n\t\t" + '\t'*(call_index + 1) + "{")
+            file.write("\n\t\t" + '\t' * call_index + "}")
 
     def write_overload_smt_functions(self, topic_name, shared_memory_topics_file):
         smt_overload_functions = [f'.def("getOldest",'

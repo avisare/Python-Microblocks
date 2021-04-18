@@ -32,8 +32,8 @@ void testStructOneClassRunner(py::module & SharedMemoryWrapperModule)
 		.def_readwrite("character", &sm_data::testStructOne::character)
 		.def_property("arr", [](sm_data::testStructOne & obj)->py::array{
 		auto dtype = py::dtype(py::format_descriptor<float>::format());
-		auto base = py::array(dtype, {{ 10 }, }, { sizeof(float) * 1 });
-		return py::array(dtype, {{ 10 }}, { sizeof(float) * 1 }, obj.arr, base);
+		auto base = py::array(dtype, { 10 }, { sizeof(float) * 1 });
+		return py::array(dtype, { 10 }, { sizeof(float) * 1 }, obj.arr, base);
 
 	}, [](sm_data::testStructOne& obj, py::list setArr)
 	{

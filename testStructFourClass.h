@@ -30,8 +30,8 @@ void testStructFourClassRunner(py::module & SharedMemoryWrapperModule)
 		.def_readwrite("singleInteger", &sm_data::testStructFour::singleInteger)
 		.def_property("dimensionalArray", [](sm_data::testStructFour & obj)->py::array{
 		auto dtype = py::dtype(py::format_descriptor<int>::format());
-		auto base = py::array(dtype, {{ 2,3,4 }, }, { sizeof(int) * 12, sizeof(int) * 4, sizeof(int) * 1 });
-		return py::array(dtype, {{ 2,3,4 }}, { sizeof(int) * 12, sizeof(int) * 4, sizeof(int) * 1 }, obj.dimensionalArray, base);
+		auto base = py::array(dtype, { 2,3,4 }, { sizeof(int) * 12, sizeof(int) * 4, sizeof(int) * 1 });
+		return py::array(dtype, { 2,3,4 }, { sizeof(int) * 12, sizeof(int) * 4, sizeof(int) * 1 }, obj.dimensionalArray, base);
 
 	}, [](sm_data::testStructFour& obj, py::list setArr)
 	{

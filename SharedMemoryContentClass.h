@@ -1,8 +1,6 @@
 # pragma once
 
-#include "C:\Users\Administrator\Documents\Python-Microblocks\test\collabs\test.h"
-
-#include "C:\Users\Administrator\Documents\Python-Microblocks\test\collabs\test1.h"
+#include "SharedMemoryStructs.h"
 
 #include "sharedMemoryTopics.h"
 
@@ -29,16 +27,16 @@ void SharedMemoryContentClassRunner(py::module & SharedMemoryWrapperModule)
 
 		.def_readwrite("intData", &sm_data::SharedMemoryContent::intData)
 		.def_property("cstringData", [](sm_data::SharedMemoryContent & obj)->py::array{
-		auto dtype = py::dtype(py::format_descriptor<unsigned char>::format());
-		auto base = py::array(dtype, { CSTRING_DATA_MAX_LEN  }, { sizeof(unsigned char) * 1 });
-		return py::array(dtype, {{ CSTRING_DATA_MAX_LEN }}, { sizeof(unsigned char) * 1 }, obj.cstringData, base);
+		auto dtype = py::dtype(py::format_descriptor<char>::format());
+		auto base = py::array(dtype, { CSTRING_DATA_MAX_LEN }, { sizeof(char) * 1 });
+		return py::array(dtype, { CSTRING_DATA_MAX_LEN }, { sizeof(char) * 1 }, obj.cstringData, base);
 
 	}, [](sm_data::SharedMemoryContent& obj, py::list setArr)
 	{
 
 		for (int i = 0; i < CSTRING_DATA_MAX_LEN; i++)
 		{
-			obj.cstringData[i] = setArr[i].cast<unsigned char>();
+			obj.cstringData[i] = setArr[i].cast<char>();
 		}
 	})
 		.def_property("test", [](sm_data::SharedMemoryContent &obj)->std::vector<std::vector<sm_data::t*>> {
@@ -67,37 +65,38 @@ void SharedMemoryContentClassRunner(py::module & SharedMemoryWrapperModule)
 	.def(py::pickle(
 		[](const sm_data::SharedMemoryContent &obj){
 		
-		std::vector<unsigned char> cstringDataVector;
+		std::vector<char> cstringDataVector;
 		for (int i = 0; i < CSTRING_DATA_MAX_LEN; i++)
 		{
 			cstringDataVector.push_back(obj.cstringData[i]);
 		}
-		std::vector<std::vector<sm_data::t>> testVector;
-		for (int i = 0; i < 2; i++)
+		py::list testVector;
+		for(int i = 0; i < 2; i++)
 		{
-			std::vector<sm_data::t> temp1;
-			for (int j = 0; j < 2; j++)
+			py::list lst1;
+			for(int j = 0; j < 2; j++)
 			{
-				temp1.push_back(obj.test[i][j]);
+				lst1.append(obj.test[i][j]);
 			}
-			testVector.push_back(temp1);
+			testVector.append(lst1);
 		}
 		return py::make_tuple(obj.intData,cstringDataVector,testVector);
 	},
 		[](py::tuple t){
 		sm_data::SharedMemoryContent obj = sm_data::SharedMemoryContent();
 		obj.intData = t[0].cast<uint32_t>();
-		auto cstringDataVector = t[1].cast<std::vector<unsigned char>>();
+		auto cstringDataVector = t[1].cast<std::vector<char>>();
 		for (int i = 0; i < CSTRING_DATA_MAX_LEN; i++)
 		{
 			obj.cstringData[i] = cstringDataVector[i];
 		}
-		auto testVector = t[2].cast<std::vector<std::vector<sm_data::t>>>();
+		auto testlst0 = t[2].cast<py::list>();
 		for (int i = 0; i < 2; i++)
 		{
+			auto testlst1 = testlst0[i].cast<py::list>();
 			for (int j = 0; j < 2; j++)
 			{
-				obj.test[i][j] = testVector[i][j];
+				obj.test[i][j] = testlst1[j].cast<sm_data::t>();
 			}
 		}
 		return obj;

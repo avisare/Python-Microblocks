@@ -31,8 +31,8 @@ void testStructThreeClassRunner(py::module & SharedMemoryWrapperModule)
 		.def_readwrite("floatValue", &sm_data::testStructThree::floatValue)
 		.def_property("charArray", [](sm_data::testStructThree & obj)->py::array{
 		auto dtype = py::dtype(py::format_descriptor<char>::format());
-		auto base = py::array(dtype, {{ CSTRING_DATA_MAX_LEN }, }, { sizeof(char) * 1 });
-		return py::array(dtype, {{ CSTRING_DATA_MAX_LEN }}, { sizeof(char) * 1 }, obj.charArray, base);
+		auto base = py::array(dtype, { CSTRING_DATA_MAX_LEN }, { sizeof(char) * 1 });
+		return py::array(dtype, { CSTRING_DATA_MAX_LEN }, { sizeof(char) * 1 }, obj.charArray, base);
 
 	}, [](sm_data::testStructThree& obj, py::list setArr)
 	{
