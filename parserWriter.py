@@ -431,12 +431,60 @@ class ParserWriter:
                 enums_file.write(f'\n\t\t.export_values();\n')
             enums_file.write("}")
 
+    def write_smt_data_class(self):
+        with open("SMT_DataInfoClass.h", "w") as data_info_file:
+            content = r"""# pragma once
+
+includes_files
+
+#include "sharedMemoryTopics.h"
+
+#include "Shared_Memory_Topics_API.h"
+
+#include <pybind11\pybind11.h>
+
+#include <pybind11\stl.h>
+
+#include <pybind11\stl_bind.h>
+
+#include <pybind11\numpy.h>
+
+#include <pybind11\pytypes.h>
+
+#include <iostream>
+
+namespace py = pybind11;
+void SMT_DataInfoRunner(py::module & SharedMemoryWrapperModule)
+{
+
+	py::class_<SMT_DataInfo>(SharedMemoryWrapperModule, "SMT_DataInfo")
+		.def(py::init<>())
+		.def_readwrite("m_dataSize", &SMT_DataInfo::m_dataSize)
+		.def_readwrite("m_publishCount", &SMT_DataInfo::m_publishCount)
+		.def_readwrite("m_publishTime", &SMT_DataInfo::m_publishTime)
+		.def(py::pickle(
+			[](const ::SMT_DataInfo &obj) {
+
+		return py::make_tuple(obj.m_dataSize, obj.m_publishCount, obj.m_publishTime);
+	},
+			[](py::tuple t) {
+		SMT_DataInfo obj = SMT_DataInfo();
+		obj.m_dataSize = t[0].cast<unsigned int>();
+		obj.m_publishCount = t[1].cast<unsigned int>();
+		obj.m_publishTime = t[2].cast<uint64_t>();
+		return obj;
+	}
+	));
+}"""
+            content = content.replace("includes_files", self._includes)
+            data_info_file.write(content)
+
     def write_main_file_prefix(self, vectors_type, include_files):
         self._pybind_classes_file.close()
         with open("SharedMemoryWrapper.cpp", "r+") as main_file:
             content = main_file.read()
             main_file.seek(0, 0)
-            main_file.write('#include "stdafx.h"\n\n#include "smt.h"\n\n')
+            main_file.write('#include "stdafx.h"\n\n#include "smt.h"\n\n#include "SMT_DataInfoClass.h"\n\n')
             [main_file.write(include_path) for include_path in include_files]
             main_file.write('#include "SharedMemoryTopics.h"\n\n#include "Shared_Memory_Topics_API.h"\n\n'
                             '#include <pybind11\pybind11.h>\n\n#include <pybind11\stl.h>\n\n'
@@ -453,7 +501,6 @@ class ParserWriter:
                 all_vector_types.append(vector_type)
             main_file.write("PYBIND11_MODULE(SharedMemoryWrapper, SharedMemoryWrapperModule)\n{\n")
             for vector_type in all_vector_types:
-                print("type :" + vector_type)
                 if "<" in inner_type:
                     inner_type = vector_type[vector_type.rfind("<") + 1:vector_type.find(">")]
                 if "::" in inner_type:
@@ -485,6 +532,7 @@ class ParserWriter:
 
     def write_class_call(self, structs, enums):
         self._pybind_classes_file.write("\n\n\tsmtRunner(SharedMemoryWrapperModule);")
+        self._pybind_classes_file.write("\n\n\tSMT_DataInfoRunner(SharedMemoryWrapperModule);")
         [self._pybind_classes_file.write(f"\n\n\t{struct.name}ClassRunner(SharedMemoryWrapperModule);") for struct in structs]
         if enums:
             self._pybind_classes_file.write("\n\n\tenumsRunner(SharedMemoryWrapperModule);")

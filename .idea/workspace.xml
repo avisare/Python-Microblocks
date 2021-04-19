@@ -3,9 +3,11 @@
   <component name="ChangeListManager">
     <list default="true" id="648efb22-c2ea-4387-b697-0aad0b4bbc43" name="Default Changelist" comment="">
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/HeadersParser.py" beforeDir="false" afterPath="$PROJECT_DIR$/HeadersParser.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/SharedMemoryWrapper.cpp" beforeDir="false" afterPath="$PROJECT_DIR$/SharedMemoryWrapper.cpp" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/SharedMemoryWrapper.pdb" beforeDir="false" afterPath="$PROJECT_DIR$/SharedMemoryWrapper.pdb" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/auto_build_generator.py" beforeDir="false" afterPath="$PROJECT_DIR$/auto_build_generator.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/build_commands.txt" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/parserWriter.py" beforeDir="false" afterPath="$PROJECT_DIR$/parserWriter.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/test.py" beforeDir="false" afterPath="$PROJECT_DIR$/test.py" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/x64/Release/SharedMemoryWrapper.obj" beforeDir="false" afterPath="$PROJECT_DIR$/x64/Release/SharedMemoryWrapper.obj" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/x64/Release/SharedMemoryWrapper.pch" beforeDir="false" afterPath="$PROJECT_DIR$/x64/Release/SharedMemoryWrapper.pch" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/x64/Release/stdafx.obj" beforeDir="false" afterPath="$PROJECT_DIR$/x64/Release/stdafx.obj" afterDir="false" />
@@ -181,12 +183,12 @@
       <method v="2" />
     </configuration>
     <list>
-      <item itemvalue="Python.test" />
       <item itemvalue="Python.HeadersParser" />
+      <item itemvalue="Python.auto_build_generator" />
       <item itemvalue="Python.delete_files" />
       <item itemvalue="Python.example" />
       <item itemvalue="Python.recursive_parser" />
-      <item itemvalue="Python.auto_build_generator" />
+      <item itemvalue="Python.test" />
     </list>
     <recent_temporary>
       <list>

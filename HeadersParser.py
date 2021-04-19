@@ -1,5 +1,4 @@
 import CppHeaderParser
-import linecache
 from parserWriter import ParserWriter
 from struct import Struct
 from os import path
@@ -16,9 +15,22 @@ class Parser:
         self._writer = ParserWriter(main_headers_file, topics_index_file)
 
     def parse(self):
+        if not path.exists("stdadx.cpp"):
+            with open("stdadx.cpp", "w") as precompile_cpp:
+                precompile_cpp.write('#include "stdafx.h"')
+        if not path.exists("stdadx.h"):
+            with open("stdadx.h", "w") as precompile_header:
+                precompile_header.write(r"""#pragma once
+
+#include "targetver.h"
+
+#include <stdio.h>
+#include <tchar.h>""")
+
         for struct in self._structures:
             self._include_files.append(f'#include "{struct.name}Class.h"\n\n')
         vectors_type = set()
+        self._writer.write_smt_data_class()
         for struct in self._structures:
             self._writer.write_struct_class_prefix(struct)
             self._writer.write_wrapper_pybind_class(struct, vectors_type)

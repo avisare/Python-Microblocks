@@ -2,6 +2,8 @@
 
 #include "smt.h"
 
+#include "SMT_DataInfoClass.h"
+
 #include "testStructOneClass.h"
 
 #include "testStructThreeClass.h"
@@ -52,6 +54,8 @@ PYBIND11_MODULE(SharedMemoryWrapper, SharedMemoryWrapperModule)
 
 
 	smtRunner(SharedMemoryWrapperModule);
+
+	SMT_DataInfoRunner(SharedMemoryWrapperModule);
 
 	testStructOneClassRunner(SharedMemoryWrapperModule);
 
