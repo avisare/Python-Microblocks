@@ -3,6 +3,11 @@ import subprocess
 
 """
 This script have to be run from the same directory that the parser was run from
+You should change the three visual studio tools path:
+1. C:\Program Files (x86)\Microsoft Visual Studio\2017\Professional\Common7\Tools\vsdevcmd.bat
+2. C:\Program Files (x86)\Microsoft Visual Studio\2017\Professional\VC\Tools\MSVC\14.11.25503\bin\HostX86\x64\CL.exe
+3. C:\Program Files (x86)\Microsoft Visual Studio\2017\Professional\VC\Tools\MSVC\14.11.25503\bin\HostX86\x64\link.exe
+To the correct path they are found on your computer
 """
 
 
@@ -11,9 +16,10 @@ def main():
     dll_file_path = current_directory + "\\DLL\\Shared_Memory_Topics_x64.dll"
     dll_path_dll = current_directory + "\\DLL"
     dll_path_headers = current_directory + "\\Headers"
-    preparation_command = r""""C:\Program Files (x86)\Microsoft Visual Studio\2017\Professional\Common7\Tools\vsdevcmd.bat" & cd C:\Users\Administrator\Documents\Python-Microblocks & "C:\Program Files (x86)\Microsoft Visual Studio\2017\Professional\VC\Tools\MSVC\14.11.25503\bin\HostX86\x64\CL.exe" /c /IC:\Users\Administrator\Documents\Python-Microblocks\DLL /IC:\Users\Administrator\Documents\Python-Microblocks\Headers /Zi /nologo /W3 /WX- /diagnostics:classic /sdl /O2 /Oi /GL /D NDEBUG /D _CONSOLE /D _WINDLL /D _UNICODE /D UNICODE /Gm- /EHsc /MD /GS /Gy /fp:precise /Zc:wchar_t /Zc:forScope /Zc:inline /Yc"stdafx.h" /Fp"x64\Release\SharedMemoryWrapper.pch" /Fo"x64\Release\\" /Fd"x64\Release\vc141.pdb" /Gd /TP /errorReport:prompt stdafx.cpp & """
+    preparation_command = r""""C:\Program Files (x86)\Microsoft Visual Studio\2017\Professional\Common7\Tools\vsdevcmd.bat" & cd current_directory & "C:\Program Files (x86)\Microsoft Visual Studio\2017\Professional\VC\Tools\MSVC\14.11.25503\bin\HostX86\x64\CL.exe" /c /Idll_path_dll /Idll_headrs_path /Zi /nologo /W3 /WX- /diagnostics:classic /sdl /O2 /Oi /GL /D NDEBUG /D _CONSOLE /D _WINDLL /D _UNICODE /D UNICODE /Gm- /EHsc /MD /GS /Gy /fp:precise /Zc:wchar_t /Zc:forScope /Zc:inline /Yc"stdafx.h" /Fp"x64\Release\SharedMemoryWrapper.pch" /Fo"x64\Release\\" /Fd"x64\Release\vc141.pdb" /Gd /TP /errorReport:prompt stdafx.cpp & """
     preparation_command = preparation_command.replace("dll_path_dll", dll_path_dll)
     preparation_command = preparation_command.replace("dll_path_headers", dll_path_headers)
+    preparation_command = preparation_command.replace("current_directory", current_directory)
     compile_command = r""""C:\Program Files (x86)\Microsoft Visual Studio\2017\Professional\VC\Tools\MSVC\14.11.25503\bin\HostX86\x64\CL.exe" /c /Idll_path_dll /Idll_path_headers /Zi /nologo /W3 /WX- /diagnostics:classic /sdl /O2 /Oi /GL /D NDEBUG /D _CONSOLE /D _WINDLL /D _UNICODE /D UNICODE /Gm- /EHsc /MD /GS /Gy /fp:precise /Zc:wchar_t /Zc:forScope /Zc:inline /Yu"stdafx.h" /Fp"x64\Release\SharedMemoryWrapper.pch" /Fo"x64\Release\\" /Fd"x64\Release\vc141.pdb" /Gd /TP /errorReport:prompt SharedMemoryWrapper.cpp"""
     compile_command = compile_command.replace("dll_path_dll", dll_path_dll)
     compile_command = compile_command.replace("dll_path_headers", dll_path_headers)
@@ -30,4 +36,3 @@ def main():
 
 if __name__ == "__main__":
     main()
-    
