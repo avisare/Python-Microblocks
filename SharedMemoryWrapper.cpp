@@ -2,7 +2,7 @@
 
 #include "smt.h"
 
-#include "SharedMemoryContentClass.h"
+#include "testStructOneClass.h"
 
 #include "testStructThreeClass.h"
 
@@ -10,9 +10,9 @@
 
 #include "testStructFourClass.h"
 
-#include "tClass.h"
+#include "SharedMemoryContentClass.h"
 
-#include "testStructOneClass.h"
+#include "tClass.h"
 
 #include "SharedMemoryTopics.h"
 
@@ -34,8 +34,8 @@ PYBIND11_MAKE_OPAQUE(std::vector<sm_data::t>);
 PYBIND11_MODULE(SharedMemoryWrapper, SharedMemoryWrapperModule)
 {
 
-	py::bind_vector<std::vector<std::vector<sm_data::t>>>(SharedMemoryWrapperModule, "2");
-	py::bind_vector<std::vector<sm_data::t>>(SharedMemoryWrapperModule, "1");
+	py::bind_vector<std::vector<std::vector<sm_data::t>>>(SharedMemoryWrapperModule, "t2");
+	py::bind_vector<std::vector<sm_data::t>>(SharedMemoryWrapperModule, "t1");
 	SharedMemoryWrapperModule.def("SMT_Version", &SMT_Version, py::return_value_policy::copy);
 
 	SharedMemoryWrapperModule.def("SMT_Init", &SMT_Init, py::return_value_policy::copy);
@@ -53,7 +53,7 @@ PYBIND11_MODULE(SharedMemoryWrapper, SharedMemoryWrapperModule)
 
 	smtRunner(SharedMemoryWrapperModule);
 
-	SharedMemoryContentClassRunner(SharedMemoryWrapperModule);
+	testStructOneClassRunner(SharedMemoryWrapperModule);
 
 	testStructThreeClassRunner(SharedMemoryWrapperModule);
 
@@ -61,7 +61,7 @@ PYBIND11_MODULE(SharedMemoryWrapper, SharedMemoryWrapperModule)
 
 	testStructFourClassRunner(SharedMemoryWrapperModule);
 
-	tClassRunner(SharedMemoryWrapperModule);
+	SharedMemoryContentClassRunner(SharedMemoryWrapperModule);
 
-	testStructOneClassRunner(SharedMemoryWrapperModule);
+	tClassRunner(SharedMemoryWrapperModule);
 }

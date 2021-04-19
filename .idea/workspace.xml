@@ -3,12 +3,13 @@
   <component name="ChangeListManager">
     <list default="true" id="648efb22-c2ea-4387-b697-0aad0b4bbc43" name="Default Changelist" comment="">
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/SharedMemoryContentClass.h" beforeDir="false" afterPath="$PROJECT_DIR$/SharedMemoryContentClass.h" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/SharedMemoryWrapper.cpp" beforeDir="false" afterPath="$PROJECT_DIR$/SharedMemoryWrapper.cpp" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/SharedMemoryWrapper.pdb" beforeDir="false" afterPath="$PROJECT_DIR$/SharedMemoryWrapper.pdb" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/auto_build_generator.py" beforeDir="false" afterPath="$PROJECT_DIR$/auto_build_generator.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/parserWriter.py" beforeDir="false" afterPath="$PROJECT_DIR$/parserWriter.py" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/sharedMemoryTopics.h" beforeDir="false" afterPath="$PROJECT_DIR$/sharedMemoryTopics.h" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/test.txt" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/test/collabs/test.h" beforeDir="false" afterPath="$PROJECT_DIR$/test/collabs/test.h" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/test/collabs/test1.h" beforeDir="false" afterPath="$PROJECT_DIR$/test/collabs/test1.h" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/test/test/test2.h" beforeDir="false" afterPath="$PROJECT_DIR$/test/test/test2.h" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/tClass.h" beforeDir="false" afterPath="$PROJECT_DIR$/tClass.h" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/topics_info.json" beforeDir="false" afterPath="$PROJECT_DIR$/topics_info.json" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/x64/Release/SharedMemoryWrapper.obj" beforeDir="false" afterPath="$PROJECT_DIR$/x64/Release/SharedMemoryWrapper.obj" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/x64/Release/SharedMemoryWrapper.pch" beforeDir="false" afterPath="$PROJECT_DIR$/x64/Release/SharedMemoryWrapper.pch" afterDir="false" />
@@ -57,7 +58,7 @@
       <recent name="C:\Users\Administrator\Documents\python_netwrok_communication\transportation_protocols" />
     </key>
   </component>
-  <component name="RunManager" selected="Python.delete_files">
+  <component name="RunManager" selected="Python.auto_build_generator">
     <configuration name="HeadersParser" type="PythonConfigurationType" factoryName="Python" temporary="true" nameIsGenerated="true">
       <module name="Python-Microblocks" />
       <option name="INTERPRETER_OPTIONS" value="" />
@@ -71,6 +72,27 @@
       <option name="ADD_CONTENT_ROOTS" value="true" />
       <option name="ADD_SOURCE_ROOTS" value="true" />
       <option name="SCRIPT_NAME" value="$PROJECT_DIR$/HeadersParser.py" />
+      <option name="PARAMETERS" value="" />
+      <option name="SHOW_COMMAND_LINE" value="false" />
+      <option name="EMULATE_TERMINAL" value="false" />
+      <option name="MODULE_MODE" value="false" />
+      <option name="REDIRECT_INPUT" value="false" />
+      <option name="INPUT_FILE" value="" />
+      <method v="2" />
+    </configuration>
+    <configuration name="auto_build_generator" type="PythonConfigurationType" factoryName="Python" temporary="true" nameIsGenerated="true">
+      <module name="Python-Microblocks" />
+      <option name="INTERPRETER_OPTIONS" value="" />
+      <option name="PARENT_ENVS" value="true" />
+      <envs>
+        <env name="PYTHONUNBUFFERED" value="1" />
+      </envs>
+      <option name="SDK_HOME" value="" />
+      <option name="WORKING_DIRECTORY" value="$PROJECT_DIR$" />
+      <option name="IS_MODULE_SDK" value="true" />
+      <option name="ADD_CONTENT_ROOTS" value="true" />
+      <option name="ADD_SOURCE_ROOTS" value="true" />
+      <option name="SCRIPT_NAME" value="$PROJECT_DIR$/auto_build_generator.py" />
       <option name="PARAMETERS" value="" />
       <option name="SHOW_COMMAND_LINE" value="false" />
       <option name="EMULATE_TERMINAL" value="false" />
@@ -113,27 +135,6 @@
       <option name="ADD_SOURCE_ROOTS" value="true" />
       <module name="" />
       <option name="SCRIPT_NAME" value="$USER_HOME$/source/repos/SharedMemoryWrapper/x64/Release/example.py" />
-      <option name="PARAMETERS" value="" />
-      <option name="SHOW_COMMAND_LINE" value="false" />
-      <option name="EMULATE_TERMINAL" value="false" />
-      <option name="MODULE_MODE" value="false" />
-      <option name="REDIRECT_INPUT" value="false" />
-      <option name="INPUT_FILE" value="" />
-      <method v="2" />
-    </configuration>
-    <configuration name="parserWriter" type="PythonConfigurationType" factoryName="Python" temporary="true" nameIsGenerated="true">
-      <option name="INTERPRETER_OPTIONS" value="" />
-      <option name="PARENT_ENVS" value="true" />
-      <envs>
-        <env name="PYTHONUNBUFFERED" value="1" />
-      </envs>
-      <option name="SDK_HOME" value="" />
-      <option name="WORKING_DIRECTORY" value="$PROJECT_DIR$" />
-      <option name="IS_MODULE_SDK" value="false" />
-      <option name="ADD_CONTENT_ROOTS" value="true" />
-      <option name="ADD_SOURCE_ROOTS" value="true" />
-      <module name="" />
-      <option name="SCRIPT_NAME" value="$PROJECT_DIR$/parserWriter.py" />
       <option name="PARAMETERS" value="" />
       <option name="SHOW_COMMAND_LINE" value="false" />
       <option name="EMULATE_TERMINAL" value="false" />
@@ -189,16 +190,16 @@
       <item itemvalue="Python.HeadersParser" />
       <item itemvalue="Python.delete_files" />
       <item itemvalue="Python.example" />
-      <item itemvalue="Python.parserWriter" />
       <item itemvalue="Python.recursive_parser" />
+      <item itemvalue="Python.auto_build_generator" />
     </list>
     <recent_temporary>
       <list>
+        <item itemvalue="Python.auto_build_generator" />
         <item itemvalue="Python.delete_files" />
         <item itemvalue="Python.HeadersParser" />
         <item itemvalue="Python.recursive_parser" />
         <item itemvalue="Python.example" />
-        <item itemvalue="Python.parserWriter" />
       </list>
     </recent_temporary>
   </component>

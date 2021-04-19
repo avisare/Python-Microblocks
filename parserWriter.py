@@ -453,7 +453,9 @@ class ParserWriter:
                 all_vector_types.append(vector_type)
             main_file.write("PYBIND11_MODULE(SharedMemoryWrapper, SharedMemoryWrapperModule)\n{\n")
             for vector_type in all_vector_types:
-                inner_type = vector_type[vector_type.rfind("<"):vector_type.find(">")-1]
+                print("type :" + vector_type)
+                if "<" in inner_type:
+                    inner_type = vector_type[vector_type.rfind("<") + 1:vector_type.find(">")]
                 if "::" in inner_type:
                     inner_type = inner_type[inner_type.find("::") + 2:]
                 dimensions = vector_type.count("std::vector")

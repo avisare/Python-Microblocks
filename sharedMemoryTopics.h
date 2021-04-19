@@ -2,7 +2,7 @@
 
 #pragma warning( disable:4267 )
 
-#include "SharedMemoryContentClass.h"
+#include "testStructOneClass.h"
 
 #include "testStructThreeClass.h"
 
@@ -10,9 +10,9 @@
 
 #include "testStructFourClass.h"
 
-#include "tClass.h"
+#include "SharedMemoryContentClass.h"
 
-#include "testStructOneClass.h"
+#include "tClass.h"
 
 #include "Shared_Memory_Topics_API.h"
 

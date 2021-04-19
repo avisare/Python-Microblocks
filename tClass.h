@@ -2,6 +2,8 @@
 
 #include "C:\Users\Administrator\Documents\Python-Microblocks\test\collabs\test.h"
 
+#include "C:\Users\Administrator\Documents\Python-Microblocks\test\collabs\test1.h"
+
 #include "sharedMemoryTopics.h"
 
 #include "Shared_Memory_Topics_API.h"
