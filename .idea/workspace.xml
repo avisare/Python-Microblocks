@@ -3,16 +3,17 @@
   <component name="ChangeListManager">
     <list default="true" id="648efb22-c2ea-4387-b697-0aad0b4bbc43" name="Default Changelist" comment="">
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/SharedMemoryContentClass.h" beforeDir="false" />
       <change beforePath="$PROJECT_DIR$/SharedMemoryWrapper.cpp" beforeDir="false" afterPath="$PROJECT_DIR$/SharedMemoryWrapper.cpp" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Shared_Memory_Topics_API.h" beforeDir="false" />
       <change beforePath="$PROJECT_DIR$/sharedMemoryTopics.h" beforeDir="false" afterPath="$PROJECT_DIR$/sharedMemoryTopics.h" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/tClass.h" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/testStructFourClass.h" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/testStructOneClass.h" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/testStructThreeClass.h" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/testStructTwoClass.h" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/test.txt" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/test/collabs/test.h" beforeDir="false" afterPath="$PROJECT_DIR$/test/collabs/test.h" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/test/collabs/test1.h" beforeDir="false" afterPath="$PROJECT_DIR$/test/collabs/test1.h" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/test/test/test2.h" beforeDir="false" afterPath="$PROJECT_DIR$/test/test/test2.h" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/topics_info.json" beforeDir="false" afterPath="$PROJECT_DIR$/topics_info.json" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/x64/Release/SharedMemoryWrapper.obj" beforeDir="false" afterPath="$PROJECT_DIR$/x64/Release/SharedMemoryWrapper.obj" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/x64/Release/SharedMemoryWrapper.pch" beforeDir="false" afterPath="$PROJECT_DIR$/x64/Release/SharedMemoryWrapper.pch" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/x64/Release/stdafx.obj" beforeDir="false" afterPath="$PROJECT_DIR$/x64/Release/stdafx.obj" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/x64/Release/vc141.pdb" beforeDir="false" afterPath="$PROJECT_DIR$/x64/Release/vc141.pdb" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -184,12 +185,12 @@
       <method v="2" />
     </configuration>
     <list>
+      <item itemvalue="Python.test" />
       <item itemvalue="Python.HeadersParser" />
       <item itemvalue="Python.delete_files" />
       <item itemvalue="Python.example" />
       <item itemvalue="Python.parserWriter" />
       <item itemvalue="Python.recursive_parser" />
-      <item itemvalue="Python.test" />
     </list>
     <recent_temporary>
       <list>

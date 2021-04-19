@@ -2,6 +2,18 @@
 
 #pragma warning( disable:4267 )
 
+#include "SharedMemoryContentClass.h"
+
+#include "testStructThreeClass.h"
+
+#include "testStructTwoClass.h"
+
+#include "testStructFourClass.h"
+
+#include "tClass.h"
+
+#include "testStructOneClass.h"
+
 #include "Shared_Memory_Topics_API.h"
 
 #include <iostream>
@@ -15,7 +27,6 @@ std::map<std::string, std::array<uint32_t, 3>> getTopicsInfo()
 	topicsInfo["testStructTwoTopic"] = { 52, 2, 7};
 	topicsInfo["testStructThreeTopic"] = { 40, 3, 10};
 	topicsInfo["testStructFourTopic"] = { 152, 5, 12};
-	topicsInfo["SMT_DataInfo"] = { 16, 3, 10};
 	return topicsInfo;
 }
 struct topicsInfo
@@ -266,61 +277,6 @@ public:
 	{
 		_topicName="testStructFourTopic";
 		_topicSize=152;
-	}
-
-	bool GetByCounter(void* structObject, uint32_t counter, uint64_t timeout_us, SMT_DataInfo& data_info)
-	{
-		return SMT_GetByCounter(_topicName.c_str(), structObject, counter, timeout_us, &data_info);
-	}
-
-	bool GetByCounter(void* structObject, uint32_t counter, uint64_t timeout_us)
-	{
-		SMT_DataInfo data_info = SMT_DataInfo{0,0,0};
-		return SMT_GetByCounter(_topicName.c_str(), structObject, counter, timeout_us, &data_info);
-	}
-
-	bool GetLatest(void* structObject, SMT_DataInfo& data_info)
-	{
-		return SMT_GetLatest(_topicName.c_str(), structObject, &data_info);
-	}
-
-	bool GetLatest(void* structObject)
-	{
-		SMT_DataInfo data_info = SMT_DataInfo{0,0,0};
-		return SMT_GetLatest(_topicName.c_str(), structObject, &data_info);
-	}
-
-	bool Publish(void* structObject)
-	{
-		return SMT_Publish(_topicName.c_str(), structObject, _topicSize);
-	}
-
-	bool Publish(void* structObject, size_t size)
-	{
-		return SMT_Publish(_topicName.c_str(), structObject, size);
-	}
-
-	bool GetOldest(void* structObject, SMT_DataInfo& data_info)
-	{
-		return SMT_GetOldest(_topicName.c_str(), structObject, &data_info);
-	}
-
-	bool GetOldest(void* structObject)
-	{
-		SMT_DataInfo data_info = SMT_DataInfo{0,0,0};
-		return SMT_GetOldest(_topicName.c_str(), structObject, &data_info);
-	}
-};
-class SMT_DataInfo
-{
-private:
-	std::string _topicName;
-	int _topicSize;
-public:
-	SMT_DataInfo()
-	{
-		_topicName="SMT_DataInfo";
-		_topicSize=16;
 	}
 
 	bool GetByCounter(void* structObject, uint32_t counter, uint64_t timeout_us, SMT_DataInfo& data_info)

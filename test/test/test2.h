@@ -1,3 +1,5 @@
+# pragma once
+
 namespace sm_data {
 
 struct t

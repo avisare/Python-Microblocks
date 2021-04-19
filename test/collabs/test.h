@@ -5,18 +5,22 @@
 //
 // Copyright (c) 2021 (year of creation) Rafael Ltd. All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
-
+# pragma once
 #ifndef SHARED_MEMORY_CONTENT_H
 #define SHARED_MEMORY_CONTENT_H
 
 #include <cstdint>
-#include "test\test2.h"
 #define CSTRING_DATA_MAX_LEN 32
 #define INT_ARRAY_MAX_LEN 10
 
 namespace sm_data {
 
 #pragma pack(push, 1)
+
+struct t
+{
+	int i;
+};
 
 struct SharedMemoryContent
 {
@@ -25,6 +29,13 @@ struct SharedMemoryContent
 	t test[2][2];
 };
 
+struct testStructOne
+{
+	int intNumber;
+	float floatNumber;
+	char character;
+	float arr[10];
+};
 
 struct testStructThree
 {
@@ -51,7 +62,7 @@ struct testStructFour
 // Topic name with content version,
 // increase the version every update that break backward compatibility
 const char* const SHARED_MEMORY_CONTENT_TOPIC_NAME    = "SharedMemoryContent_01";
-const int         SHARED_MEMORY_CONTENT_DATA_SIZE     = sizeof(SharedMemoryContent);
+const int         SHARED_MEMORY_CONTENT_DATA_SIZE     = sizeof(testStructFour);
 const int         SHARED_MEMORY_CONTENT_HISTORY_DEPTH = 10;
 const int         SHARED_MEMORY_CONTENT_CELLS_COUNT   = 20;
 
