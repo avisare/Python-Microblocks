@@ -5,20 +5,7 @@
   </component>
   <component name="ChangeListManager">
     <list default="true" id="648efb22-c2ea-4387-b697-0aad0b4bbc43" name="Default Changelist" comment="">
-      <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/README.md" beforeDir="false" afterPath="$PROJECT_DIR$/README.md" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/README/README.html" beforeDir="false" afterPath="$PROJECT_DIR$/README/README.html" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/pypsexec_client/messages.py" beforeDir="false" afterPath="$PROJECT_DIR$/pypsexec_client/messages.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/test.txt" beforeDir="false" afterPath="$PROJECT_DIR$/test.txt" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/transportation_protocols/tcp_client.py" beforeDir="false" afterPath="$PROJECT_DIR$/transportation_protocols/tcp_client.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/transportation_protocols/tcp_device.py" beforeDir="false" afterPath="$PROJECT_DIR$/transportation_protocols/tcp_device.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/transportation_protocols/tcp_server.py" beforeDir="false" afterPath="$PROJECT_DIR$/transportation_protocols/tcp_server.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/transportation_protocols/transportation_protocols_exception.py" beforeDir="false" afterPath="$PROJECT_DIR$/transportation_protocols/transportation_protocols_exception.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/transportation_protocols/udp_device.py" beforeDir="false" afterPath="$PROJECT_DIR$/transportation_protocols/udp_device.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/transportation_protocols/udp_initiator.py" beforeDir="false" afterPath="$PROJECT_DIR$/transportation_protocols/udp_initiator.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/transportation_protocols/udp_responder.py" beforeDir="false" afterPath="$PROJECT_DIR$/transportation_protocols/udp_responder.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/transportation_protocols/udp_strict.py" beforeDir="false" afterPath="$PROJECT_DIR$/transportation_protocols/udp_strict.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/~$ared_memory_design.docx" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/SharedMemoryWrapper.pyd" beforeDir="false" afterPath="$PROJECT_DIR$/SharedMemoryWrapper.pyd" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -186,11 +173,11 @@
       <method v="2" />
     </configuration>
     <list>
-      <item itemvalue="Python.test" />
-      <item itemvalue="Python.start_client" />
       <item itemvalue="Python.json_example" />
       <item itemvalue="Python.shared_memory_client_test" />
       <item itemvalue="Python.simple_test" />
+      <item itemvalue="Python.start_client" />
+      <item itemvalue="Python.test" />
       <item itemvalue="Python tests.Unittests in shared_memory_client_test.py" />
     </list>
     <recent_temporary>
