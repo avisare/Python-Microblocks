@@ -1,0 +1,12 @@
+{
+  "NavCov_01": {
+    "Data Size": 256,
+    "History Depth": 10,
+    "Cells Count": 20
+  },
+  "NavData_01":{
+    "Data Size": 256,
+    "History Depth": 100,
+    "Cells Count": 120
+  }
+}

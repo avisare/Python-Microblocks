@@ -13,7 +13,9 @@ def delete_files():
                        "classImplementationFile.cpp", "classDefinitionFile.h", "WrapperFunctionsFile.h",
                        "WrapperFunctions.h", "pybindClassesFile.cpp", "pybindClassesFile.h", "GenericWrapperHandler.h",
                        "GenericWrapperHandler.cpp", "sharedMemoryTopics.h", "enums.cpp", "enums.h", "NavCov_RecordClass.h",
-                       "testClass.h", "tClass.h", "test1Class.h", "test2Class.h", "smt.h")
+                       "testClass.h", "tClass.h", "test1Class.h", "test2Class.h", "smt.h",
+                       "NavCov_RecordClass.h", "NavData_EulerAngelsClass.h", "NavData_PositionClass.h",
+                       "NavData_QuaternionClass.h", "NavData_RecordClass.h", "NavData_SpeedClass.h", "stdafx.cpp", "stdafx.h")
     for file in files_to_delete:
         delete_parser_file(file)
 

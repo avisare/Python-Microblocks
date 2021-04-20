@@ -1,8 +1,12 @@
 # pragma once
 
-#include "C:\Users\Administrator\Documents\Python-Microblocks\test\collabs\test.h"
+#include "C:\Users\Administrator\Documents\Python-Microblocks\real_collab_test\collabs\SM_NavCovData.h"
 
-#include "C:\Users\Administrator\Documents\Python-Microblocks\test\collabs\test1.h"
+#include "C:\Users\Administrator\Documents\Python-Microblocks\real_collab_test\collabs\SM_NavData.h"
+
+#include "C:\Users\Administrator\Documents\Python-Microblocks\real_collab_test\collabs\SM_SystemTime.h"
+
+#include "C:\Users\Administrator\Documents\Python-Microblocks\real_collab_test\collabs\SM_Topic_NavData.h"
 
 #include "sharedMemoryTopics.h"
 

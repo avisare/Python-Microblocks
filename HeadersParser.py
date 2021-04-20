@@ -12,14 +12,20 @@ class Parser:
         self._structures = list()
         self._include_files = list()
         self._base_directory = base_directory
-        self._writer = ParserWriter(main_headers_file, topics_index_file)
+        self._writer = ParserWriter(main_headers_file, topics_index_file, base_directory)
+        self._fixed_width_integer_types = ["int8_t", "int16_t", "int32_t", "int64_t", "int_fast8_t", "int_fast16_t",
+                                 "int_fast32_t", "int_fast64_t", "int_least8_t", "int_least16_t",
+                                 "int_least32_t", "int_least64_t", "intmax_t", "intptr_t", "uint8_t", "uint16_t",
+                                 "uint32_t", "uint64_t", "uint_fast8_t", "uint_fast16_t",
+                                 "uint_fast32_t", "uint_fast64_t", "uint_least8_t", "uint_least16_t",
+                                 "uint_least32_t", "uint_least64_t", "uintmax_t", "uintptr_t"]
 
     def parse(self):
-        if not path.exists("stdadx.cpp"):
-            with open("stdadx.cpp", "w") as precompile_cpp:
+        if not path.exists("stdafx.cpp"):
+            with open("stdafx.cpp", "w") as precompile_cpp:
                 precompile_cpp.write('#include "stdafx.h"')
-        if not path.exists("stdadx.h"):
-            with open("stdadx.h", "w") as precompile_header:
+        if not path.exists("stdafx.h"):
+            with open("stdafx.h", "w") as precompile_header:
                 precompile_header.write(r"""#pragma once
 
 #include "targetver.h"
@@ -67,7 +73,7 @@ class Parser:
     def _get_missing_structs(self, structures_dictionary, header, file):
         for struct_name, struct_content in header.classes.items():
             for var in struct_content["properties"]["public"]:
-                if len(var['aliases']) > 0:
+                if len(var['aliases']) > 0 and var['aliases'] not in self._fixed_width_integer_types:
                     if var['typedef'] is None and "enum" not in var.keys():
                         if var['type'] not in structures_dictionary.keys():
                             includes = list()
@@ -81,7 +87,9 @@ class Parser:
     def _get_includes(self, file_path, includes):
         if not path.exists(file_path):
             file_path = self._base_directory + "\\" + file_path
-        if path.exists(file_path) or True:
+        if "/" in file_path:
+            file_path = file_path.replace("/", "\\")
+        if path.exists(file_path):
             with open(file_path, "r") as header_file:
                 for line in header_file:
                     if "#include" in line and (line.count('"') == 2 or line.count("'") == 2):
@@ -103,9 +111,3 @@ class Parser:
                 struct_variables = struct_content["properties"]["public"]
                 return Struct(struct_content["namespace"], struct_name, struct_variables, include_file_path)
         return None
-
-    def initialize_generic_topic_functions(self):
-        generic_functions = ("SMT_Version", "SMT_Init", "SMT_Show", "SMT_CreateTopic",
-                             "SMT_GetPublishCount", "SMT_ClearHistory")
-        for generic_function in generic_functions:
-            self._writer.write_generic_function(generic_function)

@@ -1,10 +1,11 @@
 import linecache
 import functools
 from json_python import JsonHelper
-
+from os import path
+import CppHeaderParser
 
 class ParserWriter:
-    def __init__(self, main_files, topics_index_file):
+    def __init__(self, main_files, topics_index_file, base_directory):
         self._main_files = main_files
         self._topics_dictionary = JsonHelper.read_file(topics_index_file)
         self._structures = list()
@@ -12,6 +13,14 @@ class ParserWriter:
         self._includes = "\n\n".join(main_files)
         self._pybind_classes_file = open("SharedMemoryWrapper.cpp", "w")
         self._topics_file = open("sharedMemoryTopics.h", "w")
+        self._base_directory = base_directory
+        self._fixed_width_integer_types = ["int8_t", "int16_t", "int32_t", "int64_t", "int_fast8_t", "int_fast16_t",
+                                           "int_fast32_t", "int_fast64_t", "int_least8_t", "int_least16_t",
+                                           "int_least32_t", "int_least64_t", "intmax_t", "intptr_t", "uint8_t",
+                                           "uint16_t",
+                                           "uint32_t", "uint64_t", "uint_fast8_t", "uint_fast16_t",
+                                           "uint_fast32_t", "uint_fast64_t", "uint_least8_t", "uint_least16_t",
+                                           "uint_least32_t", "uint_least64_t", "uintmax_t", "uintptr_t"]
         self._structures_dictionary = dict()
 
     def set_structures(self, structures):
@@ -81,7 +90,8 @@ class ParserWriter:
         for variable in struct.variables:
             if variable != "":
                 if variable["array"]:
-                    if len(variable['aliases']) > 0 and variable['typedef'] is None and "enum" not in variable.keys():
+                    if len(variable['aliases']) > 0 and variable['aliases'][0] not in self._fixed_width_integer_types \
+                            and variable['typedef'] is None and "enum" not in variable.keys():
                         self._write_vector(struct, class_file, variable, vector_types)
                         full_declaration = linecache.getline(struct.file_name, variable["line_number"])
                         sizes = self._get_sizes(full_declaration)
@@ -282,22 +292,26 @@ class ParserWriter:
         for variable in struct.variables:
             unpacked = False
             is_basic_type_array = True
-            type = variable["type"]
-            if (len(variable['aliases']) > 0 and variable['typedef'] is None and "enum" not in variable.keys()) or "struct" in type:
+            variable_type = variable["type"]
+            if (len(variable['aliases']) > 0 and variable['aliases'][0] not in self._fixed_width_integer_types
+                and variable['typedef'] is None and "enum" not in variable.keys()) or "struct" in variable_type:
                 is_basic_type_array = False
-                if "struct" in type:
-                    type = type[type.find("struct ") + len("struct "):]
-                if type in self._structures_dictionary.keys():
-                    type = self._structures_dictionary[type].full_name
+                if "struct" in variable_type:
+                    variable_type = variable_type[variable_type.find("struct ") + len("struct "):]
+                if variable_type in self._structures_dictionary.keys():
+                    variable_type = self._structures_dictionary[variable_type].full_name
+                if variable["namespace"] not in variable_type:
+                    variable_type = variable["namespace"] + variable_type
                 if variable["array"]:
                     full_declaration = linecache.getline(struct.file_name, variable["line_number"])
                     sizes = self._get_sizes(full_declaration)
                     class_file.write(f"\n\t\tauto {variable['name']}lst0 = t[{tuple_index}].cast<py::list>();")
                     characters = [chr(ord('i') + i) for i in range(len(sizes))]
-                    self._write_pickle_unpack_structs_list(characters, variable['name'], type, sizes, 0, class_file)
+                    self._write_pickle_unpack_structs_list(characters, variable['name'], variable_type, sizes, 0, class_file)
                     unpacked = True
+
             if "enum" in variable.keys():
-                type = variable["enum"]
+                variable_type = variable["enum"]
             if variable["array"] and is_basic_type_array:
                 full_declaration = linecache.getline(struct.file_name, variable["line_number"])
                 sizes = self._get_sizes(full_declaration)
@@ -311,8 +325,37 @@ class ParserWriter:
                 self._write_for_loop_set(characters, variable['name'], sizes, 0, class_file, True)
             else:
                 if not unpacked:
-                    class_file.write(f'\n\t\tobj.{variable["name"]} = t[{tuple_index}].cast<{type}>();')
+                    class_file.write(f'\n\t\tobj.{variable["name"]} = t[{tuple_index}].cast<{variable_type}>();')
             tuple_index += 1
+
+    """def _get_full_type_variable(self, variable_name, variable_type, struct_file_name):
+        self._add_includes_to_file(struct_file_name)
+        parse_temp_file = CppHeaderParser.CppHeader("temporary_parser_file.h")
+        for struct_name, struct_content in parse_temp_file.classes.items():
+            for var in struct_content["properties"]["public"]:
+                if var["name"] == variable_name:
+                    full_type = variable_type
+
+
+    def _add_includes_to_file(self, file_name):
+        with open(file_name, "r") as file:
+            for line in file:
+                if "#include" in line and line.count('"') == 2:
+                    if "/" in line:
+                        line = line.replace("/", "\\")
+                    include_file = line[line.find('"') + 1:line.rfind('"')]
+                    include_path = self._base_directory + include_file
+                    if path.exists(include_path):
+                        self._add_includes_to_file(include_path)
+                elif "#include" in line and line.count("'") == 2:
+                    if "/" in line:
+                        line = line.replace("/", "\\")
+                    include_file = line[line.find("'") + 1:line.rfind("'")]
+                    include_path = self._base_directory + include_file
+                    if path.exists(include_path):
+                        self._add_includes_to_file(include_path)
+           with open("temporary_parser_file.h", "a") as temp_file:
+               temp_file.write(file.read())"""
 
     def _write_pickle_pack_structs_list(self, characters, array_name, array_sizes, call_index, file):
         if call_index == len(array_sizes):
