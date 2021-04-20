@@ -3,23 +3,6 @@
   <component name="ChangeListManager">
     <list default="true" id="648efb22-c2ea-4387-b697-0aad0b4bbc43" name="Default Changelist" comment="">
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/NavCov_RecordClass.h" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/NavData_EulerAngelsClass.h" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/NavData_PositionClass.h" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/NavData_QuaternionClass.h" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/NavData_RecordClass.h" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/NavData_SpeedClass.h" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/SMT_DataInfoClass.h" beforeDir="false" afterPath="$PROJECT_DIR$/SMT_DataInfoClass.h" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/SharedMemoryWrapper.cpp" beforeDir="false" afterPath="$PROJECT_DIR$/SharedMemoryWrapper.cpp" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/enums.h" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/parserWriter.py" beforeDir="false" afterPath="$PROJECT_DIR$/parserWriter.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/sharedMemoryTopics.h" beforeDir="false" afterPath="$PROJECT_DIR$/sharedMemoryTopics.h" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/smt.h" beforeDir="false" afterPath="$PROJECT_DIR$/smt.h" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/test/collabs/test.h" beforeDir="false" afterPath="$PROJECT_DIR$/test/collabs/test.h" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/test/collabs/test1.h" beforeDir="false" afterPath="$PROJECT_DIR$/test/collabs/test1.h" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/x64/Release/SharedMemoryWrapper.pch" beforeDir="false" afterPath="$PROJECT_DIR$/x64/Release/SharedMemoryWrapper.pch" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/x64/Release/stdafx.obj" beforeDir="false" afterPath="$PROJECT_DIR$/x64/Release/stdafx.obj" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/x64/Release/vc141.pdb" beforeDir="false" afterPath="$PROJECT_DIR$/x64/Release/vc141.pdb" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -191,12 +174,12 @@
       <method v="2" />
     </configuration>
     <list>
-      <item itemvalue="Python.test" />
       <item itemvalue="Python.HeadersParser" />
       <item itemvalue="Python.auto_build_generator" />
       <item itemvalue="Python.delete_files" />
       <item itemvalue="Python.example" />
       <item itemvalue="Python.recursive_parser" />
+      <item itemvalue="Python.test" />
     </list>
     <recent_temporary>
       <list>
