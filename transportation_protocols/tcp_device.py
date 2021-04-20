@@ -39,4 +39,3 @@ class TCPDevice(CommDeviceInterface):
     def __del__(self):
         self._tcp_connection.close()
 
-

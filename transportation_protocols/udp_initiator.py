@@ -22,4 +22,9 @@ class UDPInitiatorConnection(UDPDevice):
         pass
 
     def __del__(self):
-        self._udp_connection.close()
+        try:
+            self._udp_connection.sendto("exit".encode(), self._destination_ip, self._destination_port)
+        except Exception:
+            pass
+        else:
+            self._udp_connection.close()

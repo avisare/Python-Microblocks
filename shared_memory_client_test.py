@@ -1,5 +1,6 @@
 import unittest
 import os
+import threading
 from numpy import float32
 import parse_config
 from pypsexec_client.shared_memory_client import SharedMemoryClient
@@ -62,9 +63,8 @@ class TestClient(unittest.TestCase):
             shared_memory_third_object.arr = [10, 9, 8, 7, 6, 5, 4, 3, 2, 1]
             TestClient.shared_memory_objects.append(shared_memory_fourth_object)
             shared_memory_fifth_object = SharedMemoryWrapper.testStructThree()
-            shared_memory_fifth_object.booleanValue = True
-            shared_memory_fifth_object.floatValue = 9.9
-            shared_memory_fifth_object.charArray = ['c'] * 32
+            #using constructor with paramters
+            shared_memory_fifth_object.paramsCtor(True, 9.9, ['c'] * 32)
             TestClient.shared_memory_objects.append(shared_memory_fifth_object)
             shared_memory_sixth_object = SharedMemoryWrapper.testStructThree()
             shared_memory_sixth_object.booleanValue = True
@@ -72,10 +72,7 @@ class TestClient(unittest.TestCase):
             shared_memory_sixth_object.charArray = ['t'] * 32
             TestClient.shared_memory_objects.append(shared_memory_sixth_object)
             shared_memory_seventh_object = SharedMemoryWrapper.testStructTwo()
-            shared_memory_seventh_object.longNumber = 123456
-            shared_memory_seventh_object.uintNumber = 55
-            shared_memory_seventh_object.boolean = True
-            shared_memory_seventh_object.structThree = shared_memory_fifth_object
+            shared_memory_seventh_object.paramsCtor(123456, 55, True, shared_memory_fifth_object)
             TestClient.shared_memory_objects.append(shared_memory_seventh_object)
             shared_memory_eighth_object = SharedMemoryWrapper.testStructTwo()
             shared_memory_eighth_object.longNumber = 23456
@@ -392,11 +389,13 @@ def main():
             parse_config.init_configuration(local_config_file)
         else:
             raise Exception(f"test method with number {test_method} was not found")
-    shared_memory_object = parse_config.execute_preparations()
+    remote_thread, shared_memory_object = parse_config.execute_preparations()
     initialize_shared_memory(shared_memory_object)
     test = TestClient()
     test.setObject(shared_memory_object)
     test.run_test()
+    if remote_thread is not None:
+        remote_thread.join()
     os._exit(0)
 
 

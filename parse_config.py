@@ -56,7 +56,7 @@ def execute_preparations():
     :return: return the shared memory object created based on the config_dictionary
     """
     if config_dictionary["control"] == "local":
-        return get_shared_memory("local")
+        return None, get_shared_memory("local")
     remote_configs = [config_dictionary["remote_username"],
                       config_dictionary["remote_password"],
                       config_dictionary["remote_ip"], config_dictionary["mode"],
@@ -74,8 +74,8 @@ def execute_preparations():
         remote_configs[-2] = config_dictionary["initiator_ip"]
     if config_dictionary["mode"] == "client":
         remote_configs[3] = "server"
-    remote_thread = Thread(target=execute_remote_machine, args=(remote_configs,))
+    remote_thread = Thread(target=execute_remote_machine, args=(remote_configs,), name="execute_remote_machine")
     remote_thread.start()
     print("waiting for server to up")
     sleep(5)
-    return get_shared_memory(*local_configs[3:])
+    return remote_thread, get_shared_memory(*local_configs[3:])
