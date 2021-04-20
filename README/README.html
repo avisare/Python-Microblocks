@@ -16,11 +16,11 @@
 		<!-- Tab content -->
 		<div id="General" class="tabcontent">
 		  <h1>General</h1>
-		  <p>The purpose of this document, is to provide information and uage examples, of all the tools created by Noam Mizrahi since now.
+		  <p>The purpose of this document, is to provide information and usage examples, of all the tools created by Noam Mizrahi since now.
 		  Before using the document and try the examples, you should do the following preparations.</p>
 		  <h2>preparations</h2>
-		  <p>1. Install numpy on your python version using pip: </p><pre><code>pip install numpy</pre></code> <p>This download is related to the Shared Memory Wrapper uage.<br>
-		  2. Install pypsexec on your python version using pip </p><pre><code>pip install pypsexec</pre></code><p>This download is related to the Shared Memory Wrapper uage.<br>
+		  <p>1. Install numpy on your python version using pip: </p><pre><code>pip install numpy</pre></code> <p>This download is related to the Shared Memory Wrapper usage.<br>
+		  2. Install pypsexec on your python version using pip </p><pre><code>pip install pypsexec</pre></code><p>This download is related to the Shared Memory Wrapper usage.<br>
 		  3. Download the shared memory wrapper installer, which will provide you all the python scripts you need in order to use Shared Memory Wrapper.<br>
 		  4. Download the shared memory server installer on the remote machine you want to connect.  This installer is in the shared memory wrapper installer.</p>
 		  <h2>Attention</h2>
@@ -44,7 +44,7 @@ charArrayName[0] = ord('a')</code></pre>
 			<pre><code>print(charArrayName.view("S1")[0].decode()
 # or
 print(chr(charArrayName[0]))</code></pre>
-			6. In order to create struct array or dimensional struct array. You shoud use special syntax.
+			6. In order to create struct array or dimensional struct array. You should use special syntax.
 <pre><code>cpp code:
 struct t
 {
@@ -66,7 +66,7 @@ anotherInnerArray = SharedMemoryWrapper.t1([structTObj1, structTObj2])
 anotherStruct.arr = SharedMemoryWrapper.t2([innerArray, anotherInnerArray])
 #t2 = t is the name of the struct and 2 is the dimension number
 </code></pre>
-		  7. assiging specific struct within struct array is not supported. You should change each value separately.
+		  7. Assigning specific struct within struct array is not supported. You should change each value separately.
 		  Continue of the previous example:
 <pre><code>structTObj3 = SharedMemoryWrapper.t()
 structTObj3.i = 20
@@ -75,8 +75,14 @@ anotherStruct.arr[0][0] = structTObj3
 #The correct way to do that:
 anotherStruct.arr[0][0].i = structTObj3.i
 </code></pre>
+			8. Usage of enums in the module, is very simple.:
+			<pre><code>SharedMemoryWrapper.EnumName.EnumValue</code></pre>
+			9. You can initialize struct in a single statement instead of initialize each property:
+			<pre><code>StructName.paramsCtor(param1, param2, param3...)</code></pre>
+			You can also see the order which the constructor accept the parameters by typing the constructor with empty brackets.
+			Notice that string argument to function or constructor is actually single char.
 		  <h2>Usage</h2>
-		  <p>Usage of each module is described in the correspondig tab. Also, a lot of usage examples can be found
+		  <p>Usage of each module is described in the corresponding tab. Also, a lot of usage examples can be found
 		  at the shared_memory_client_test.py file.<br>
 		  For any other questions, you can ask Noam Mizrahi.<br><a href="mailto:noammizrahii2003@gmail.com">Contact Noam</a></p>
 		</div>
@@ -171,7 +177,7 @@ Clear the history a particular topic. All 'get' functions will fail until new pu
 		</div>
 		<div id="Shared Memory Wrapper Remote" class="tabcontent">
 		  <h1>Shared Memory</h1>
-		  <p>In order to execute and operate shared memory functions on a remoe machine, I created shared memory client and server
+		  <p>In order to execute and operate shared memory functions on a remote machine, I created shared memory client and server
 		  which communicate with the Transportation Protocols module mentioned before.</p>
 		  <h2>Files related</h2>
 		  <p>Files which you need in order to use remote control of shared memory server are:<br>
@@ -179,13 +185,13 @@ Clear the history a particular topic. All 'get' functions will fail until new pu
 		  2. configuration file which contain suitable configuration for the transportation protocol<br>
 		  3. pypsexec module installed<br>
 		  4. json_python module<br>
-		  5. numpy modue installed<br>
+		  5. numpy module installed<br>
 		  6. parse_config.py file<br>
 		  7. pypsexec_client module<br>
 		  All the files mentioned should already be in your directory if you download the shared memory wrapper installer.<br>
 		  Also, you should put and run the shared memory server installer on the remote machine you want to connect.<br></p>
 		  <h2>Usage</h2>
-		  <p>First, if you have configuration file (which is very recomended), you run</p>
+		  <p>First, if you have configuration file (which is very recommended), you run</p>
 <pre><code>parse_config.init_configuration([list_of_config_files])
 shared_memory_object = parse_config.execute_preparations() #functon run all the necessary to the program
 initialize_shared_memory(shared_memory_object) # initialize memory and create the topics from the config file
@@ -203,7 +209,7 @@ responder_port(optional), responder_ip(optional), local_port(optional))
 		<h2>Attention</h2>
 		<p>
 		Before starting, move and run the installer in C:\servers directory.<br>
-		You should check befire the first running that the name python (when type in command prompt), is related to python3.8<br>
+		You should check before the first running that the name python (when type in command prompt), is related to python3.8<br>
 		If you pass couple of configuration files, and some of them overriding each other, only the latest will count.<br>
 		The syntax in order to publish topic or get object on the local machine
 		or on the remote machine is exactly the same.<br>
@@ -218,8 +224,8 @@ py remote_agent.py arguments...
 		</div>
 		<div id="Json Parser" class="tabcontent">
 		  <h1>Json Parser</h1>
-		  <p>The Json Parser module is a module that provide easy and simple inteface in order to read/write from json files.<br>
-		  The module is used with the Shared Memory Wrapper project, but can also be very usefull by itself.
+		  <p>The Json Parser module is a module that provide easy and simple interface in order to read/write from json files.<br>
+		  The module is used with the Shared Memory Wrapper project, but can also be very useful by itself.
 		  In order to use the module, make sure it is exist in the working directory, and then just type:<br>
 		  from json_python.json_helper import JsonHelper
 		  </p>
@@ -233,9 +239,9 @@ py remote_agent.py arguments...
 		<pre><code>def get_value(key, json_file_path)</code></pre>
 		<p>function get json file path and key, and return the value of the key. if key doesn't exists, function will throw error.</p>
 		<pre><code>def write_value(key, value, json_file_path)</code></pre>
-		<p>function get json file path, key and vaue, and write it into the file.</p>
+		<p>function get json file path, key and value, and write it into the file.</p>
 		<pre><code>def write_string(key, value, json_file_path)</code></pre>
-		<p>function get json file path, key and vaue, and write it into the file as string.
+		<p>function get json file path, key and value, and write it into the file as string.
 		if the value cannot be converted to str, function will throw error.</p>
 		<pre><code>def delete_key(key, json_file_path)</code></pre>
 		<p>function get key and json file path, and delete the key. if the key doesn't exist function will throw error.</p>
@@ -274,7 +280,7 @@ py remote_agent.py arguments...
 		  <p> function which sends message to the tcp connection. If the tcp connection parameter is None, 
 		  it will send to the tcp connection of the class.</p>
 		  <pre><code>5. Receive(self, buffer_size_bytes, timeout_seconds, tcp_connection)</code></pre>
-		  <p> function will receive from the following connection tcp packat. If the tcp connection is None, 
+		  <p> function will receive from the following connection tcp packet. If the tcp connection is None,
 		  it will receive from the tcp connection of the class.</p>
 		  <h2>TCP Client</h2>
 		  <p>This class inherited from TCPDevice class, and have all its function plus the connect function:</p>
@@ -292,7 +298,7 @@ py remote_agent.py arguments...
 		   <pre><code>2. Send(self, message)</code></pre>
 		   <p>function which sends message to a udp connection. </p>
 		   <pre><code>3. Receive(self, buffer_size_bytes, timeout_seconds) </code></pre>
-		   <p>function will receive packat from a udp connection</p>
+		   <p>function will receive packet from a udp connection</p>
 		  <h2>UDP Responder</h2>
 		  <p>This class inherited from UDPDevice class, all its purpose is to receive messages, 
 		  so it overrides all UDPDevice function's except of send.</p>
@@ -333,16 +339,16 @@ py remote_agent.py arguments...
 		  it will return the SharedMemoryWrapper module. otherwise, it will check the other parameters, produce appropriate connection,
 		  and return SharedMemoryClient object with the connection.</p>
 		  <pre><code>2. def initialize_shared_memory(shared_memory_object)</pre></code>
-		  <p>function intialize the shared memory object (SMT_Init), and then create each topic from the 
-		  cofiguration file with the suitable properties.</p>
+		  <p>function initialize the shared memory object (SMT_Init), and then create each topic from the
+		  configuration file with the suitable properties.</p>
 		  <h2>Configuration File</h2>
-		  <p>There is a lot of usage of configuration file in the project and specificly in the transportation_protocols module.
+		  <p>There is a lot of usage of configuration file in the project and specifically in the transportation_protocols module.
 		  In this section I will explain about each field in the configuration file, and also about the necessity of each
 		  one of them in each connection type.<br>
 		  1. control = the control method of the current program to be execute. 
 		  can be local (run SharedMemoryWrapper on the local machine) or remote (run SharedMemoryWrapper on a remote machine)<br>
-		  2. connection_type = the type of connection we want to produce. currently the pprogram support UDP or TCP<br>
-		  3. mode = the mode of the coonnection we want to create. 
+		  2. connection_type = the type of connection we want to produce. currently the program support UDP or TCP<br>
+		  3. mode = the mode of the connection we want to create.
 		  Can be responder, initiator or strict in UDP, and server or client in TCP.
 		  If there is no mode in the configuration file, generic device (udp/tcp) will be produce.<br>
 		  4. timeout_seconds = the timeout in seconds until the receive function will stop waiting for message (must be valid integer value)<br>
@@ -379,7 +385,7 @@ py remote_agent.py arguments...
 		  <h1>Parallel Sequential</h1>
 		  <p>This module is created in order to make it easier and simpler to run couple of functions in parallel or in sequential
 		  If you wish to run functions in parallel, call the function: start_parallel when the parameters  are all the function objects you want to execute.<br>
-		  each function object contain the function's pointer, function's arguments as tuple. the function get also as argument the timeout (time oject) until the functions will be force quit by the program.
+		  each function object contain the function's pointer, function's arguments as tuple. the function get also as argument the timeout (time object) until the functions will be force quit by the program.
 		  If you wish to run functions in sequential, call the function named start_sequential with the same arguments as the start_parallel function.</p>
 		  <h2>Usage example:</h2>
 		  <pre><code>import time
