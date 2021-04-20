@@ -4,19 +4,17 @@
 
 #include "SMT_DataInfoClass.h"
 
-#include "NavCov_RecordClass.h"
+#include "testStructOneClass.h"
 
-#include "NavData_SpeedClass.h"
+#include "testStructThreeClass.h"
 
-#include "NavData_PositionClass.h"
+#include "testStructTwoClass.h"
 
-#include "NavData_QuaternionClass.h"
+#include "testStructFourClass.h"
 
-#include "NavData_EulerAngelsClass.h"
+#include "SharedMemoryContentClass.h"
 
-#include "NavData_RecordClass.h"
-
-#include "enums.h"
+#include "tClass.h"
 
 #include "SharedMemoryTopics.h"
 
@@ -32,9 +30,14 @@
 
 namespace py = pybind11;
 
+
+PYBIND11_MAKE_OPAQUE(std::vector<std::vector<sm_data::t>>);
+PYBIND11_MAKE_OPAQUE(std::vector<sm_data::t>);
 PYBIND11_MODULE(SharedMemoryWrapper, SharedMemoryWrapperModule)
 {
 
+	py::bind_vector<std::vector<std::vector<sm_data::t>>>(SharedMemoryWrapperModule, "t2");
+	py::bind_vector<std::vector<sm_data::t>>(SharedMemoryWrapperModule, "t1");
 	SharedMemoryWrapperModule.def("SMT_Version", &SMT_Version, py::return_value_policy::copy);
 
 	SharedMemoryWrapperModule.def("SMT_Init", &SMT_Init, py::return_value_policy::copy);
@@ -54,17 +57,15 @@ PYBIND11_MODULE(SharedMemoryWrapper, SharedMemoryWrapperModule)
 
 	SMT_DataInfoRunner(SharedMemoryWrapperModule);
 
-	NavCov_RecordClassRunner(SharedMemoryWrapperModule);
+	testStructOneClassRunner(SharedMemoryWrapperModule);
 
-	NavData_SpeedClassRunner(SharedMemoryWrapperModule);
+	testStructThreeClassRunner(SharedMemoryWrapperModule);
 
-	NavData_PositionClassRunner(SharedMemoryWrapperModule);
+	testStructTwoClassRunner(SharedMemoryWrapperModule);
 
-	NavData_QuaternionClassRunner(SharedMemoryWrapperModule);
+	testStructFourClassRunner(SharedMemoryWrapperModule);
 
-	NavData_EulerAngelsClassRunner(SharedMemoryWrapperModule);
+	SharedMemoryContentClassRunner(SharedMemoryWrapperModule);
 
-	NavData_RecordClassRunner(SharedMemoryWrapperModule);
-
-	enumsRunner(SharedMemoryWrapperModule);
+	tClassRunner(SharedMemoryWrapperModule);
 }

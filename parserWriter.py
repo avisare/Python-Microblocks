@@ -1,8 +1,8 @@
 import linecache
 import functools
 from json_python import JsonHelper
-from os import path
 import CppHeaderParser
+
 
 class ParserWriter:
     def __init__(self, main_files, topics_index_file, base_directory):
@@ -74,6 +74,7 @@ class ParserWriter:
         with open(f"{struct.name}Class.h", "a") as class_file:
             class_file.write(f'\n\tpy::class_<{struct.full_name}>(SharedMemoryWrapperModule, "{struct.name}")\n')
             class_file.write(f"\t\t.def(py::init<>())\n")
+            self._write_init_with_parameters(struct, class_file)
             class_variables_names, class_variables = self._write_class_variables(class_file, struct, vector_types)
             class_file.write(f'\n\t.def(py::pickle(\n\t\t[](const {struct.full_name} &obj)')
             class_file.write("{\n\t\t")
@@ -137,8 +138,40 @@ class ParserWriter:
         file.write("\n\t}, []("
                    f"{full_name}& obj, py::list setArr)\n\t"
                    "{\n")
-        self._write_set_array(characters, array_type, name, array_sizes, 0, file)
+        self._write_set_array(characters, array_type, name, array_sizes, 0, file, False)
         file.write("\n\t})")
+
+    def _write_init_with_parameters(self, struct, class_file):
+        class_variables_names = []
+        class_variables_types = []
+        for variable in struct.variables:
+            variable_type = variable["type"]
+            if "struct" in variable_type:
+                variable_type = variable_type[variable_type.find("struct ") + len("struct "):]
+            if variable_type in self._structures_dictionary.keys():
+                variable_type = self._structures_dictionary[variable_type].full_name
+            if len(variable['aliases'])>0 and variable['aliases'][0] not in self._fixed_width_integer_types:
+                if variable["namespace"] not in variable_type:
+                    variable_type = variable["namespace"] + variable_type
+            class_variables_types.append(variable_type)
+            if variable["array"]:
+                class_variables_names.append(f"py::list set{variable['name']}")
+            else:
+                class_variables_names.append(f"{variable_type} set{variable['name']}")
+        variables_signature = ", ".join(class_variables_names)
+        class_file.write(f'\n\t\t.def("paramsCtor", []({struct.full_name}& obj, {variables_signature})')
+        class_file.write("\n\t{")
+        variable_index = 0
+        for variable in struct.variables:
+            if variable['array']:
+                full_declaration = linecache.getline(struct.file_name, variable["line_number"])
+                sizes = self._get_sizes(full_declaration)
+                characters = [chr(ord('i') + i) for i in range(len(sizes))]
+                self._write_set_array(characters, class_variables_types[variable_index], variable["name"], sizes, 0, class_file, True)
+            else:
+                class_file.write(f"\n\t\tobj.{variable['name']} = set{variable['name']};")
+            variable_index+=1
+        class_file.write("\n\t})")
 
     def _write_pickle(self, array_sizes, array_type, name, file):
         characters = [chr(ord('i') + i) for i in range(len(array_sizes))]
@@ -222,7 +255,7 @@ class ParserWriter:
             self._write_for_loop_set(characters, variable_name, sizes, call_index + 1, file, is_pickle)
             file.write("\n\t\t" + call_index * '\t' + "}")
 
-    def _write_set_array(self, characters, array_type, variable_name, sizes, call_index, file):
+    def _write_set_array(self, characters, array_type, variable_name, sizes, call_index, file, init):
         loop_character = characters[call_index]
         file.write(
             "\n\t\t" + call_index * '\t' + f"for (int {loop_character} = 0; {loop_character} < {sizes[call_index]}; {loop_character}++)")
@@ -233,19 +266,25 @@ class ParserWriter:
                 call_stack += "[" + char + "]"
             file.write("\n\t\t" + (call_index + 1) * '\t')
             if call_index == 0:
-                file.write(f"obj.{variable_name}{call_stack} = setArr[{loop_character}].cast<{array_type}>();")
+                if init:
+                    file.write(f"obj.{variable_name}{call_stack} = set{variable_name}[{loop_character}].cast<{array_type}>();")
+                else:
+                    file.write(f"obj.{variable_name}{call_stack} = setArr[{loop_character}].cast<{array_type}>();")
             else:
                 file.write(f"obj.{variable_name}{call_stack} = temp{call_index-1}[{loop_character}].cast<{array_type}>();")
             file.write("\n\t\t" + call_index * '\t' + "}")
         elif call_index == 0:
             file.write("\n\t\t" + (call_index + 1) * '\t')
-            file.write(f"py::list temp{call_index} = setArr[{loop_character}].cast<py::list>();")
-            self._write_set_array(characters, array_type, variable_name, sizes, call_index + 1, file)
+            if init:
+                file.write(f"py::list temp{call_index} = set{variable_name}[{loop_character}].cast<py::list>();")
+            else:
+                file.write(f"py::list temp{call_index} = setArr[{loop_character}].cast<py::list>();")
+            self._write_set_array(characters, array_type, variable_name, sizes, call_index + 1, file, False)
             file.write("\n\t\t" + call_index * '\t' + "}")
         else:
             file.write("\n\t\t" + (call_index + 1) * '\t')
             file.write(f"py::list temp{call_index} = temp{call_index - 1}[{loop_character}].cast<py::list>();")
-            self._write_set_array(characters, array_type, variable_name, sizes, call_index + 1, file)
+            self._write_set_array(characters, array_type, variable_name, sizes, call_index + 1, file, False)
             file.write("\n\t\t" + call_index * '\t' + "}")
 
     def _get_sizes(self, full_declaration):
@@ -327,35 +366,6 @@ class ParserWriter:
                 if not unpacked:
                     class_file.write(f'\n\t\tobj.{variable["name"]} = t[{tuple_index}].cast<{variable_type}>();')
             tuple_index += 1
-
-    """def _get_full_type_variable(self, variable_name, variable_type, struct_file_name):
-        self._add_includes_to_file(struct_file_name)
-        parse_temp_file = CppHeaderParser.CppHeader("temporary_parser_file.h")
-        for struct_name, struct_content in parse_temp_file.classes.items():
-            for var in struct_content["properties"]["public"]:
-                if var["name"] == variable_name:
-                    full_type = variable_type
-
-
-    def _add_includes_to_file(self, file_name):
-        with open(file_name, "r") as file:
-            for line in file:
-                if "#include" in line and line.count('"') == 2:
-                    if "/" in line:
-                        line = line.replace("/", "\\")
-                    include_file = line[line.find('"') + 1:line.rfind('"')]
-                    include_path = self._base_directory + include_file
-                    if path.exists(include_path):
-                        self._add_includes_to_file(include_path)
-                elif "#include" in line and line.count("'") == 2:
-                    if "/" in line:
-                        line = line.replace("/", "\\")
-                    include_file = line[line.find("'") + 1:line.rfind("'")]
-                    include_path = self._base_directory + include_file
-                    if path.exists(include_path):
-                        self._add_includes_to_file(include_path)
-           with open("temporary_parser_file.h", "a") as temp_file:
-               temp_file.write(file.read())"""
 
     def _write_pickle_pack_structs_list(self, characters, array_name, array_sizes, call_index, file):
         if call_index == len(array_sizes):
