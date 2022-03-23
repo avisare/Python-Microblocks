@@ -97,7 +97,7 @@ class ParserWriter:
                         full_declaration = linecache.getline(struct.file_name, variable["line_number"])
                         sizes = self._get_sizes(full_declaration)
                         class_variables_names.append(f'{variable["name"]}Vector')
-                        class_variables.append((struct.full_name, sizes, self._structures_dictionary[variable['raw_type']].full_name, variable['name']))
+                        class_variables.append((struct.full_name, sizes, self._structures_dictionary[variable['type']].full_name, variable['name']))
                     else:
                         full_declaration = linecache.getline(struct.file_name, variable["line_number"])
                         sizes = self._get_sizes(full_declaration)
@@ -189,12 +189,12 @@ class ParserWriter:
         characters = [chr(ord('i') + i) for i in range(len(sizes))]
         vector_types.add("std::vector<" * (len(sizes)-1) + self._structures_dictionary[variable['type']].full_name + '>'*(len(sizes) - 1))
         class_file.write(f'\n\t\t.def_property("{variable["name"]}", []({struct.full_name} &obj)->'
-                         f'{"std::vector<" * len(sizes)}{self._structures_dictionary[variable["raw_type"]].full_name + "*"}{">" * len(sizes)}'
+                         f'{"std::vector<" * len(sizes)}{self._structures_dictionary[variable["type"]].full_name + "*"}{">" * len(sizes)}'
                          ' {')
-        self._write_for_loop_get(characters, self._structures_dictionary[variable["raw_type"]].full_name + "*", variable['name'], sizes, 0, class_file, False)
+        self._write_for_loop_get(characters, self._structures_dictionary[variable["type"]].full_name + "*", variable['name'], sizes, 0, class_file, False)
         class_file.write("\n\n")
         class_file.write('\t}, '
-                         f'[]({struct.full_name}& obj, {"std::vector<" * len(sizes)}{self._structures_dictionary[variable["raw_type"]].full_name + "*"}{">" * len(sizes)} setArr)'
+                         f'[]({struct.full_name}& obj, {"std::vector<" * len(sizes)}{self._structures_dictionary[variable["type"]].full_name + "*"}{">" * len(sizes)} setArr)'
                          '\n\t{')
         self._write_for_loop_set(characters, variable['name'], sizes, 0, class_file, False)
         class_file.write("\n\t})")
@@ -356,7 +356,7 @@ class ParserWriter:
                 sizes = self._get_sizes(full_declaration)
                 if variable['raw_type'] in self._structures_dictionary.keys():
                     class_file.write(
-                        f'\n\t\tauto {variable["name"]}Vector = t[{tuple_index}].cast<{"std::vector<" * len(sizes) + self._structures_dictionary[variable["raw_type"]].full_name + ">" * len(sizes)}>();')
+                        f'\n\t\tauto {variable["name"]}Vector = t[{tuple_index}].cast<{"std::vector<" * len(sizes) + self._structures_dictionary[variable["type"]].full_name + ">" * len(sizes)}>();')
                 else:
                     class_file.write(
                         f'\n\t\tauto {variable["name"]}Vector = t[{tuple_index}].cast<{"std::vector<" * len(sizes) + variable["raw_type"] + ">" * len(sizes)}>();')
