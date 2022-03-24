@@ -1,0 +1,4 @@
+{
+  "tcp_port": 1234,
+  "topics": ["testStructOne", "SharedMemoryContent"]
+}
