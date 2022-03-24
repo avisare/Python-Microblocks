@@ -2,11 +2,7 @@
 <project version="4">
   <component name="ChangeListManager">
     <list default="true" id="648efb22-c2ea-4387-b697-0aad0b4bbc43" name="Default Changelist" comment="">
-      <change beforePath="$PROJECT_DIR$/.idea/misc.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/misc.xml" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/README.md" beforeDir="false" afterPath="$PROJECT_DIR$/README.md" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/auto_build_generator.py" beforeDir="false" afterPath="$PROJECT_DIR$/auto_build_generator.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/parserWriter.py" beforeDir="false" afterPath="$PROJECT_DIR$/parserWriter.py" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -178,12 +174,12 @@
       <method v="2" />
     </configuration>
     <list>
-      <item itemvalue="Python.test" />
       <item itemvalue="Python.HeadersParser" />
       <item itemvalue="Python.auto_build_generator" />
       <item itemvalue="Python.delete_files" />
       <item itemvalue="Python.example" />
       <item itemvalue="Python.recursive_parser" />
+      <item itemvalue="Python.test" />
     </list>
     <recent_temporary>
       <list>
