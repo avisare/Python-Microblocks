@@ -1,0 +1,410 @@
+<!DOCTYPE html>
+<html>
+	<head>
+		<link rel="stylesheet" href="README.css">
+		<script src="README.js"></script>
+	</head>
+	<body>
+		<div class="tab">
+		  <button class="tablinks" onclick="openTab(event, 'General')" id="default_tab">General</button>
+		  <button class="tablinks" onclick="openTab(event, 'MicroBlocks')">MicroBlocks</button>
+		  <button class="tablinks" onclick="openTab(event, 'Shared Memory Wrapper Remote')">Shared Memory</button>
+		  <button class="tablinks" onclick="openTab(event, 'Json Parser')">Json Parser</button>
+		  <button class="tablinks" onclick="openTab(event, 'Transportation Protocols')">Transportation Protocols</button>
+		  <button class="tablinks" onclick="openTab(event, 'Parallel Sequential')">Parallel Sequential</button>
+		</div>
+		<!-- Tab content -->
+		<div id="General" class="tabcontent">
+		  <h1>General</h1>
+		  <p>The purpose of this document, is to provide information and usage examples, of all the tools created by Noam Mizrahi since now.
+		  Before using the document and try the examples, you should do the following preparations.</p>
+		  <h2>preparations</h2>
+		  <p>1. Install numpy on your python version using pip: </p><pre><code>pip install numpy</pre></code> <p>This download is related to the Shared Memory Wrapper usage.<br>
+		  2. Install pypsexec on your python version using pip </p><pre><code>pip install pypsexec</pre></code><p>This download is related to the Shared Memory Wrapper usage.<br>
+		  3. Download the shared memory wrapper installer, which will provide you all the python scripts you need in order to use Shared Memory Wrapper.<br>
+		  4. Download the shared memory server installer on the remote machine you want to connect.  This installer is in the shared memory wrapper installer.</p>
+		  <h2>Attention</h2>
+		  <p>1. If you want to print, see or modify char array (or dimensional char array), you need to write the arrayName.view('S1'). Otherwise, you will see array of type
+		  int8 instead of char array.<br>
+		  2. The python module supported only in python version 3.8<br>
+		  3. The python basic float type is way more precise than the float basic type in c++. Because of that, when receiving
+		  or handling with float variables, you should first cast them to numpy float with the wanted size. Example:
+<pre><code>import numpy
+float_var = cpp_function_return_float()
+float_var = numpy.float32(float_var)
+</code></pre>
+		  4. In order to assign one value within char array, you need to do:
+		  <pre><code>charArrayName.asview("S1")[0] = 'a'
+# or
+charArrayName[0] = ord('a')</code></pre>
+		  But in order to change the whole array you can just do:
+		  <pre><code>charArrayName = ['a']*array_size</code></pre>
+			5. Notice that the return value from specific char in char array will be binary char.
+			So .decode after the return value will be necessary. Example:
+			<pre><code>print(charArrayName.view("S1")[0].decode()
+# or
+print(chr(charArrayName[0]))</code></pre>
+			6. In order to create struct array or dimensional struct array. You should use special syntax.
+<pre><code>cpp code:
+struct t
+{
+	int i;
+};
+struct AnotherStruct
+{
+	t arr[2][2];
+};
+In your python code:
+structTObj1 = SharedMemoryWrapper.t()
+structTObj1.i = 100
+structTObj2 = SharedMemoryWrapper.t()
+structTObj2.i = 200
+anotherStruct = SharedMemoryWrapper.AnotherStruct()
+innerArray = SharedMemoryWrapper.t1([structTObj1, structTObj2]) 
+#t1 = t is the name of the struct and 1 is the dimension number
+anotherInnerArray = SharedMemoryWrapper.t1([structTObj1, structTObj2]) 
+anotherStruct.arr = SharedMemoryWrapper.t2([innerArray, anotherInnerArray])
+#t2 = t is the name of the struct and 2 is the dimension number
+</code></pre>
+		  7. Assigning specific struct within struct array is not supported. You should change each value separately.
+		  Continue of the previous example:
+<pre><code>structTObj3 = SharedMemoryWrapper.t()
+structTObj3.i = 20
+anotherStruct.arr[0][0] = structTObj3
+#will not work
+#The correct way to do that:
+anotherStruct.arr[0][0].i = structTObj3.i
+</code></pre>
+			8. Usage of enums in the module, is very simple.:
+			<pre><code>SharedMemoryWrapper.EnumName.EnumValue</code></pre>
+			9. You can initialize struct in a single statement instead of initialize each property:
+			<pre><code>StructName.paramsCtor(param1, param2, param3...)</code></pre>
+			You can also see the order which the constructor accept the parameters by typing the constructor with empty brackets.
+			Notice that string argument to function or constructor is actually single char.
+		  <h2>Usage</h2>
+		  <p>Usage of each module is described in the corresponding tab. Also, a lot of usage examples can be found
+		  at the shared_memory_client_test.py file.<br>
+		  For any other questions, you can ask Noam Mizrahi.<br><a href="mailto:noammizrahii2003@gmail.com">Contact Noam</a></p>
+		</div>
+		<div id="MicroBlocks" class="tabcontent">
+		  <h1>MicroBlocks</h1>
+		  <p>Microblocks is a dll that give you access to shared memory and functions like publish and get are available.<br>
+		  All the functions that exists in the microblocks dynamic library are accessible in python!!<br>
+		  By using pybind11 library, I created python module that bind between c++ dynamic library and python code.
+		  In order to use the module, first you need to download the shared memory wrapper installer. 
+		  The files which are relevant to the usage of the module are the .pyd file (SharedMemoryWrapper.pyd) and the .dll file (Shared_Memory_Topics_x64)
+		  So, if you have the dependencies mentioned above, you should be able to use the module with:</p> <pre><code>import SharedMemoryWrapper</pre></code>
+		  <p> The next content of this tab contain documentation about the microblocks functions.<br>
+		  The usage of this functions is done quit exactly like the usage in cpp code. If the function is independent (SMT_Init, SMT_Version, SMT_Show, SMT_CreateTopic, SMT_GetPublishCount and SMT_ClearHistory),
+		  you need to write</p> <pre><code>SharedMemoryWrapper.function_name</pre></code>
+		  <p>All the other functions are topic related (on each topic you can publish or get). This kind of functions can be executed in the following syntax.</p>
+		  <pre><code>topic = SharedMemoryWrapper.topicName()<br>topic.publish(struct_object)<br></pre></code><p>or in one line</p><pre><code>SharedMemoryWrapper.topicName().publish(struct_object)</pre></code>
+		  <p>You can use the module in the installer in order to see and test the usage of the microblocks functions.</p>
+		  <p>The following structs are supported to publish and get from topics<br>Topic Name: testStructOneTopic<br>struct</p>
+		  <pre><code>struct testStructOne<br>{<br>  int intNumber;<br>  float floatNumber;<br>  char character;<br>  float arr[10];<br>};</pre></code>
+		  <p>Topic Name: testStructTwoTopic<br>struct</p><pre><code>struct testStructTwo<br>{<br>  long longNumber;<br>  unsigned int uintNumber;<br>  bool boolean;<br>  struct testStructThree structThree;<br>};</pre></code>
+		  <p>Topic Name: testStructThreeTopic<br>struct</p><pre><code>struct testStructThree<br>{<br>  bool booleanValue;<br>  float floatValue;<br>  char charArray[CSTRING_DATA_MAX_LEN];// CSTRING_DATA_MAX_LEN = 32<br>};</pre></code>
+		<p>Topic Name: testStructFourTopic<br> struct</p><pre><code>struct testStructFour<br>{<br>int singleInteger;<br>  int dimensionalArray[2][3];<br>  testStructOne structOne;<br>};</pre></code>
+		<p>Topic Name: SharedMemoryContentTopic<br>struct</p><pre><code>struct SharedMemoryContent<br>{<br>  uint32_t intData;<br>  char	 cstringData[CSTRING_DATA_MAX_LEN];<br>};</pre></code>
+		<h1>MicroBlocks Functions</h1>
+		<pre><code><h2>Function Name:</h2>  SMT_Version
+<h2>Function Signature:</h2>  const char* SMT_Version();
+Return the version as null terminated string.
+<h2>Parameters:</h2>  none
+<h2>Returns:</h2>  pointer to version in string format
+-----------------------------------
+<h2>Function Name:</h2>  SMT_Init
+<h2>Function Signature:</h2> bool SMT_Init();
+Shared memory topic's initialization. should be called only once.
+<h2>Parameters:</h2>  none
+<h2>Returns:</h2> true for initialization success, false otherwise
+-----------------------------------
+<h2>Function Name:</h2> SMT_Show
+<h2>Function Signature:</h2> void SMT_Show(const char* topicName);
+Print general status and topics information to stdout.
+<h2>Parameters:</h2> none
+<h2>Returns:</h2> void
+-----------------------------------
+<h2>Function Name:</h2> SMT_CreateTopic
+<h2>Function Signature:</h2>  bool SMT_CreateTopic(const char* topicName, const uint32_t maxDataSize, const uint32_t historyDepth, const uint32_t cellsCount);
+ Create and initialize a particular shared memory topic by name.
+<h2>Parameters:</h2> const char* topicName, const uint32_t maxDataSize, const uint32_t historyDepth, const uint32_t cellsCount
+<h2>Returns:</h2> true for initialization success, false otherwise
+-----------------------------------
+ <h2>Function Name:</h2> publish
+<h2>Function Signature:</h2> bool publish(const char* topicName, void* ptr, uint32_t size);
+Create and initialize a particular shared memory topic by name.
+<h2>Returns:</h2> true for initialization success, false otherwise
+-----------------------------------
+<h2>Function Name:</h2> getByCounter
+<h2>Function Signature:</h2> bool getByCounter(void* ptr, uint32_t counter, uint64_t timeout_us);
+Get a shared memory publication by counter. returns false if times.
+<h2>Parameters:</h2> void* ptr, uint32_t counter, uint64_t timeout_us, , SMT_DataInfo data_info (optional)
+<h2>IMPORTANT:</h2> counter starts at 1
+<h2>Returns:</h2> true for publication existed and copied, false if timed out or topic not exist in history.
+<h2>Data info:</h2> Return info about the topic which got, in the data info struct
+<h2>WARNING:</h2> ptr must be allocated enough space to copy data, otherwise risk access violation
+-----------------------------------
+<h2>Function Name:</h2> getLatest
+<h2>Function Signature:</h2>  bool getLatest(const char* topicName, void* ptr);
+Return the latest valid data item in the history
+<h2>Parameters:</h2> void* ptr, , SMT_DataInfo data_info (optional)
+<h2>Returns:</h2> true for publication existed and copied, false if topic not exist.
+<h2>Data info:</h2> Return info about the topic which got, in the data info struct
+<h2>WARNING:</h2> ptr must be allocated enough space to copy data, otherwise risk access violation
+-----------------------------------
+<h2>Function Name:</h2> getOldest
+<h2>Function Signature:</h2>  bool getOldest(void* ptr);
+Return the oldest valid data item in the history
+<h2>Parameters:</h2> void* ptr, SMT_DataInfo data_info (optional)
+<h2>Returns:</h2> true for publication existed and copied, false if topic not exist.
+<h2>Data info:</h2> Return info about the topic which got, in the data info struct
+<h2>WARNING:</h2> ptr must be allocated enough space to copy data, otherwise risk access violation
+-----------------------------------
+<h2>Function Name:</h2> SMT_GetPublishCount
+<h2>Function Signature:</h2> int SMT_GetPublishCount(const char* topicName);
+Get the publish count of a particular topic.
+<h2>Parameters:</h2> const char* topicName
+<h2>Returns:</h2> amount of times topic has been published successfully. 0 if topic does not exist
+-----------------------------------
+<h2>Function Name:</h2> SMT_ClearHistory
+<h2>Function Signature:</h2>  bool SMT_ClearHistory(const char* topicName);
+Clear the history a particular topic. All 'get' functions will fail until new publish
+<h2>Parameters:</h2> const char* topicName
+<h2>Returns:</h2> true if topic exists, false otherwise
+-----------------------------------
+		</pre></code>
+		</div>
+		<div id="Shared Memory Wrapper Remote" class="tabcontent">
+		  <h1>Shared Memory</h1>
+		  <p>In order to execute and operate shared memory functions on a remote machine, I created shared memory client and server
+		  which communicate with the Transportation Protocols module mentioned before.</p>
+		  <h2>Files related</h2>
+		  <p>Files which you need in order to use remote control of shared memory server are:<br>
+		  1. transportation_protocols module<br>
+		  2. configuration file which contain suitable configuration for the transportation protocol<br>
+		  3. pypsexec module installed<br>
+		  4. json_python module<br>
+		  5. numpy module installed<br>
+		  6. parse_config.py file<br>
+		  7. pypsexec_client module<br>
+		  All the files mentioned should already be in your directory if you download the shared memory wrapper installer.<br>
+		  Also, you should put and run the shared memory server installer on the remote machine you want to connect.<br></p>
+		  <h2>Usage</h2>
+		  <p>First, if you have configuration file (which is very recommended), you run</p>
+<pre><code>parse_config.init_configuration([list_of_config_files])
+shared_memory_object = parse_config.execute_preparations() #functon run all the necessary to the program
+initialize_shared_memory(shared_memory_object) # initialize memory and create the topics from the config file
+shared_memory_object.topic_name().publish(struct)
+shared_memory_object.topic_name().getLatest(struct)
+</pre></code>
+		<p>If you have not configuration file, you should run the following commands</p>
+<pre><code>py remote_agent.py remote_username remote_password remote_ip mode connection_type timeout_seconds buffer_size_bytes
+ responder_port(optional) responder_ip(optional) local_port(optional)
+# After that, in another script:
+from pypsexec_client.shared_memory_factory import get_shared_memory
+get_shared_memory(control_method, mode, connection_type, timeout_seconds, buffer_size_bytes, 
+responder_port(optional), responder_ip(optional), local_port(optional))
+</pre></code>
+		<h2>Attention</h2>
+		<p>
+		Before starting, move and run the installer in C:\servers directory.<br>
+		You should check before the first running that the name python (when type in command prompt), is related to python3.8<br>
+		If you pass couple of configuration files, and some of them overriding each other, only the latest will count.<br>
+		The syntax in order to publish topic or get object on the local machine
+		or on the remote machine is exactly the same.<br>
+		The server can maybe take few seconds to load and bind the socket,
+		so after running one of the following commands:</p>
+<pre><code>parse_config.execute_preparations() 
+py remote_agent.py arguments...
+</code></pre>
+		<p>
+		You should wait AKA - sleep(5) couple of seconds.
+		</p>
+		</div>
+		<div id="Json Parser" class="tabcontent">
+		  <h1>Json Parser</h1>
+		  <p>The Json Parser module is a module that provide easy and simple interface in order to read/write from json files.<br>
+		  The module is used with the Shared Memory Wrapper project, but can also be very useful by itself.
+		  In order to use the module, make sure it is exist in the working directory, and then just type:<br>
+		  from json_python.json_helper import JsonHelper
+		  </p>
+		  <h1>Functions</h1>
+		<pre><code>def write_into_file(json_file_path, json_content)</code></pre>
+		<p>function get json_file_path and dictionary. it writes the dictionary into the json file.</p>
+		<pre><code>def read_file(json_file_path)</code></pre>
+		<p>function get json file path and return its content as dictionary.</p>
+		<pre><code>def get_string(key, json_file_path)</code></pre>
+		<p>function get json file path and key, and return the value of the key as string. if key doesn't exists, function will throw error.</p>
+		<pre><code>def get_value(key, json_file_path)</code></pre>
+		<p>function get json file path and key, and return the value of the key. if key doesn't exists, function will throw error.</p>
+		<pre><code>def write_value(key, value, json_file_path)</code></pre>
+		<p>function get json file path, key and value, and write it into the file.</p>
+		<pre><code>def write_string(key, value, json_file_path)</code></pre>
+		<p>function get json file path, key and value, and write it into the file as string.
+		if the value cannot be converted to str, function will throw error.</p>
+		<pre><code>def delete_key(key, json_file_path)</code></pre>
+		<p>function get key and json file path, and delete the key. if the key doesn't exist function will throw error.</p>
+		<pre><code>def delete_key_if_exist(key, json_file_path)</code></pre>
+		<p>function get key and file path, and delete the key only if exist.</p>
+		<pre><code>def get_value_if_exist(key, json_file_path)</code></pre>
+		<p>function get key and json file path, and return the value of the key only if it exists.</p>
+		</div>
+		<div id="Transportation Protocols" class="tabcontent">
+		  <h1>Transportation Protocols</h1>
+		  <p>The purpose of the Transportation Protocols module, is to provide comprehensive interface of the common
+		  communication protocols.
+		  <h2>Interface</h2>
+		  The transportation protocols module, contain base interface (abstract class) called CommDeviceInterface.
+		  You can think about all the transportation protocols, as a wrapper class for specific connection (udp or tcp).
+		  Each transportation protocol, and also future ones, need to implement the functions defined in the base class.
+		  The function are:
+		  <pre><code>1.	Send(self, message)</code></pre>
+		  <p>function which receive message and send it over the connection of the class.</p>
+		  <pre><code>2. Receive(self, timeout_seconds, buffer_size_bytes)</code></pre>
+		  <p>function which receive message from the connection of the class.
+		  The timeout and buffer_size parameters are optional, they can be provide also at the configuration file.
+		  The init function of the base class, just initialize the buffer size and the timeout for the receive function.</p>
+		  <h2>TCP Device</h2>
+		  <p>This class is base class of all TCP connection classes. 
+		  The TCP classes just inherited from this class and override the function in it.
+		  The functions in the class are:</p>
+		  <pre><code>1. Init(self, tcp_connection, timeout, buffer_size_bytes)</code></pre>
+		  <p>function which initialize the TCP connection of the class and also initialize the 
+		  timeout and the buffer size of the parent class.</p>
+		  <pre><code>2. Getconnection(self)</code></pre>
+		  <p>function which return the current TCP connection.</p>
+		  <pre><code>3.	Set_connection(self, tcp_connection)</code></pre>
+		  <p> function which set the TCP connection of the class.</p>
+		  <pre><code>4. Send(self, message, tcp_connection)</code></pre>
+		  <p> function which sends message to the tcp connection. If the tcp connection parameter is None, 
+		  it will send to the tcp connection of the class.</p>
+		  <pre><code>5. Receive(self, buffer_size_bytes, timeout_seconds, tcp_connection)</code></pre>
+		  <p> function will receive from the following connection tcp packet. If the tcp connection is None,
+		  it will receive from the tcp connection of the class.</p>
+		  <h2>TCP Client</h2>
+		  <p>This class inherited from TCPDevice class, and have all its function plus the connect function:</p>
+		  <pre><code>connect(self) function connect to the tcp connection of the class.</code></pre>
+		  <h2>TCP Server</h2>
+		  <p>This class inherited from TCPDevice class, and have all its function plus the accept function:</p>
+		  <pre><code>accept(self) function accept a client, 
+		  set the connection of the class to be the new connection created, and return the new connection.</code></pre>
+		  <h2>UDP Device</h2>
+		  <p>This class is base class of all UDP connection classes. The UDP classes just inherited from this class and override the function in it.
+		   The functions in the class are:</p>
+		   <pre><code>1. Init(self, udp_connection, timeout, buffer_size_bytes) </code></pre>
+		   <p>function which initialize the UDP connection of the class and also 
+		   initialize the timeout and the buffer size of the parent class</p>
+		   <pre><code>2. Send(self, message)</code></pre>
+		   <p>function which sends message to a udp connection. </p>
+		   <pre><code>3. Receive(self, buffer_size_bytes, timeout_seconds) </code></pre>
+		   <p>function will receive packet from a udp connection</p>
+		  <h2>UDP Responder</h2>
+		  <p>This class inherited from UDPDevice class, all its purpose is to receive messages, 
+		  so it overrides all UDPDevice function's except of send.</p>
+		  <pre><code>1.	Init(self, udp_connection, timeout, buffer_size_bytes) </code></pre>
+		  <p>function call the init of the UDPDevice with the buffer size and the timeout, and also initialize the udp connection of the class.</p>
+		  <pre><code>2.	receive(self, timeout_seconds, buffer_size_bytes)</code></pre>
+		  <p>function receive message from the current UDP connection with the timeout and the buffer size.</p>
+		  <h2>UDP Initiator</h2>
+		  <p>This class inherited from UDPDevice class, and its purpose is to make specific udp connection, 
+		  from one ip address and port to another ip address and port. So its override all the functions of 
+		  the UDPDevice base class:</p>
+		  <pre><code>1. init(self, udp_connection, timeout, buffer_size_bytes) </code></pre>
+		  <p>function call the init of the UDPDevice with the buffer size and the timeout, 
+		  and also initialize the udp connection of the class</p>
+		  <pre><code>2.	receive (self, timeout_seconds, buffer_size_bytes)</code></pre>
+		  <p>function receive message from the current UDP connection with the timeout and the buffer size.</p>
+		  <pre><code>3.	send(self, message)</code></pre>
+		  <p>function send message to the destination ip and port of the class</p>
+		  <h2>UDP Strict</h2>
+		  <p>This class inherited from UDPDevice class, and its purpose is to make specific udp connection, 
+		  from one ip address and port to another ip address and port. So its override all the functions of the UDPDevice base class:</p>
+		  <pre><code>1.	init(self, udp_connection, timeout, buffer_size_bytes) </code></pre>
+		  <p>function call the init of the UDPDevice with the buffer size and the timeout, 
+		  and also initialize the udp connection of the class.</p>
+		  <pre><code>2.	receive (self, timeout_seconds, buffer_size_bytes) </code></pre>
+		  <p>function receive message from the current UDP connection with the timeout and the buffer size.</p>
+		  <pre><code>3.	send(self, message)</code></pre>
+		  <p>function send message to the destination ip and port of the class.</p>
+		  <h2>Connection Factory</h2>
+		  <p>this class, is a factory of all the connection mentioned before. Its main function, called get_connection(parameters)
+		  is a static function, which produce the proper connection based on the parameters.</p>
+		  <pre><code>def get_connection(mode: "str", connection_type: "str", timeout_seconds: "int", buffer_size_bytes: "int", 
+		  responder_port=None, responder_ip=None, local_port=None)</code></pre>
+		  <p>The shared memory factory contain two main functions.</p>
+		  <pre><code>1. def get_shared_memory(control_method=None, mode=None, connection_type=None, timeout_seconds=None, 
+		  buffer_size_bytes=None, responder_port=None, responder_ip=None, local_port=None)</code></pre>
+		  <p>function that get the shared memory object based on the parameters. If the control method is local,
+		  it will return the SharedMemoryWrapper module. otherwise, it will check the other parameters, produce appropriate connection,
+		  and return SharedMemoryClient object with the connection.</p>
+		  <pre><code>2. def initialize_shared_memory(shared_memory_object)</pre></code>
+		  <p>function initialize the shared memory object (SMT_Init), and then create each topic from the
+		  configuration file with the suitable properties.</p>
+		  <h2>Configuration File</h2>
+		  <p>There is a lot of usage of configuration file in the project and specifically in the transportation_protocols module.
+		  In this section I will explain about each field in the configuration file, and also about the necessity of each
+		  one of them in each connection type.<br>
+		  1. control = the control method of the current program to be execute. 
+		  can be local (run SharedMemoryWrapper on the local machine) or remote (run SharedMemoryWrapper on a remote machine)<br>
+		  2. connection_type = the type of connection we want to produce. currently the program support UDP or TCP<br>
+		  3. mode = the mode of the connection we want to create.
+		  Can be responder, initiator or strict in UDP, and server or client in TCP.
+		  If there is no mode in the configuration file, generic device (udp/tcp) will be produce.<br>
+		  4. timeout_seconds = the timeout in seconds until the receive function will stop waiting for message (must be valid integer value)<br>
+		  5. buffer_size_bytes = the buffer size in bytes which the receive function will get. (must be valid integer value)<br>
+		  6. responder_port = the remote machine listen port. (must be valid integer value)<br>
+		  7. initiator_port = the local machine listen port (must be valid integer value)<br>
+		  8. initiator_ip = the ip of the local machine<br>
+		  9. responder_ip = the ip of the remote machine<br>
+		  10. remote_username = the username of the remote machine<br>
+		  11. remote_password = the password of the remote machine (as string even if the password is integer)<br>
+		  12. topics = list of topic which will be created in the next run<br>
+		  Keep in mind that all that configuration are not necessary in every run. Also, the configuration can be split
+		  around many files, as long as all of them passed as an argument to the program.</p>
+		  <h2>Transportation Protocols & Configuration File</h2>
+		  <p>If you want to run the program on the local machine, the only configuration that is matter for you is the 
+		  control that will be set to 'local', and topics list. example of local configuration file can be found in the
+		  installation directory.<br>
+		  In order to create remote connection and run program on the remote machine, the you must have the control field that 
+		  will be set to remote, also the topics list if you want to create them automatically on the remote machine, 
+		  and the responder port is also must (the remote machine port). Also, examples of udp and tcp config files can be found at the installation directory</p>
+		  <h3>TCP client</h3>
+		  <p>related configuration: responder_port = the port of the server, responder_ip = the ip of the server</p>
+		  <h3>TCP server</h3>
+		  <p>related configuration: responder_port = the port of the server</p>
+		  <h3>UDP responder</h3>
+		  <p>related configuration: responder_port = the port of the responder</p>
+		  <h3>UDP initiator</h3>
+		  <p>related configuration: responder_port = the port of the responder, responder_ip = the ip of the responder</p>
+		  <h3>UDP strict</h3>
+		  <p>related configuration: local_port = the port of the current side, responder_port = the port of the other side, 
+		  responder_ip = the ip of the other side, Local_ip = the ip of the local side</p>
+		</div>
+		<div id="Parallel Sequential" class="tabcontent">
+		  <h1>Parallel Sequential</h1>
+		  <p>This module is created in order to make it easier and simpler to run couple of functions in parallel or in sequential
+		  If you wish to run functions in parallel, call the function: start_parallel when the parameters  are all the function objects you want to execute.<br>
+		  each function object contain the function's pointer, function's arguments as tuple. the function get also as argument the timeout (time object) until the functions will be force quit by the program.
+		  If you wish to run functions in sequential, call the function named start_sequential with the same arguments as the start_parallel function.</p>
+		  <h2>Usage example:</h2>
+		  <pre><code>import time
+import sequential_parallel
+from function_object import FunctionObject
+def concat_str(str1, str2):
+  print(str1 + str2)
+def print_seperat(str1, str2):
+  print(str1)
+  print(str2)
+func = FunctionObject(concat_str, ("arg1","arg2"))
+func1 = FunctionObject(print_seperat, ("arg1","arg2"))
+sequential_parallel.start_sequential(func, func1, time(seconds=10))
+sequential_parallel.start_parallel(func, func1, time(seconds=5))
+</code></pre>
+	<p>You can see more examples in the installation directory in the test_parallel_sequential.py file</p>
+		</div>
+	</body>
+	<script>
+		document.getElementById("default_tab").click();
+	</script>
+</html>
